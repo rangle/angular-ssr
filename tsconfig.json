@@ -1,0 +1,12 @@
+{
+  "target": "es2015",
+  "module": "commonjs",
+  "sourceRoot": "source",
+  "sourceMap": false,
+  "inlineSourceMap": true,
+  "declarations": true,
+  "outDir": "build",
+  "exclude": [
+    "node_modules"
+  ]
+}

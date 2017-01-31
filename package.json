@@ -1,0 +1,30 @@
+{
+  "name": "angular-ssr",
+  "version": "0.0.0",
+  "description": "Angular server-side rendering implementation",
+  "main": "dist/index.js",
+  "scripts": {
+    "postinstall": "npm run build && npm test",
+    "build": "tsc --outDir build",
+    "test": "karma start --singleRun=true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clbond/angular-ssr.git"
+  },
+  "author": "rangle.io",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/clbond/angular-ssr/issues"
+  },
+  "dependencies": {
+    "typescript": "^2.1.5"
+  },
+  "devDependencies": {
+    "jasmine-core": "^2.5.2",
+    "karma": "^1.4.1",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-typescript": "^2.1.7"
+  }
+}
