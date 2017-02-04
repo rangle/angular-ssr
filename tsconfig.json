@@ -1,12 +1,14 @@
 {
-  "target": "es2015",
-  "module": "commonjs",
-  "sourceRoot": "source",
-  "sourceMap": false,
-  "inlineSourceMap": true,
-  "declarations": true,
-  "outDir": "build",
-  "exclude": [
-    "node_modules"
-  ]
+  "compilerOptions": {
+    "target": "es2015",
+    "lib": ["es2016", "dom"],
+    "module": "commonjs",
+    "sourceRoot": "source",
+    "sourceMap": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "inlineSourceMap": true,
+    "declaration": true,
+    "outDir": "build"
+  }
 }

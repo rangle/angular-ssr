@@ -5,14 +5,14 @@ node_modules
 **/*.orig
 **/*.rej
 
-source/**/*.ngfactory.ts
-source/**/*.ngfactory.js
-source/**/*.ngsummary.json
-source/**/*.ngstyle.ts
-source/**/*.shim.ts
-source/**/*.shim.jsq
-source/**/*.metadata.json
-source/**/*.js
-source/**/*.js.map
+modules/**/*.ngfactory.ts
+modules/**/*.ngfactory.js
+modules/**/*.ngsummary.json
+modules/**/*.ngstyle.ts
+modules/**/*.shim.ts
+modules/**/*.shim.jsq
+modules/**/*.metadata.json
+modules/**/*.js
+modules/**/*.js.map
 
 npm-debug.*

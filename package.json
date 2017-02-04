@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "postinstall": "npm run build && npm test",
-    "build": "tsc --outDir build",
+    "build": "tsc",
     "test": "karma start --singleRun=true"
   },
   "repository": {
@@ -17,10 +17,24 @@
   "bugs": {
     "url": "https://github.com/clbond/angular-ssr/issues"
   },
+  "optionalPeerDependencies": {
+    "@angular/compiler": "^2.4.6",
+    "@angular/core": "^2.4.6",
+    "@ngrx/store": "^2.2.1"
+  },
   "dependencies": {
+    "@types/codependency": "^0.1.1",
+    "babel-core": "^6.22.1",
+    "babel-polyfill": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0",
+    "codependency": "^0.1.4",
+    "rxjs": "^5.1.0",
     "typescript": "^2.1.5"
   },
   "devDependencies": {
+    "@angular/compiler": "^2.4.6",
+    "@angular/core": "^2.4.6",
+    "@ngrx/store": "^2.2.1",
     "jasmine-core": "^2.5.2",
     "karma": "^1.4.1",
     "karma-chrome-launcher": "^2.0.0",
