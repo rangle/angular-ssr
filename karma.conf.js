@@ -1,20 +1,27 @@
 module.exports = function (config) {
+  const coverage = config.singleRun ? ['coverage'] : [];
+
   config.set({
     frameworks: [
       'jasmine',
+      'source-map-support',
       'karma-typescript',
     ],
 
     files: [
-      {pattern: 'src/**/*.ts'},
+      {pattern: 'source/**/*.ts'},
     ],
 
     preprocessors: {
-      '**/*.ts': ['karma-typescript'],
+      '**/*.ts': ['karma-typescript', ...coverage],
     },
 
     reporters: ['progress', 'karma-typescript'],
 
-    browsers: ['Chrome']
+    browsers: ['Chrome'],
+
+    karmaTypescriptConfig: {
+      tsconfig: './tsconfig.json',
+    },
   });
 };
