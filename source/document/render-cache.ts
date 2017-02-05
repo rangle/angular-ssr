@@ -1,7 +1,7 @@
 import {RenderedDocument} from '../document';
 
-export class RenderCache<V> {
-  query(options: V): RenderedDocument<V> {
+export class RenderCache<Variants> {
+  query(options: Variants): RenderedDocument<Variants> {
     throw new Error('Not implemented');
   }
 }

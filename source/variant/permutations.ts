@@ -1,28 +1,24 @@
-import {NgModuleRef} from '@angular/core';
+import {
+  NgModuleRef,
+  Type
+} from '@angular/core';
 
 import {Variant} from './variant';
+import {StateTransition} from './transition';
 
-export type Transformer<M> = (moduleRef: NgModuleRef<M>) => Promise<void>;
+export type Transformer = <M>(moduleRef: NgModuleRef<M>) => Promise<void>;
 
-export type VariantMap = {[name: string]: Variant<any>};
-
-export interface Pair<V, M> {
+export interface VariantWithTransformer<V> {
   variant: V;
-  execute: Transformer<M>;
+  transform: Transformer;
 }
 
-export class Permutations<V, M> {
-  private pairs: Array<Pair<V, M>>;
+export const permutations =
+    <V>(...variants: Array<Variant<any>>): Array<VariantWithTransformer<V>> => {
+  throw new Error('Not implemented');
+}
 
-  constructor(variants: VariantMap) {
-    this.pairs = this.compute(variants);
-  }
-
-  public get variants(): Array<Pair<V, M>> {
-    return this.pairs;
-  }
-
-  private compute(variants: VariantMap): Array<Pair<V, M>> {
-    throw new Error('Not implemented');
-  }
+const combineTransitions =
+    (pairs: Array<[Type<StateTransition<any>>, any]>): Transformer => {
+  throw new Error('Not implemented');
 }
