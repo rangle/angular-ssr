@@ -1,10 +1,5 @@
-export interface RenderDocument<V> {
-  // Complete rendered document
-  document?: string;
-
-  // The variant options that this document was rendered with
+export interface RenderedDocument<V> {
   variant: V;
-
-  // Any exception which occurred while attempting to render this document
+  document?: string;
   exception?: Error;
 }

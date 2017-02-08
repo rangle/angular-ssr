@@ -1,6 +1,5 @@
-export * from './bootstrap';
 export * from './module';
 export * from './render';
+export * from './route';
 export * from './snapshot';
-export * from './tokens';
 export * from './types';

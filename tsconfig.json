@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+    "target": "es5",
     "lib": ["es2016", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
@@ -14,6 +14,7 @@
   },
   "exclude": [
     "build",
-    "node_modules"
+    "node_modules",
+    "tests"
   ]
 }

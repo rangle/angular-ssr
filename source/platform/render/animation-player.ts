@@ -25,6 +25,7 @@ export class AnimationPlayerImpl implements AnimationPlayer {
   onDone = (fn: AnimationHandler) => this.finishedHandlers.push(fn);
 
   setPosition = (p: number) => {}
+
   getPosition = (): number => 0;
 
   hasStarted = (): boolean => this.started;

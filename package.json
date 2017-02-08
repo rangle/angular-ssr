@@ -2,7 +2,8 @@
   "name": "angular-ssr",
   "version": "0.0.0",
   "description": "Angular server-side rendering implementation",
-  "main": "dist/index.js",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
   "scripts": {
     "postinstall": "npm run build && npm test",
     "prebuild": "rimraf build",
