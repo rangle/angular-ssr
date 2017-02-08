@@ -9,9 +9,17 @@ import {VariantWithTransformer} from '../../variant';
 export interface RenderOperation<M, V> {
   moduleType: Type<M>;
 
-  routes: Iterable<RenderRoute>;
+  routes: Array<RenderRoute>;
 
-  variants: Iterable<VariantWithTransformer<V>>;
+  variants: Array<VariantWithTransformer<V>>;
 
   extractState?: StateExtractor;
+}
+
+export interface RenderVariantOperation<M, V> {
+  parentOperation: RenderOperation<M, V>;
+
+  route: RenderRoute;
+
+  transformer: VariantWithTransformer<V>;
 }

@@ -5,21 +5,23 @@ import {
   Type
 } from '@angular/core';
 
-import {RenderRoute, routeToUri} from './types';
+import {RenderVariantOperation, routeToUri} from './types';
 
 import {RequestUri} from './tokens';
 
-import {VariantWithTransformer} from '../variant';
-
-export const moduleWrap = <M, V>(moduleType: Type<M>, route: RenderRoute, variant?: VariantWithTransformer<V>): Type<any> => {
-  const bootstrap = <T>(componentRef: ComponentRef<T>) => variant.transition(componentRef.injector);
+export const moduleWrap = <M, V>(operation: RenderVariantOperation<M, V>): Type<any> => {
+  const bootstrap = <T>(componentRef: ComponentRef<T>) => {
+    if (operation.transformer) {
+      operation.transformer.transition(componentRef.injector);
+    }
+  };
 
   @NgModule({
     imports: [
-      moduleType,
+      operation.parentOperation.moduleType,
     ],
     providers: [
-      {provide: RequestUri, useValue: routeToUri(route)},
+      {provide: RequestUri, useValue: routeToUri(operation.route)},
       {provide: APP_BOOTSTRAP_LISTENER, useValue: bootstrap, multi: true},
     ]
   })
