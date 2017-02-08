@@ -4,52 +4,66 @@ import {Observable} from 'rxjs';
 
 import {VariantWithTransformer} from '../variant';
 
+import {
+  RenderOperation,
+  RenderDocument,
+  RenderRoute,
+} from './types';
+
 import {acquirePlatform} from '../platform';
 
-import {RenderRoute} from './render-route';
-import {RenderDocument} from './render-document';
-import {wrapModule} from './module';
-import {serialize} from './serialize';
+import {moduleWrap} from './module';
+import {navigateRoute} from './navigate';
+import {snapshot} from './snapshot';
 
-export class DocumentRenderer {
-  render<M, V>(moduleType: Type<M>, routes: Iterable<RenderRoute>, variants: Iterable<VariantWithTransformer<V>>): Observable<RenderDocument<V>> {
-    return Observable.create(publish => {
-      const promises = new Array<Promise<void>>();
+export const render = <M, V>(operation: RenderOperation<M, V>): Observable<RenderDocument<V>> => {
+  return Observable.create(publish => {
+    const promises = new Array<Promise<void>>();
 
-      for (const route of routes) {
-        for (const variant of variants) {
-          const promise = this.renderVariant<M, V>(moduleType, route, variant)
-            .then(document => {
-              publish.next(document);
-            });
+    for (const route of operation.routes) {
+      for (const variant of operation.variants) {
+        const promise = this.renderVariant(operation, route, variant)
+          .then(document => {
+            publish.next(document);
+          });
 
-          promises.push(promise);
-        }
+        promises.push(promise);
       }
+    }
 
-      Promise.all(promises)
-        .then(() => {
-          publish.complete();
-        })
-        .catch(exception => {
-          publish.error(new Error(`Catastrophic rendering exception: ${exception.stack}`));
-        })
-    });
+    Promise.all(promises)
+      .then(() => {
+        publish.complete();
+      })
+      .catch(exception => {
+        publish.error(new Error(`Catastrophic rendering exception: ${exception.stack}`));
+      })
+  });
+};
+
+const renderVariant = async <M, V>(operation: RenderOperation<M, V>, route: RenderRoute, vt: VariantWithTransformer<V>): Promise<RenderDocument<V>> => {
+  const {variant} = vt;
+
+  const platform = acquirePlatform();
+  try {
+    const moduleWrapper = moduleWrap(operation.moduleType, route, vt);
+
+    const moduleRef = await platform.bootstrapModule(moduleWrapper);
+    try {
+      await navigateRoute(moduleRef, route);
+
+      const document = await snapshot<M>(moduleRef);
+
+      return {variant, document};
+    }
+    finally {
+      moduleRef.destroy();
+    }
   }
-
-  private async renderVariant<M, V>(moduleType: Type<M>, route: RenderRoute, variant: VariantWithTransformer<V>): Promise<RenderDocument<V>> {
-    const platform = acquirePlatform();
-
-    const moduleWrapper = wrapModule(moduleType, route, variant);
-
-    return <Promise<any>> platform.bootstrapModule(moduleWrapper)
-      .then(moduleRef => {
-        try {
-          return serialize<M, V>(moduleRef);
-        }
-        finally {
-          moduleRef.destroy();
-        }
-      });
+  catch (exception) {
+    return {variant, exception};
   }
-}
+  finally {
+    platform.destroy();
+  }
+};

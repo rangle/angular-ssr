@@ -3,9 +3,10 @@ import {RenderException} from './exception';
 export interface RenderRoute {
   path: Array<string>;
   parameters: Map<string, string>;
+  redirects?: boolean;
 }
 
-export const renderRouteToUri = (route: RenderRoute): string => {
+export const routeToUri = (route: RenderRoute): string => {
   const split = route.path.reduce((p, c) => p.concat(c.split('/')), []);
 
   const mapped = split.map(component => {
