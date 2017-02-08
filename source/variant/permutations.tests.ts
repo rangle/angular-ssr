@@ -1,9 +1,6 @@
-import {
-  VariantWithTransformer,
-  permutations,
-} from './permutations';
-
+import {permutations} from './permutations';
 import {StateTransition} from './transition';
+import {VariantWithTransformer} from './variant';
 
 describe('variant permutations', () => {
   it('should return all permutations of variant options', () => {
@@ -36,11 +33,11 @@ describe('variant permutations', () => {
 
     const combinations = permutations<AppVariants>({
       production: {
-        useFunction: (moduleRef, prod: boolean) => {moduleRef.prod = prod},
+        useFunction: (injector: any, prod: boolean) => {injector.prod = prod},
         values: [true, false]
       },
       anonymous: {
-        useFunction: (moduleRef, anon: boolean) => {moduleRef.anon = anon},
+        useFunction: (injector: any, anon: boolean) => {injector.anon = anon},
         values: [true, false]
       }
     });

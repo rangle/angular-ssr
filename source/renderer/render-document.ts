@@ -1,9 +1,6 @@
-export interface RenderedDocument<V> {
+export interface RenderDocument<V> {
   // Complete rendered document
   document?: string;
-
-  // Fallback client-side document template (if exception is non-null)
-  fallback?: string;
 
   // The variant options that this document was rendered with
   variant: V;

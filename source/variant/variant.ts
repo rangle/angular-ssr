@@ -1,9 +1,16 @@
-import {Type} from '@angular/core';
+import {Injector, Type} from '@angular/core';
 
 import {
   StateTransitionContract,
   StateTransition,
 } from './transition';
+
+export type Transition = (injector: Injector) => Promise<void>;
+
+export interface VariantWithTransformer<V> {
+  variant: V;
+  transition: Transition;
+}
 
 export interface Variant<T> {
   // A set describing all the possible values of this variant. For example if this is

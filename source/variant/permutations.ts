@@ -1,22 +1,18 @@
 import {
   NgModuleRef,
+  Injector,
   ReflectiveInjector,
   Type
 } from '@angular/core';
 
 import {
   Variant,
-  VariantSpec
+  VariantWithTransformer,
+  VariantSpec,
+  Transition
 } from './variant';
 
 import {StateTransition} from './transition';
-
-export type ModuleTransition = <M>(moduleRef: NgModuleRef<M>) => Promise<void>;
-
-export interface VariantWithTransformer<V> {
-  variant: V;
-  transition: ModuleTransition;
-}
 
 export const permutations =
     <V>(variants: VariantSpec): Array<VariantWithTransformer<V>> => {
@@ -36,9 +32,9 @@ export const permutations =
   });
 };
 
-const combineTransitions = <V>(variants: VariantSpec, values: V): ModuleTransition => {
-  const moduleTransition: ModuleTransition =
-    <M>(moduleRef: NgModuleRef<M>) => {
+const combineTransitions = <V>(variants: VariantSpec, values: V): Transition => {
+  const transition: Transition =
+    injector => {
       const promises = new Array<Promise<void>>();
 
       const flattened = Object.keys(variants).map(k => [k, variants[k], values[k]]);
@@ -47,7 +43,7 @@ const combineTransitions = <V>(variants: VariantSpec, values: V): ModuleTransiti
         try {
           const transitioner = transitionFactory(variant);
 
-          const transitionResult = transitioner(moduleRef, value);
+          const transitionResult = transitioner(injector, value);
 
           promises.push(Promise.resolve(transitionResult));
         }
@@ -59,7 +55,7 @@ const combineTransitions = <V>(variants: VariantSpec, values: V): ModuleTransiti
       return <Promise<any>> Promise.all<void>(promises);
     };
 
-  return moduleTransition;
+  return transition;
 };
 
 const recursivePermutations =
@@ -97,10 +93,10 @@ const transitionFactory = <T>(variant: Variant<T>): StateTransition<T> => {
 };
 
 const instantiateTransitionClass = <T>(type: Type<any>): StateTransition<T> => {
-  return <M>(moduleRef: NgModuleRef<M>, value: T) => {
-    const injector = ReflectiveInjector.resolveAndCreate([type]);
+  return (injector: Injector, value: T) => {
+    const childInjector = ReflectiveInjector.resolveAndCreate([type]);
 
-    const transitioner = injector.get(type);
+    const transitioner = childInjector.get(type);
 
     return transitioner.execute(value);
   };

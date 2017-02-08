@@ -8,7 +8,7 @@ import {
   Type
 } from '@angular/core';
 
-export class Platform implements PlatformRef {
+export class PlatformImpl implements PlatformRef {
   public injector: Injector;
 
   public destroyed: boolean = false;

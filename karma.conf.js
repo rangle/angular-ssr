@@ -16,11 +16,14 @@ module.exports = function (config) {
       '**/*.ts': ['karma-typescript', ...coverage],
     },
 
-    reporters: ['progress', 'karma-typescript'],
+    reporters: ['spec', 'progress', 'karma-typescript'],
 
     browsers: ['Chrome'],
 
     karmaTypescriptConfig: {
+      bundlerOptions: {
+        validateSyntax: false,
+      },
       tsconfig: './tsconfig.json',
     },
   });

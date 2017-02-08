@@ -3,6 +3,7 @@
     "target": "es2015",
     "lib": ["es2016", "dom"],
     "module": "commonjs",
+    "moduleResolution": "node",
     "sourceRoot": "source",
     "sourceMap": false,
     "experimentalDecorators": true,
