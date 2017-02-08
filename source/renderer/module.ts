@@ -11,8 +11,8 @@ import {RequestUri} from './tokens';
 
 export const moduleWrap = <M, V>(operation: RenderVariantOperation<M, V>): Type<any> => {
   const bootstrap = <T>(componentRef: ComponentRef<T>) => {
-    if (operation.transformer) {
-      operation.transformer.transition(componentRef.injector);
+    if (operation.transform) {
+      operation.transform.transition(componentRef.injector);
     }
   };
 

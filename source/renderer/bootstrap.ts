@@ -7,11 +7,12 @@ import {
 import {VariantWithTransformer} from '../variant';
 
 import {acquirePlatform} from '../platform';
+
 import {moduleWrap} from './module';
 import {navigateRoute} from './navigate';
 import {snapshot} from './snapshot';
 
-export const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<RenderDocument<V>> => {
+export const bootstrap = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<RenderDocument<V>> => {
   const {parentOperation} = operation;
 
   const platform = acquirePlatform();
@@ -24,14 +25,11 @@ export const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V
 
       const document = await snapshot<M, V>(moduleRef, operation);
 
-      return {variant: operation.transformer.variant, document};
+      return {variant: operation.transform.variant, document};
     }
     finally {
       moduleRef.destroy();
     }
-  }
-  catch (exception) {
-    return {variant: operation.transformer.variant, exception};
   }
   finally {
     platform.destroy();

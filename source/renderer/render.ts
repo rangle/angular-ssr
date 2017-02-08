@@ -4,24 +4,27 @@ import {Observable} from 'rxjs';
 
 import {
   RenderOperation,
+  RenderVariantOperation,
   RenderDocument,
 } from './types';
 
-import {renderVariant} from './render-variant';
+import {bootstrap} from './bootstrap';
 
 export const render = <M, V>(operation: RenderOperation<M, V>): Observable<RenderDocument<V>> => {
   return Observable.create(publish => {
     const promises = new Array<Promise<void>>();
 
-    const combined = operation.routes.map(r => operation.variants.map(v => [r, v]));
+    for (const route of operation.routes) {
+      for (const transform of operation.variants) {
+        const childOperation: RenderVariantOperation<M, V> = {parentOperation: operation, route, transform};
 
-    for (const [route, variant] of combined) {
-      const promise = this.renderVariant(operation, route, variant)
-        .then(document => {
-          publish.next(document);
-        });
+        const promise = bootstrap(childOperation)
+          .then(document => {
+            publish.next(document);
+          });
 
-      promises.push(promise);
+        promises.push(promise);
+      }
     }
 
     Promise.all(promises)

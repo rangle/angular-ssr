@@ -1,6 +1,6 @@
-import {permutations} from './permutations';
-import {StateTransition} from './transition';
-import {VariantWithTransformer} from './variant';
+import {permutations} from '../permutations';
+import {StateTransition} from '../transition';
+import {VariantWithTransformer} from '../variant';
 
 describe('variant permutations', () => {
   it('should return all permutations of variant options', () => {

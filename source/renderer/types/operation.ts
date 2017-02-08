@@ -21,5 +21,5 @@ export interface RenderVariantOperation<M, V> {
 
   route: RenderRoute;
 
-  transformer: VariantWithTransformer<V>;
+  transform: VariantWithTransformer<V>;
 }
