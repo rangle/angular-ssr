@@ -1,6 +1,7 @@
-import {permutations} from '../permutations';
-import {StateTransition} from '../transition';
-import {VariantWithTransformer} from '../variant';
+import {
+  permutations,
+  ComposedTransition,
+} from '../source';
 
 describe('variant permutations', () => {
   it('should return all permutations of variant options', () => {
@@ -22,10 +23,10 @@ describe('variant permutations', () => {
     });
 
     expect(combinations.length).toBe(12);
-    expect(combinations.filter(s => s.variant.production === true).length).toBe(6);
-    expect(combinations.filter(s => s.variant.language === 'en-US').length).toBe(4);
-    expect(combinations.filter(s => s.variant.language === 'en-CA').length).toBe(4);
-    expect(combinations.filter(s => s.variant.language === 'fr-FR').length).toBe(4);
+    expect(combinations.filter(s => s[0].production === true).length).toBe(6);
+    expect(combinations.filter(s => s[0].language === 'en-US').length).toBe(4);
+    expect(combinations.filter(s => s[0].language === 'en-CA').length).toBe(4);
+    expect(combinations.filter(s => s[0].language === 'fr-FR').length).toBe(4);
   });
 
   it('aggregates variant transitions into one transition function', done => {
@@ -43,13 +44,13 @@ describe('variant permutations', () => {
     });
 
     const promises =
-      combinations.map(c => {
+      combinations.map(([variant, transition]) => {
         const obj = {} as any;
 
-        c.transition(obj)
+        transition(obj)
           .then(() => {
-              expect(obj.anon).toBe(c.variant.anonymous);
-              expect(obj.prod).toBe(c.variant.production);
+              expect(obj.anon).toBe(variant.anonymous);
+              expect(obj.prod).toBe(variant.production);
           });
       });
 
