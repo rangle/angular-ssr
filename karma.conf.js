@@ -4,14 +4,19 @@ const {resolve, join} = require('path');
 
 module.exports = function (config) {
   config.set({
+    baseUrl: '.',
+
     frameworks: [
       'jasmine',
       'karma-typescript',
     ],
 
     files: [
+      {pattern: '**/*.map', included: false, served: true},
       {pattern: './source/**/*.ts'},
     ],
+
+    exclude: ['**/*.d.ts'],
 
     preprocessors: {
       '**/*.ts': ['karma-typescript'],
