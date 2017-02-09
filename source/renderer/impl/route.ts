@@ -1,4 +1,4 @@
-import {RouteException, RenderRoute} from './types';
+import {RouteException, RenderRoute} from '../types';
 
 export const routeToUri = (route: RenderRoute): string => {
   const split = route.path.reduce((p, c) => p.concat(c.split('/')), []);

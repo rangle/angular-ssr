@@ -5,24 +5,32 @@ import {Observable} from 'rxjs';
 import {
   RenderOperation,
   RenderVariantOperation,
-  RenderedDocument,
   RenderRoute,
   RouteException,
-} from './types';
+} from '../types';
 
-import {acquirePlatform} from '../platform';
+import {acquirePlatform} from '../../platform';
 
-import {snapshot} from './snapshot';
+import {Snapshot, snapshot} from '../snapshot';
 
 import {browserModuleToServerModule} from './module';
 
-export const render = <M, V>(operation: RenderOperation<M, V>): Observable<RenderedDocument<V>> => {
+export const render = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
   return Observable.create(publish => {
     const operations = new Array<RenderVariantOperation<M, V>>();
 
     for (const route of operation.routes) {
-      for (const transform of operation.variants) {
-        operations.push({scope: operation, route, transform});
+      for (const transform of operation.variance) {
+        const [variance, transition] = transform;
+
+        const suboperation: RenderVariantOperation<M, V> = {
+          scope: operation,
+          route,
+          variance,
+          transition,
+        };
+
+        operations.push(suboperation);
       }
     }
 
@@ -30,10 +38,10 @@ export const render = <M, V>(operation: RenderOperation<M, V>): Observable<Rende
       suboperation =>
         run(suboperation)
           .then(document => {
-            publish.next({variant: suboperation.transform.variant, document});
+            publish.next({variant: suboperation.variance, document});
           })
           .catch(exception => {
-            publish.next({variant: suboperation.transform.variant, exception});
+            publish.next({variant: suboperation.variance, exception});
           }));
 
     Promise.all(promises).then(() => publish.complete());

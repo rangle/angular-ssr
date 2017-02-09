@@ -7,37 +7,30 @@ import {
 
 import {
   Variant,
-  VariantWithTransformer,
-  VariantSpec,
-  Transition
-} from './variant';
-
-import {StateTransition} from './transition';
+  VariantDefinitions,
+  ComposedTransition,
+  StateTransition,
+} from '../types';
 
 export const permutations =
-    <V>(variants: VariantSpec): Array<VariantWithTransformer<V>> => {
+    <V>(variance: VariantDefinitions): Array<[V, ComposedTransition]> => {
   const options: {[variant: string]: Array<any>} = {};
 
-  for (const k of Object.keys(variants)) {
-    options[k] = Array.from(variants[k].values);
+  for (const k of Object.keys(variance)) {
+    options[k] = Array.from(variance[k].values);
   }
 
   const combinations = recursivePermutations<V>(options);
 
-  return combinations.map(variant => {
-    return {
-      variant,
-      transition: combineTransitions(variants, variant),
-    };
-  });
+  return combinations.map(variant => <[V, ComposedTransition]> [variant, combineTransitions(variance, variant)]);
 };
 
-const combineTransitions = <V>(variants: VariantSpec, values: V): Transition => {
-  const transition: Transition =
+const combineTransitions = <V>(variance: VariantDefinitions, values: V): ComposedTransition => {
+  const transition: ComposedTransition =
     injector => {
       const promises = new Array<Promise<void>>();
 
-      const flattened = Object.keys(variants).map(k => [k, variants[k], values[k]]);
+      const flattened = Object.keys(variance).map(k => [k, variance[k], values[k]]);
 
       for (const [key, variant, value] of flattened) {
         try {
@@ -58,8 +51,7 @@ const combineTransitions = <V>(variants: VariantSpec, values: V): Transition => 
   return transition;
 };
 
-const recursivePermutations =
-    <V>(options: {[key: string]: Array<any>}): Array<V> => {
+const recursivePermutations = <V>(options: {[key: string]: Array<any>}): Array<V> => {
   const keys = Object.keys(options);
 
   const state = {};
@@ -105,7 +97,7 @@ const instantiateTransitionClass = <T>(type: Type<any>): StateTransition<T> => {
 const errorMessage = <V>(variant: string, exception: Error, values: V): string => [
   `Failed to instantiate and execute state transition: ${variant}`,
   null,
-  'The variants for this state transition are:',
+  'The variant options for this state transition are:',
   null,
   JSON.stringify(values, null, 2),
   null,

@@ -1,7 +1,7 @@
-import {RenderedDocument} from '../renderer';
+import {Snapshot} from '../renderer';
 
-export class RenderCache<Variants> {
-  query(options: Variants): RenderedDocument<Variants> {
+export class RenderCache<V> {
+  query(variant: V): Snapshot<V> {
     throw new Error('Not implemented');
   }
 }

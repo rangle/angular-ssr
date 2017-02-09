@@ -5,12 +5,7 @@ import {
   StateTransition,
 } from './transition';
 
-export type Transition = (injector: Injector) => Promise<void>;
-
-export interface VariantWithTransformer<V> {
-  variant: V;
-  transition: Transition;
-}
+export type ComposedTransition = (injector: Injector) => Promise<void>;
 
 export interface Variant<T> {
   // A set describing all the possible values of this variant. For example if this is
@@ -41,4 +36,4 @@ export interface Variant<T> {
   useFunction?: StateTransition<T>;
 }
 
-export type VariantSpec = {[variant: string]: Variant<any>};
+export type VariantDefinitions = {[variant: string]: Variant<any>};
