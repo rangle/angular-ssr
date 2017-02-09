@@ -1,9 +1,8 @@
 import {NgModuleRef} from '@angular/core';
 
-import {
-  RenderVariantOperation,
-  SnapshotException
-} from '../types';
+import {SnapshotException} from './exception';
+
+import {RenderVariantOperation} from '../render/operation';
 
 import {waitStable} from './stable';
 

@@ -4,17 +4,12 @@
     "lib": ["es2016", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
-    "sourceRoot": "source",
     "sourceMap": false,
+    "sourceRoot": "source",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "inlineSourceMap": true,
     "declaration": true,
     "outDir": "build"
-  },
-  "exclude": [
-    "build",
-    "node_modules",
-    "tests"
-  ]
+  }
 }

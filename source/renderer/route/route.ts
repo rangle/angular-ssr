@@ -1,4 +1,4 @@
-export interface RenderRoute {
+export interface Route {
   path: Array<string>;
   parameters: Map<string, string>;
 }

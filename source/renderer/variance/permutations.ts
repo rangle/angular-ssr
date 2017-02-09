@@ -1,5 +1,4 @@
 import {
-  NgModuleRef,
   Injector,
   ReflectiveInjector,
   Type
@@ -8,9 +7,10 @@ import {
 import {
   Variant,
   VariantDefinitions,
-  ComposedTransition,
-  StateTransition,
-} from '../types';
+  ComposedTransition
+} from './contracts';
+
+import {StateTransition} from './transition';
 
 export const permutations =
     <V>(variance: VariantDefinitions): Array<[V, ComposedTransition]> => {

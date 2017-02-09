@@ -5,11 +5,11 @@ import {
   Type
 } from '@angular/core';
 
-import {
-  BootstrapException,
-  RenderVariantOperation,
-  ComposedTransition,
-} from '../types';
+import {BootstrapException} from './exception';
+
+import {ComposedTransition} from '../variance';
+
+import {RenderVariantOperation} from '../render';
 
 export const browserModuleToServerModule = <M, V>(vop: RenderVariantOperation<M, V>): Type<any> => {
   const moduleType = adjustModule(vop.scope.moduleType);

@@ -3,17 +3,20 @@ import {Type} from '@angular/core';
 import {Observable} from 'rxjs';
 
 import {
-  RenderOperation,
-  RenderVariantOperation,
-  RenderRoute,
+  Route,
   RouteException,
-} from '../types';
+} from '../route';
 
 import {acquirePlatform} from '../../platform';
 
+import {browserModuleToServerModule} from '../module';
+
 import {Snapshot, snapshot} from '../snapshot';
 
-import {browserModuleToServerModule} from './module';
+import {
+  RenderOperation,
+  RenderVariantOperation,
+} from './operation';
 
 export const render = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
   return Observable.create(publish => {

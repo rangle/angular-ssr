@@ -9,6 +9,7 @@
     "prebuild": "rimraf build",
     "build": "tsc",
     "watch": "tsc --watch",
+    "pretest": "rimraf coverage",
     "test": "karma start --singleRun=true"
   },
   "repository": {
@@ -54,7 +55,10 @@
     "karma-chrome-launcher": "^2.0.0",
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",
+    "karma-remap-istanbul": "0.1.1",
     "karma-source-map-support": "^1.2.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-sourcemap-writer": "^0.1.2",
     "karma-spec-reporter": "0.0.26",
     "karma-typescript": "^2.1.7"
   }
