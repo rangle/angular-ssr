@@ -22,11 +22,14 @@ describe('variant permutations', () => {
       }
     });
 
-    expect(combinations.length).toBe(12);
-    expect(combinations.filter(s => s[0].production === true).length).toBe(6);
-    expect(combinations.filter(s => s[0].language === 'en-US').length).toBe(4);
-    expect(combinations.filter(s => s[0].language === 'en-CA').length).toBe(4);
-    expect(combinations.filter(s => s[0].language === 'fr-FR').length).toBe(4);
+    expect(combinations.size).toBe(12);
+
+    const keys = Array.from(combinations.keys());
+
+    expect(keys.filter(s => s.production === true).length).toBe(6);
+    expect(keys.filter(s => s.language === 'en-US').length).toBe(4);
+    expect(keys.filter(s => s.language === 'en-CA').length).toBe(4);
+    expect(keys.filter(s => s.language === 'fr-FR').length).toBe(4);
   });
 
   it('aggregates variant transitions into one transition function', done => {
@@ -43,14 +46,16 @@ describe('variant permutations', () => {
       }
     });
 
-    const promises =
-      combinations.map(([variant, transition]) => {
-        const obj = {} as any;
+    const pairs = Array.from(combinations.entries());
 
-        transition(obj)
+    const promises =
+      pairs.map(([variant, transition]) => {
+        const obj: {[index: string]: boolean} = {};
+
+        transition(<any> obj)
           .then(() => {
-              expect(obj.anon).toBe(variant.anonymous);
-              expect(obj.prod).toBe(variant.production);
+              expect(obj['anon']).toBe(variant.anonymous);
+              expect(obj['prod']).toBe(variant.production);
           });
       });
 

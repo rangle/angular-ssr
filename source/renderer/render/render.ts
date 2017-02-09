@@ -23,9 +23,7 @@ export const render = <M, V>(operation: RenderOperation<M, V>): Observable<Snaps
     const operations = new Array<RenderVariantOperation<M, V>>();
 
     for (const route of operation.routes) {
-      for (const transform of operation.variance) {
-        const [variance, transition] = transform;
-
+      for (const [variance, transition] of Array.from(operation.variance.entries())) {
         const suboperation: RenderVariantOperation<M, V> = {
           scope: operation,
           route,

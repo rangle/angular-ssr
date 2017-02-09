@@ -11,5 +11,10 @@
     "inlineSourceMap": true,
     "declaration": true,
     "outDir": "build"
-  }
+  },
+  "exclude": [
+    "build",
+    "node_modules",
+    "source/tests"
+  ]
 }

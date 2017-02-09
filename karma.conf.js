@@ -1,3 +1,7 @@
+const {readFileSync} = require('fs');
+
+const {resolve, join} = require('path');
+
 module.exports = function (config) {
   config.set({
     frameworks: [
@@ -21,11 +25,23 @@ module.exports = function (config) {
 
     browsers: ['Chrome'],
 
-    karmaTypescriptConfig: {
-      bundlerOptions: {
-        validateSyntax: false,
-      },
-      tsconfig: './tsconfig.json',
-    },
+    karmaTypescriptConfig:
+      Object.assign(tsconfig(), {
+        bundlerOptions: {
+          validateSyntax: false,
+        },
+        coverageOptions: {
+          instrumentation: config.singleRun === true,
+        },
+        exclude: [
+          'build',
+          'node_modules',
+        ]
+      }),
   });
 };
+
+function tsconfig() {
+  return JSON.parse(readFileSync(resolve(join(__dirname, 'tsconfig.json')), 'utf8'));
+}
+

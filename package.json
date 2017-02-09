@@ -10,7 +10,8 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "pretest": "rimraf coverage",
-    "test": "karma start --singleRun=true"
+    "test": "karma start --singleRun=true",
+    "test:watch": "karma start --singleRun=false"
   },
   "repository": {
     "type": "git",

@@ -15,7 +15,7 @@ export interface RenderOperation<M, V> {
   template: TemplateDocument;
   moduleType: Type<M>;
   routes: Array<Route>;
-  variance: Array<[V, ComposedTransition]>;
+  variance: Map<V, ComposedTransition>;
   stateReader?: StateReader;
 }
 

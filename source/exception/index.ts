@@ -1,1 +1,1 @@
-export * from './exception';
+export * from './base-exception';

@@ -13,7 +13,7 @@ import {
 import {StateTransition} from './transition';
 
 export const permutations =
-    <V>(variance: VariantDefinitions): Array<[V, ComposedTransition]> => {
+    <V>(variance: VariantDefinitions): Map<V, ComposedTransition> => {
   const options: {[variant: string]: Array<any>} = {};
 
   for (const k of Object.keys(variance)) {
@@ -22,7 +22,10 @@ export const permutations =
 
   const combinations = recursivePermutations<V>(options);
 
-  return combinations.map(variant => <[V, ComposedTransition]> [variant, combineTransitions(variance, variant)]);
+  const tuples = combinations.map(
+    variant => <[V, ComposedTransition]> [variant, combineTransitions(variance, variant)]);
+
+  return new Map(tuples);
 };
 
 const combineTransitions = <V>(variance: VariantDefinitions, values: V): ComposedTransition => {
@@ -53,23 +56,27 @@ const combineTransitions = <V>(variance: VariantDefinitions, values: V): Compose
 
 const recursivePermutations = <V>(options: {[key: string]: Array<any>}): Array<V> => {
   const keys = Object.keys(options);
+  if (keys.length === 0) {
+    return new Array<V>();
+  }
 
-  const state = {};
+  const state: V = <V> <any> {};
 
-  const innerRecurse = (index: number) => {
-    return options[keys[index]]
-      .reduce((p, c) => {
-        state[keys[index]] = c;
+  const transformer = (index: number) => {
+    const reducer = (p: Array<V>, c: V) => {
+      state[keys[index]] = c;
 
-        if (index + 1 < keys.length) {
-          return p.concat(...innerRecurse(index + 1));
-        }
-        return p.concat(Object.assign({}, state));
-      },
-      new Array<V>());
+      if (index + 1 < keys.length) {
+        return p.concat(...transformer(index + 1));
+      }
+
+      return p.concat(Object.assign({}, state));
+    }
+
+    return options[keys[index]].reduce(reducer, new Array<V>());
   };
 
-  return innerRecurse(0);
+  return transformer(0);
 }
 
 const transitionFactory = <T>(variant: Variant<T>): StateTransition<T> => {
@@ -86,7 +93,7 @@ const transitionFactory = <T>(variant: Variant<T>): StateTransition<T> => {
 
 const instantiateTransitionClass = <T>(type: Type<any>): StateTransition<T> => {
   return (injector: Injector, value: T) => {
-    const childInjector = ReflectiveInjector.resolveAndCreate([type]);
+    const childInjector = ReflectiveInjector.resolveAndCreate([type], injector);
 
     const transitioner = childInjector.get(type);
 
