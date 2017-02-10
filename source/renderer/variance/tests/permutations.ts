@@ -1,7 +1,7 @@
 import {
   permutations,
   ComposedTransition,
-} from '..';
+} from '../..';
 
 describe('variant permutations', () => {
   it('should return all permutations of variant options', () => {

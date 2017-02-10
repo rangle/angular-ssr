@@ -10,12 +10,10 @@ import {
 import {RendererImpl} from './renderer';
 
 @Injectable()
-export class RootRendererImpl extends RootRenderer {
+export class RootRendererImpl implements RootRenderer {
   private components = new Map<string, Renderer>();
 
-  constructor(@Inject(APP_ID) private applicationId: string) {
-    super();
-  }
+  constructor(@Inject(APP_ID) private applicationId: string) {}
 
   renderComponent(component: RenderComponentType): Renderer {
     return this.components.get(component.id) || this.renderFactory(component);

@@ -7,9 +7,10 @@ import {
   RouteException,
 } from '../route';
 
-import {acquirePlatform} from '../../platform';
-
-import {browserModuleToServerModule} from '../module';
+import {
+  acquirePlatform,
+  browserModuleToServerModule,
+} from '../../platform';
 
 import {Snapshot, snapshot} from '../snapshot';
 

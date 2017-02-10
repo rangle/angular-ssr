@@ -5,11 +5,16 @@ import {
   Type
 } from '@angular/core';
 
+import {CommonModule} from '@angular/common';
+
 import {BootstrapException} from './exception';
 
-import {ComposedTransition} from '../variance';
+import {Reflector, MutateDecorator} from './metadata';
 
-import {RenderVariantOperation} from '../render';
+import {
+  ComposedTransition,
+  RenderVariantOperation
+} from '../../renderer';
 
 export const browserModuleToServerModule = <M, V>(vop: RenderVariantOperation<M, V>): Type<any> => {
   const moduleType = adjustModule(vop.scope.moduleType);
@@ -18,6 +23,12 @@ export const browserModuleToServerModule = <M, V>(vop: RenderVariantOperation<M,
 };
 
 const adjustModule = <M>(moduleType: Type<M>) => {
+  const mutator: MutateDecorator = decorator => {
+    return decorator;
+  };
+
+  Reflector.mutateAnnotation(moduleType, NgModule, mutator);
+
   return moduleType;
 };
 
@@ -35,6 +46,7 @@ const wrap = <M>(moduleType: Type<M>, transition: ComposedTransition) => {
 
   @NgModule({
     imports: [
+      CommonModule,
       moduleType,
     ],
     providers: [

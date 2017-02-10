@@ -12,9 +12,9 @@ import {
   PlatformLocation,
 } from '@angular/common';
 
-import {PlatformLocationImpl} from './location';
+import {PlatformLocationImpl} from '../location';
 
-import {RootRendererImpl} from './render';
+import {RootRendererImpl} from '../render';
 
 @NgModule({
   imports: [

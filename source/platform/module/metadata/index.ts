@@ -1,2 +1,2 @@
 export * from './exception';
-export * from './module';
+export * from './reflector';
