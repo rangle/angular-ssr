@@ -32,9 +32,6 @@ module.exports = function (config) {
 
     karmaTypescriptConfig:
       Object.assign(tsconfig(), {
-        bundlerOptions: {
-          validateSyntax: false,
-        },
         coverageOptions: {
           instrumentation: config.singleRun === true,
         },

@@ -35,6 +35,7 @@ describe('reflector', () => {
 
     Reflector.mutateAnnotation(newClass, NgModule,
       ngModule => {
+        
         return ngModule;
       });
   });

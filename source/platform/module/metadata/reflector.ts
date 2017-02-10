@@ -6,6 +6,8 @@ import {ReflectionException} from './exception';
 
 import {privateCoreImplementation} from '../../imports';
 
+import {Clone} from '../../../transformation';
+
 const {reflector} = privateCoreImplementation();
 
 export type MutateDecorator<T extends ClassDecorator> = (decorator: T) => T;
@@ -27,7 +29,7 @@ export abstract class Reflector {
       throw new ReflectionException(`Decorator type not found: ${decoratorType.name}`);
     }
 
-    const mutated = mutator(annotations[index]);
+    const mutated = Clone.facade(annotations[index], mutator(annotations[index]));
 
     const annotationsCloned = annotations.slice();
     annotationsCloned.splice(index, 1, mutated);

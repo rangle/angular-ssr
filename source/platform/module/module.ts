@@ -2,6 +2,7 @@ import {
   APP_BOOTSTRAP_LISTENER,
   ComponentRef,
   NgModule,
+  NgModuleDecorator,
   Type
 } from '@angular/core';
 
@@ -23,7 +24,7 @@ export const browserModuleToServerModule = <M, V>(vop: RenderVariantOperation<M,
 };
 
 const adjustModule = <M>(moduleType: Type<M>) => {
-  const mutator: MutateDecorator = decorator => {
+  const mutator: MutateDecorator<NgModuleDecorator> = decorator => {
     return decorator;
   };
 
