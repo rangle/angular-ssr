@@ -1,4 +1,8 @@
-import {OpaqueToken, NgModule} from '@angular/core';
+import {
+  OpaqueToken,
+  NgModule,
+  Provider,
+} from '@angular/core';
 
 import {BrowserModule} from '@angular/platform-browser';
 
@@ -15,13 +19,13 @@ import {Reflector} from '../reflector';
 export class ExampleClass {}
 
 describe('reflector', () => {
-  it('should clone a class with decorators and retain its name', () => {
+  it('can clone a class with decorators and retain its name', () => {
     const newClass = Reflector.cloneWithDecorators(ExampleClass);
 
     expect(newClass.name).toBe('ExampleClass');
   });
 
-  it('should clone a class and its decorators', () => {
+  it('can clone a class and its decorators', () => {
     const newClass = Reflector.cloneWithDecorators(ExampleClass);
 
     const annotations = Reflector.annotations(newClass);
@@ -30,13 +34,26 @@ describe('reflector', () => {
     expect(annotations[0].toString()).toBe('@NgModule');
   });
 
-  it('should clone a class and mutate a specific decorator', () => {
+  it('can clone a class and mutate a specific decorator without touching the original', () => {
     const newClass = Reflector.cloneWithDecorators(ExampleClass);
 
     Reflector.mutateAnnotation(newClass, NgModule,
       ngModule => {
-        
-        return ngModule;
+        const existingProviders: Array<Provider> = ngModule.providers || [];
+
+        return {
+          providers: [
+            ...existingProviders,
+            {provide: new OpaqueToken('MyToken'), useValue: 'My value'},
+          ]
+        };
       });
+
+    const annotations = Reflector.annotations(newClass);
+    expect(annotations.length).toBe(1);
+    expect(annotations[0].providers).not.toBeNull();
+    expect(annotations[0].providers.length).toBe(2);
+    expect(annotations[0].providers[0].useValue).toBe('Sean Price');
+    expect(annotations[0].providers[1].useValue).toBe('My value');
   });
 });

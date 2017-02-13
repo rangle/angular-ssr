@@ -30,16 +30,16 @@ module.exports = function (config) {
 
     browsers: ['Chrome'],
 
-    karmaTypescriptConfig:
-      Object.assign(tsconfig(), {
-        coverageOptions: {
-          instrumentation: config.singleRun === true,
-        },
-        exclude: [
-          'build',
-          'node_modules',
-        ]
-      }),
+    karmaTypescriptConfig: {
+      tsconfig: './tsconfig.json',
+      coverageOptions: {
+        instrumentation: config.singleRun === true,
+      },
+      exclude: [
+        'build',
+        'node_modules',
+      ]
+    },
   });
 };
 

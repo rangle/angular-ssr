@@ -1,30 +1,24 @@
 import {
   APP_BOOTSTRAP_LISTENER,
+  ApplicationModule,
   ComponentRef,
   NgModule,
-  NgModuleDecorator,
   Type
 } from '@angular/core';
 
 import {CommonModule} from '@angular/common';
 
 import {BootstrapException} from './exception';
-
 import {Reflector, MutateDecorator} from './metadata';
+import {ComposedTransition} from 'renderer';
+import {privateCoreImplementation} from '../imports';
 
-import {
-  ComposedTransition,
-  RenderVariantOperation
-} from '../../renderer';
-
-export const browserModuleToServerModule = <M, V>(vop: RenderVariantOperation<M, V>): Type<any> => {
-  const moduleType = adjustModule(vop.scope.moduleType);
-
-  return wrap(moduleType, vop.transition);
-};
+export const browserModuleToServerModule =
+    <M, V>(moduleType: Type<M>, transition: ComposedTransition): Type<any> =>
+  wrap(adjustModule(moduleType), transition);
 
 const adjustModule = <M>(moduleType: Type<M>) => {
-  const mutator: MutateDecorator<NgModuleDecorator> = decorator => {
+  const mutator: MutateDecorator<NgModule> = decorator => {
     return decorator;
   };
 

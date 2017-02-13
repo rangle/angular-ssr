@@ -1,5 +1,5 @@
 import {NgModuleRef} from '@angular/core';
 
-export const waitStable = <M>(moduleRef: NgModuleRef<M>): Promise<void> => {
-  return Promise.reject(new Error('Not implemented'));
+export const waitStable = async <M>(moduleRef: NgModuleRef<M>): Promise<void> => {
+  throw new Error('Not implemented');
 };

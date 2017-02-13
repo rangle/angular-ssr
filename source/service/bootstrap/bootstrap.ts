@@ -1,25 +1,20 @@
-import {Type} from '@angular/core';
-
 import {Observable} from 'rxjs';
 
 import {
   Route,
   RouteException,
-} from '../route';
-
-import {
-  acquirePlatform,
-  browserModuleToServerModule,
-} from '../../platform';
-
-import {Snapshot, snapshot} from '../snapshot';
+  Snapshot,
+  snapshot,
+} from 'renderer';
 
 import {
   RenderOperation,
   RenderVariantOperation,
-} from './operation';
+} from '../operation';
 
-export const render = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
+import {run} from './run';
+
+export const bootstrap = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
   return Observable.create(publish => {
     const operations = new Array<RenderVariantOperation<M, V>>();
 
@@ -48,22 +43,4 @@ export const render = <M, V>(operation: RenderOperation<M, V>): Observable<Snaps
 
     Promise.all(promises).then(() => publish.complete());
   });
-};
-
-const run = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<string> => {
-  const platform = acquirePlatform();
-  try {
-    const wrapper = browserModuleToServerModule(operation);
-
-    const moduleRef = await platform.bootstrapModule<M>(wrapper);
-    try {
-      return await snapshot<M, V>(moduleRef, operation);
-    }
-    finally {
-      moduleRef.destroy();
-    }
-  }
-  finally {
-    platform.destroy();
-  }
 };
