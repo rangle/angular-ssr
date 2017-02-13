@@ -32,6 +32,9 @@ module.exports = function (config) {
 
     karmaTypescriptConfig: {
       tsconfig: './tsconfig.json',
+      bundlerOptions: {
+        exclude: ['_http_client'],
+      },
       coverageOptions: {
         instrumentation: config.singleRun === true,
       },

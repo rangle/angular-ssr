@@ -2,33 +2,56 @@ import {
   APP_BOOTSTRAP_LISTENER,
   ApplicationModule,
   ComponentRef,
+  ModuleWithProviders,
   NgModule,
+  Provider,
   Type
 } from '@angular/core';
 
 import {CommonModule} from '@angular/common';
+
+import {BrowserModule} from '@angular/platform-browser';
 
 import {BootstrapException} from './exception';
 import {Reflector, MutateDecorator} from './metadata';
 import {ComposedTransition} from '../../variance';
 import {privateCoreImplementation} from '../imports';
 
-export const browserModuleToServerModule =
-    <M, V>(moduleType: Type<M>, transition: ComposedTransition): Type<any> =>
-  wrap(adjustModule(moduleType), transition);
+type AdjustedModule<M> = {moduleType: Type<M>, bootstrap: Array<Type<any> | any>};
 
-const adjustModule = <M>(moduleType: Type<M>) => {
+export const browserModuleToServerModule =
+    <M, V>(moduleType: Type<M>, transition: ComposedTransition): Type<any> => {
+  const {moduleType: adjustedModule, bootstrap} = adjustModule(moduleType);
+
+  return wrap(adjustedModule, bootstrap, transition);
+};
+
+const adjustModule = <M>(moduleType: Type<M>): AdjustedModule<M> => {
+  let bootstrap: Array<Type<any> | any>;
+
   const mutator: MutateDecorator<NgModule> = decorator => {
-    return decorator;
+    const imports = (decorator.imports || []).slice();
+
+    const browserIndex = imports.findIndex(token => token === BrowserModule);
+    if (browserIndex >= 0) {
+      imports.splice(browserIndex, 1);
+    }
+
+    imports.push(ApplicationModule);
+    imports.push(CommonModule);
+
+    bootstrap = decorator.bootstrap;
+
+    return {imports, bootstrap: []};
   };
 
   Reflector.mutateAnnotation(moduleType, NgModule, mutator);
 
-  return moduleType;
+  return {moduleType, bootstrap};
 };
 
-const wrap = <M>(moduleType: Type<M>, transition: ComposedTransition) => {
-  const bootstrap = <T>(componentRef: ComponentRef<T>) => {
+const wrap = <M>(moduleType: Type<M>, bootstrap: Array<Type<any> | any>, transition: ComposedTransition) => {
+  const boot = <T>(componentRef: ComponentRef<T>) => {
     if (typeof transition === 'function') {
       try {
         transition(componentRef.injector);
@@ -41,12 +64,12 @@ const wrap = <M>(moduleType: Type<M>, transition: ComposedTransition) => {
 
   @NgModule({
     imports: [
-      CommonModule,
       moduleType,
     ],
     providers: [
-      {provide: APP_BOOTSTRAP_LISTENER, useValue: bootstrap, multi: true},
-    ]
+      {provide: APP_BOOTSTRAP_LISTENER, useValue: boot, multi: true},
+    ],
+    bootstrap,
   })
   class WrappedModule {}
 

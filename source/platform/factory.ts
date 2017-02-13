@@ -1,9 +1,11 @@
 import {
   COMPILER_OPTIONS,
+  ErrorHandler,
   NgModule,
   PlatformRef,
   Provider,
   RootRenderer,
+  Sanitizer,
   createPlatformFactory,
 } from '@angular/core';
 
@@ -20,6 +22,11 @@ import {
 import {ResourceLoaderImpl} from './resource-loader';
 import {RootRendererImpl} from './render';
 import {LocationImpl} from './location';
+import {SanitizerImpl} from './sanitizer';
+
+import {privateCoreImplementation} from 'platform';
+
+const {APP_ID_RANDOM_PROVIDER} = privateCoreImplementation();
 
 export const platformNode =
   createPlatformFactory(platformCoreDynamic, 'nodejs', [
@@ -31,6 +38,9 @@ export const platformNode =
       ]},
       multi: true
     },
+    APP_ID_RANDOM_PROVIDER,
+    {provide: Sanitizer, useClass: SanitizerImpl},
+    {provide: ErrorHandler, useFactory: () => new ErrorHandler(true)},
     {provide: RootRenderer, useClass: RootRendererImpl},
     {provide: PlatformLocation, useClass: LocationImpl}
   ]);
