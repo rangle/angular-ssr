@@ -13,27 +13,27 @@ import {
 import {StateTransition} from './transition';
 
 export const permutations =
-    <V>(variance: VariantDefinitions): Map<V, ComposedTransition> => {
+    <V>(variants: VariantDefinitions): Map<V, ComposedTransition> => {
   const options: {[variant: string]: Array<any>} = {};
 
-  for (const k of Object.keys(variance)) {
-    options[k] = Array.from(variance[k].values);
+  for (const k of Object.keys(variants)) {
+    options[k] = Array.from(variants[k].values);
   }
 
   const combinations = recursivePermutations<V>(options);
 
   const tuples = combinations.map(
-    variant => <[V, ComposedTransition]> [variant, combineTransitions(variance, variant)]);
+    variant => <[V, ComposedTransition]> [variant, combineTransitions(variants, variant)]);
 
   return new Map(tuples);
 };
 
-const combineTransitions = <V>(variance: VariantDefinitions, values: V): ComposedTransition => {
+const combineTransitions = <V>(variants: VariantDefinitions, values: V): ComposedTransition => {
   const transition: ComposedTransition =
     injector => {
       const promises = new Array<Promise<void>>();
 
-      const flattened = Object.keys(variance).map(k => [k, variance[k], values[k]]);
+      const flattened = Object.keys(variants).map(k => [k, variants[k], values[k]]);
 
       for (const [key, variant, value] of flattened) {
         try {

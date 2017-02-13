@@ -1,6 +1,8 @@
 import {Injector, Type} from '@angular/core';
 
-import {ComposedTransition, Route} from 'renderer';
+import {ComposedTransition} from 'variance';
+
+import {Route} from '../route';
 
 export type StateReader = (injector: Injector) => Promise<any>;
 
@@ -8,6 +10,6 @@ export interface RenderOperation<M, V> {
   templateDocument: string;
   moduleType: Type<M>;
   routes: Array<Route>;
-  variance: Map<V, ComposedTransition>;
+  variants: Map<V, ComposedTransition>;
   stateReader?: StateReader;
 }

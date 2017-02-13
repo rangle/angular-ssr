@@ -10,7 +10,7 @@ import {CommonModule} from '@angular/common';
 
 import {BootstrapException} from './exception';
 import {Reflector, MutateDecorator} from './metadata';
-import {ComposedTransition} from 'renderer';
+import {ComposedTransition} from '../../variance';
 import {privateCoreImplementation} from '../imports';
 
 export const browserModuleToServerModule =
@@ -34,7 +34,7 @@ const wrap = <M>(moduleType: Type<M>, transition: ComposedTransition) => {
         transition(componentRef.injector);
       }
       catch (exception) {
-        throw new BootstrapException('Failed to run variance transitions', exception);
+        throw new BootstrapException('Failed to run variant transitions', exception);
       }
     }
   };

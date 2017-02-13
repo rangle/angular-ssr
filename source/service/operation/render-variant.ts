@@ -1,10 +1,12 @@
+import {ComposedTransition} from 'variance';
+
 import {RenderOperation} from './render';
 
-import {Route, ComposedTransition} from 'renderer';
+import {Route} from '../route';
 
 export interface RenderVariantOperation<M, V> {
   scope: RenderOperation<M, V>;
   route: Route;
-  variance: V;
+  variant: V;
   transition: ComposedTransition;
 }
