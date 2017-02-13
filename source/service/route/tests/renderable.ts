@@ -10,6 +10,9 @@ describe('renderable routes', () => {
       expect(result.length).toBe(1);
       expect(result[0]).toBe('/');
       done();
-    });
+    })
+    .catch(err => {
+      console.error('Failed', err);
+    })
   });
 });

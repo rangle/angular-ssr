@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import {Injectable} from '@angular/core';
 
 import {
@@ -6,7 +8,7 @@ import {
 } from '@angular/common';
 
 @Injectable()
-export class PlatformLocationImpl implements PlatformLocation {
+export class LocationImpl implements PlatformLocation {
   getBaseHrefFromDOM(): string {
     throw new Error('Not implemented');
   }

@@ -1,1 +1,1 @@
-export * from './platform-location';
+export * from './location';

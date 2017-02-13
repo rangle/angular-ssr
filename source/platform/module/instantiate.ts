@@ -1,6 +1,6 @@
 import {NgModuleRef, Type} from '@angular/core';
 
-import {browserModuleToServerModule, createPlatform} from 'platform';
+import {browserModuleToServerModule, platformNode} from 'platform';
 
 import {ComposedTransition} from 'variance';
 
@@ -8,7 +8,7 @@ export type ModuleExecute<M, R> = (moduleRef: NgModuleRef<M>) => R | Promise<R>;
 
 export const instantiateApplicationModule =
     async <M, R>(moduleType: Type<M>, transition: ComposedTransition, execute: ModuleExecute<M, R>): Promise<R> => {
-  const platform = createPlatform();
+  const platform = platformNode();
   try {
     const wrapper = browserModuleToServerModule(moduleType, transition);
 

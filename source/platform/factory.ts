@@ -1,11 +1,36 @@
 import {
+  COMPILER_OPTIONS,
+  NgModule,
   PlatformRef,
   Provider,
+  RootRenderer,
   createPlatformFactory,
-  platformCore
 } from '@angular/core';
 
-export type PlatformFactory = (extraProviders?: Provider[]) => PlatformRef;
+import {
+  PlatformLocation
+} from '@angular/common';
 
-export const createPlatform: PlatformFactory =
-  createPlatformFactory(platformCore, 'server', []);
+import {
+  COMPILER_PROVIDERS,
+  ResourceLoader,
+  platformCoreDynamic
+} from '@angular/compiler';
+
+import {ResourceLoaderImpl} from './resource-loader';
+import {RootRendererImpl} from './render';
+import {LocationImpl} from './location';
+
+export const platformNode =
+  createPlatformFactory(platformCoreDynamic, 'nodejs', [
+    COMPILER_PROVIDERS,
+    {
+      provide: COMPILER_OPTIONS,
+      useValue: {providers: [
+        {provide: ResourceLoader, useClass: ResourceLoaderImpl}
+      ]},
+      multi: true
+    },
+    {provide: RootRenderer, useClass: RootRendererImpl},
+    {provide: PlatformLocation, useClass: LocationImpl}
+  ]);
