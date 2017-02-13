@@ -1,59 +1,32 @@
 import {Observable} from 'rxjs';
 
-import {
-  RenderOperation,
-  RenderVariantOperation,
-} from '../operation';
-
-import {
-  Snapshot,
-  takeSnapshot,
-} from '../snapshot';
-
+import {instantiateApplicationModule} from 'platform';
+import {RenderOperation, RenderVariantOperation} from '../operation';
+import {Snapshot, takeSnapshot} from '../snapshot';
 import {fork} from './fork';
-
-import {
-  createPlatform,
-  browserModuleToServerModule,
-} from 'platform';
 
 export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
   return Observable.create(publish => {
-    const operations = fork(operation);
-
     const bind = (suboperation: RenderVariantOperation<M, V>) =>
       renderVariant(suboperation)
-        .then(document => {
-          publish.next({variant: suboperation.variant, document});
+        .then(snapshot => {
+          publish.next(snapshot);
         })
         .catch(exception => {
-          publish.next({variant: suboperation.variant, exception});
+          publish.error(exception);
         });
 
-    const promises = operations.map(suboperation => bind(suboperation));
+    const promises = fork(operation).map(suboperation => bind(suboperation));
 
     Promise.all(promises).then(() => publish.complete());
   });
 };
 
 const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
-  const platform = createPlatform();
+  const {transition, variant, scope: {moduleType, stateReader}} = operation;
 
-  try {
-    const {transition, variant, scope: {moduleType, stateReader}} = operation;
-
-    const wrapper = browserModuleToServerModule(moduleType, transition);
-
-    const moduleRef = await platform.bootstrapModule<M>(wrapper);
-
-    try {
-      return await takeSnapshot(moduleRef, variant, stateReader);
-    }
-    finally {
-      moduleRef.destroy();
-    }
-  }
-  finally {
-    platform.destroy();
-  }
+  return instantiateApplicationModule<M, Snapshot<V>>(
+    moduleType,
+    transition,
+    moduleRef => takeSnapshot(moduleRef, variant, stateReader));
 };

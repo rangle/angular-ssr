@@ -12,6 +12,8 @@ import {
 
 import {StateTransition} from './transition';
 
+import {TransitionException} from './exception';
+
 export const permutations =
     <V>(variants: VariantDefinitions): Map<V, ComposedTransition> => {
   const options: {[variant: string]: Array<any>} = {};
@@ -31,24 +33,18 @@ export const permutations =
 const combineTransitions = <V>(variants: VariantDefinitions, values: V): ComposedTransition => {
   const transition: ComposedTransition =
     injector => {
-      const promises = new Array<Promise<void>>();
-
       const flattened = Object.keys(variants).map(k => [k, variants[k], values[k]]);
 
       for (const [key, variant, value] of flattened) {
         try {
           const transitioner = transitionFactory(variant);
 
-          const transitionResult = transitioner(injector, value);
-
-          promises.push(Promise.resolve(transitionResult));
+          transitioner(injector, value);
         }
         catch (exception) {
-          promises.push(Promise.reject(new Error(errorMessage(key, exception, values))));
+          throw new TransitionException(exception, key, values);
         }
       }
-
-      return <Promise<any>> Promise.all<void>(promises);
     };
 
   return transition;
@@ -100,15 +96,3 @@ const instantiateTransitionClass = <T>(type: Type<any>): StateTransition<T> => {
     return transitioner.execute(value);
   };
 };
-
-const errorMessage = <V>(variant: string, exception: Error, values: V): string => [
-  `Failed to instantiate and execute state transition: ${variant}`,
-  null,
-  'The variant options for this state transition are:',
-  null,
-  JSON.stringify(values, null, 2),
-  null,
-  'The exception for the original exception is:',
-  null,
-  exception.stack || '<unknown call stack>'
-].map(v => v || String()).join('\n');

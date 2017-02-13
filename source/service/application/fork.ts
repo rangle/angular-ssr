@@ -1,7 +1,4 @@
-import {
-  RenderOperation,
-  RenderVariantOperation
-} from '../operation';
+import {RenderOperation, RenderVariantOperation} from '../operation';
 
 export const fork = <M, V>(operation: RenderOperation<M, V>): Array<RenderVariantOperation<M, V>> => {
   const operations = new Array<RenderVariantOperation<M, V>>();

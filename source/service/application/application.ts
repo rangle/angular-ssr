@@ -2,13 +2,14 @@ import {Type} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
+import {validateMarkup} from 'dom';
+
 import {ApplicationException} from './exception';
 import {Snapshot} from '../snapshot';
 import {renderableRoutes} from '../route';
-import {ApplicationDefinition} from './define';
-import {validateMarkup} from 'dom';
+import {ApplicationBuilder} from './builder';
 
-export class Application<M, V> extends ApplicationDefinition<M, V> {
+export class Application<M, V> extends ApplicationBuilder<M, V> {
   async render(): Promise<Observable<Snapshot<V>>> {
     this.validate();
 

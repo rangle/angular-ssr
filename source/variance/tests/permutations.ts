@@ -32,7 +32,7 @@ describe('variant permutations', () => {
     expect(keys.filter(s => s.language === 'fr-FR').length).toBe(4);
   });
 
-  it('aggregates variant transitions into one transition function', done => {
+  it('aggregates variant transitions into one transition function', () => {
     type AppVariants = {production: boolean, anonymous: boolean};
 
     const combinations = permutations<AppVariants>({
@@ -48,17 +48,12 @@ describe('variant permutations', () => {
 
     const pairs = Array.from(combinations.entries());
 
-    const promises =
-      pairs.map(([variant, transition]) => {
-        const obj: {[index: string]: boolean} = {};
+    for (const [variant, transition] of pairs) {
+      const obj: {[index: string]: boolean} = {};
 
-        transition(<any> obj)
-          .then(() => {
-              expect(obj['anon']).toBe(variant.anonymous);
-              expect(obj['prod']).toBe(variant.production);
-          });
-      });
-
-    Promise.all(promises).then(done);
+      transition(<any> obj);
+      expect(obj['anon']).toBe(variant.anonymous);
+      expect(obj['prod']).toBe(variant.production);
+    }
   });
 });

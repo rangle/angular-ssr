@@ -5,7 +5,7 @@ import {
   StateTransition,
 } from './transition';
 
-export type ComposedTransition = (injector: Injector) => Promise<void>;
+export type ComposedTransition = (injector: Injector) => void;
 
 export interface Variant<T> {
   // A set describing all the possible values of this variant. For example if this is
