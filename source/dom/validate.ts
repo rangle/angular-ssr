@@ -1,3 +1,3 @@
-export const validateHtml = (document: string): boolean => {
+export const validateMarkup = (markup: string): boolean => {
   return false;
 };

@@ -1,6 +1,7 @@
 export interface Snapshot<V> {
   exceptions: Array<Error>;
   criticalExceptions: Array<Error>;
-  document: string;
+  renderedDocument: string;
   variant: V;
+  applicationState?;
 }

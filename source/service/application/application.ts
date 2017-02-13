@@ -2,36 +2,13 @@ import {Type} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {Snapshot} from '../snapshot';
-import {RenderOperation, StateReader} from '../operation';
-import {Route, renderableRoutes} from '../route';
 import {ApplicationException} from './exception';
-import {validateHtml} from 'dom';
-import {ComposedTransition, VariantDefinitions, permutations} from 'variance';
+import {Snapshot} from '../snapshot';
+import {renderableRoutes} from '../route';
+import {ApplicationDefinition} from './define';
+import {validateMarkup} from 'dom';
 
-export class Application<M, V> {
-  private operation: Partial<RenderOperation<M, V>>;
-
-  constructor(moduleType: Type<M>) {
-    this.operation = {moduleType};
-  }
-
-  templateDocument(template: string): void {
-    this.operation.templateDocument = template;
-  }
-
-  variants(definitions: VariantDefinitions): void {
-    this.operation.variants = permutations<V>(definitions);
-  }
-
-  routes(routes: Array<Route>): void {
-    this.operation.routes = routes;
-  }
-
-  stateReader(stateReader: StateReader) {
-    this.operation.stateReader = stateReader;
-  }
-
+export class Application<M, V> extends ApplicationDefinition<M, V> {
   async render(): Promise<Observable<Snapshot<V>>> {
     this.validate();
 
@@ -55,7 +32,7 @@ export class Application<M, V> {
       throw new ApplicationException('No application module type specified');
     }
 
-    if (validateHtml(this.operation.templateDocument) === false) {
+    if (validateMarkup(this.operation.templateDocument) === false) {
       throw new ApplicationException(`Invalid template document provided: ${this.operation.templateDocument}`);
     }
   }

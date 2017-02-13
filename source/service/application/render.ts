@@ -40,14 +40,14 @@ const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Pro
   const platform = createPlatform();
 
   try {
-    const {transition, scope: {moduleType}} = operation;
+    const {transition, variant, scope: {moduleType, stateReader}} = operation;
 
     const wrapper = browserModuleToServerModule(moduleType, transition);
 
     const moduleRef = await platform.bootstrapModule<M>(wrapper);
 
     try {
-      return await takeSnapshot(moduleRef, operation.variant);
+      return await takeSnapshot(moduleRef, variant, stateReader);
     }
     finally {
       moduleRef.destroy();
