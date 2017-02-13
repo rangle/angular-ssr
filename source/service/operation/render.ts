@@ -13,3 +13,10 @@ export interface RenderOperation<M, V> {
   variants: Map<V, ComposedTransition>;
   stateReader?: StateReader;
 }
+
+export interface RenderVariantOperation<M, V> {
+  scope: RenderOperation<M, V>;
+  route: Route;
+  variant: V;
+  transition: ComposedTransition;
+}

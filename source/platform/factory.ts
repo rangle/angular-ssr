@@ -7,4 +7,5 @@ import {
 
 export type PlatformFactory = (extraProviders?: Provider[]) => PlatformRef;
 
-export const acquirePlatform: PlatformFactory = createPlatformFactory(platformCore, 'server', []);
+export const createPlatform: PlatformFactory =
+  createPlatformFactory(platformCore, 'server', []);
