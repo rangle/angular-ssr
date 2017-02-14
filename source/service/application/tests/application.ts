@@ -51,7 +51,7 @@ describe('Application', () => {
     });
   });
 
-  xit('should be able to render a Hello World application with external template', async (done) => {
+  it('should be able to render a Hello World application with external template', async (done) => {
     const snapshot = await render(BasicExternalModule);
 
     return new Promise<void>((resolve, reject) => {
