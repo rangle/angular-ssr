@@ -2,10 +2,12 @@ import {Observable} from 'rxjs';
 
 import {ApplicationException} from './exception';
 import {Snapshot} from '../snapshot';
-import {renderableRoutes} from '../route';
+import {RenderOperation} from '../operation';
 import {ApplicationBuilder} from './builder';
+import {renderableRoutes} from '../route';
+import {renderToStream} from './render';
 
-export class Application<M, V> extends ApplicationBuilder<M, V> {
+export class Application<V, M> extends ApplicationBuilder<V, M> {
   async render(): Promise<Observable<Snapshot<V>>> {
     this.validate();
 
@@ -19,9 +21,7 @@ export class Application<M, V> extends ApplicationBuilder<M, V> {
       }
     }
 
-    return Observable.create(publish => {
-      publish.error(new ApplicationException('Not implemented'));
-    });
+    return renderToStream(<RenderOperation<M, V>> this.operation);
   }
 
   validate() {
@@ -29,12 +29,17 @@ export class Application<M, V> extends ApplicationBuilder<M, V> {
       throw new ApplicationException('No application module type specified');
     }
 
-    if (validateMarkup(this.operation.templateDocument) === false) {
-      throw new ApplicationException(`Invalid template document provided: ${this.operation.templateDocument}`);
+    if (this.operation.templateDocument == null) {
+      throw new ApplicationException('No template HTML document provided');
+    }
+
+    const markup = this.operation.templateDocument.trim();
+    if (markup.length === 0) {
+      throw new ApplicationException('Template document cannot be an empty string');
+    }
+
+    if (markup.toLowerCase().indexOf('<!doctype html>') < 0) {
+      throw new ApplicationException('Template is missing <!doctype html>');
     }
   }
 }
-
-const validateMarkup = (markup: string): boolean => {
-  return false;
-};

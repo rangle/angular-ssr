@@ -8,15 +8,15 @@ describe('variant permutations', () => {
 
     const combinations = permutations<AppVariants>({
       language: {
-        useFunction: (moduleRef, language: string) => {},
+        transition: (moduleRef, language: string) => {},
         values: ['en-US', 'en-CA', 'fr-FR'],
       },
       production: {
-        useFunction: (moduleRef, prod: boolean) => {},
+        transition: (moduleRef, prod: boolean) => {},
         values: [true, false]
       },
       anonymous: {
-        useFunction: (moduleRef, anonymous: boolean) => {},
+        transition: (moduleRef, anonymous: boolean) => {},
         values: [true, false]
       }
     });
@@ -36,11 +36,11 @@ describe('variant permutations', () => {
 
     const combinations = permutations<AppVariants>({
       production: {
-        useFunction: (injector: any, prod: boolean) => {injector.prod = prod},
+        transition: (injector: any, prod: boolean) => {injector.prod = prod},
         values: [true, false]
       },
       anonymous: {
-        useFunction: (injector: any, anon: boolean) => {injector.anon = anon},
+        transition: (injector: any, anon: boolean) => {injector.anon = anon},
         values: [true, false]
       }
     });

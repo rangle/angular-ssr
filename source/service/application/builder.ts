@@ -1,13 +1,13 @@
 import {Type} from '@angular/core';
 
-import {RenderOperation, StateReader} from '../operation';
+import {RenderOperation, ApplicationStateReader} from '../operation';
 
 import {Route} from '../route';
 
 import {VariantDefinitions, permutations} from 'variance';
 
-export abstract class ApplicationBuilder<M, V> {
-  protected operation: Partial<RenderOperation<M, V>>;
+export abstract class ApplicationBuilder<V, M> {
+  protected operation: Partial<RenderOperation<M, V>> = {};
 
   constructor(moduleType: Type<M>) {
     this.operation = {moduleType};
@@ -28,7 +28,7 @@ export abstract class ApplicationBuilder<M, V> {
     return this;
   }
 
-  stateReader(stateReader: StateReader) {
+  stateReader(stateReader: ApplicationStateReader) {
     this.operation.stateReader = stateReader;
     return this;
   }

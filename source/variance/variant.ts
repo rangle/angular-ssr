@@ -1,11 +1,9 @@
-import {Injector, Type} from '@angular/core';
+import {Type} from '@angular/core';
 
 import {
   StateTransitionContract,
   StateTransition,
 } from './transition';
-
-export type ComposedTransition = (injector: Injector) => void;
 
 export interface Variant<T> {
   // A set describing all the possible values of this variant. For example if this is
@@ -13,7 +11,10 @@ export interface Variant<T> {
   // translations for.
   values: Array<T> | Set<T>;
 
-  // An @Injectable() class which will be instantiated with all of its dependencies resolved,
+  // A transition can be one of two things: either an Injectable class or a function that accepts
+  // a dependency injection container.
+  //
+  // 1. An @Injectable() class which will be instantiated with all of its dependencies resolved,
   // and will then be used to transition the state of the target application in some specific
   // way. This class can take any number of constructor arguments which will be resolved in
   // the context of the executing application, in the context of the app injector. This means
@@ -27,13 +28,13 @@ export interface Variant<T> {
   // Avoid doing anything other than setting the specific state described by this variant. Your
   // transition handler should be one or two lines of code. If you are using @ngrx this class
   // should really just dispatch an action or two, for example.
-  useClass?: Type<StateTransitionContract<T>>;
-
+  //
+  // 2.
   // A simple function that takes as its argument an NgModuleRef<M> and a variant
   // value and performs the transition itself. It may request values from the dependency
   // injector manually, using {@link NgModuleRef.injector}. This is an alternative to
   // using the useClass construct.
-  useFunction?: StateTransition<T>;
+  transition?: Type<StateTransitionContract<T>> | StateTransition<T>;
 }
 
 export type VariantDefinitions = {[variant: string]: Variant<any>};

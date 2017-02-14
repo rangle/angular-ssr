@@ -1,17 +1,9 @@
-import {
-  Injector,
-  ReflectiveInjector,
-  Type
-} from '@angular/core';
+import {Injector, ReflectiveInjector, Type} from '@angular/core';
 
-import {
-  Variant,
-  VariantDefinitions,
-  ComposedTransition
-} from './contracts';
+import {Reflector} from 'platform';
 
-import {StateTransition} from './transition';
-
+import {Variant, VariantDefinitions} from './variant';
+import {ComposedTransition, StateTransition} from './transition';
 import {TransitionException} from './exception';
 
 export const permutations =
@@ -37,7 +29,7 @@ const combineTransitions = <V>(variants: VariantDefinitions, values: V): Compose
 
       for (const [key, variant, value] of flattened) {
         try {
-          const transitioner = transitionFactory(variant);
+          const transitioner = conditionalInstantiate(variant);
 
           transitioner(injector, value);
         }
@@ -75,19 +67,15 @@ const recursivePermutations = <V>(options: {[key: string]: Array<any>}): Array<V
   return transformer(0);
 }
 
-const transitionFactory = <T>(variant: Variant<T>): StateTransition<T> => {
-  if (variant.useClass) {
-    return instantiateTransitionClass<T>(variant.useClass);
+const conditionalInstantiate = <T>(variant: Variant<T>): StateTransition<T> => {
+  const annotations = Reflector.annotations(<Type<any>> variant.transition); // injectable?
+  if (annotations.length > 0) {
+    return instantaiteAndExecute<T>(<Type<any>> variant.transition);
   }
-  else if (variant.useFunction) {
-    return variant.useFunction;
-  }
-  else {
-    throw new Error('Variant must provide one of useClass or useFunction');
-  }
+  return <StateTransition<T>> variant.transition;
 };
 
-const instantiateTransitionClass = <T>(type: Type<any>): StateTransition<T> => {
+const instantaiteAndExecute = <T>(type: Type<any>): StateTransition<T> => {
   return (injector: Injector, value: T) => {
     const childInjector = ReflectiveInjector.resolveAndCreate([type], injector);
 

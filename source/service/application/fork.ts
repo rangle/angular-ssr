@@ -4,15 +4,24 @@ export const fork = <M, V>(operation: RenderOperation<M, V>): Array<RenderVarian
   const operations = new Array<RenderVariantOperation<M, V>>();
 
   for (const route of operation.routes) {
-    for (const [variant, transition] of Array.from(operation.variants.entries())) {
-      const suboperation: RenderVariantOperation<M, V> = {
-        scope: operation,
-        route,
-        variant,
-        transition,
-      };
+    if (operation.variants == null ||
+        operation.variants.size === 0) {
+      operations.push(
+        <RenderVariantOperation<M, V>> {
+          scope: operation,
+          route,
+        });
+      continue;
+    }
 
-      operations.push(suboperation);
+    for (const [variant, transition] of Array.from(operation.variants.entries())) {
+      operations.push(
+        <RenderVariantOperation<M, V>> {
+          scope: operation,
+          route,
+          variant,
+          transition,
+        });
     }
   }
 

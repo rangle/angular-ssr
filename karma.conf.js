@@ -12,8 +12,9 @@ module.exports = function (config) {
     ],
 
     files: [
-      {pattern: '**/*.map', included: false, served: true},
+      require.resolve('jasmine-promises'),
       {pattern: './source/**/*.ts'},
+      {pattern: '**/*.map', included: false},
     ],
 
     exclude: ['**/*.d.ts'],
