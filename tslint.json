@@ -6,9 +6,9 @@
     "quotemark": [true, "single", "avoid-escape"],
     "no-eval": true,
     "no-namespace": true,
-    "no-reference": true,
+    "no-reference": false,
     "prefer-for-of": true,
-    "promise-function-async": true,
+    "promise-function-async": false,
     "await-promise": true,
     "one-line": [true, "check-open-brace", "check-whitespace"]
   }

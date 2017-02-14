@@ -1,8 +1,8 @@
 import {Injectable, OnDestroy} from '@angular/core';
 
-import {SharedStyles} from './styles';
-
 import {DocumentContainer} from '../document';
+
+import {SharedStyles} from './styles';
 
 @Injectable()
 export class DomSharedStyles implements OnDestroy {

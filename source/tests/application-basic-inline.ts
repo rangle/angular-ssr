@@ -6,11 +6,11 @@ import {BrowserModule} from '@angular/platform-browser';
   selector: 'application',
   template: `<div>Hello!</div>`
 })
-export class BasicComponent {}
+export class BasicInlineComponent {}
 
 @NgModule({
   imports: [BrowserModule],
-  declarations: [BasicComponent],
-  bootstrap: [BasicComponent],
+  declarations: [BasicInlineComponent],
+  bootstrap: [BasicInlineComponent],
 })
-export class BasicModule {}
+export class BasicInlineModule {}

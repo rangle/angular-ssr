@@ -7,6 +7,7 @@ import {
   APP_ID,
   Inject,
   Injectable,
+  OnDestroy,
   RootRenderer,
   ViewEncapsulation,
 } from '@angular/core';
@@ -19,13 +20,13 @@ import {DomSharedStyles} from '../styles';
 import {flatten} from 'transformation';
 
 @Injectable()
-export class RootRendererImpl implements RootRenderer {
+export class RootRendererImpl implements RootRenderer, OnDestroy {
   private components = new Map<string, Renderer>();
 
   constructor(
+    @Inject(APP_ID) private applicationId: string,
     private container: DocumentContainer,
-    private sharedStyles: DomSharedStyles,
-    @Inject(APP_ID) private applicationId: string
+    private sharedStyles: DomSharedStyles
   ) {}
 
   get document(): Document {
@@ -38,6 +39,10 @@ export class RootRendererImpl implements RootRenderer {
 
   renderComponent(component: RenderComponentType): Renderer {
     return this.components.get(component.id) || this.renderFactory(component);
+  }
+
+  ngOnDestroy() {
+    this.components.clear();
   }
 
   private renderFactory(component: RenderComponentType): Renderer {

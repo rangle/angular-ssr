@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import {Injectable} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 
 import {
   LocationChangeListener,
@@ -10,7 +10,9 @@ import {
 import {DocumentContainer} from '../document';
 
 @Injectable()
-export class LocationImpl implements PlatformLocation {
+export class LocationImpl implements PlatformLocation, OnDestroy {
+  private destruction = new Array<() => void>();
+
   constructor(private documentContainer: DocumentContainer) {}
 
   getBaseHrefFromDOM(): string {
@@ -23,10 +25,14 @@ export class LocationImpl implements PlatformLocation {
 
   onPopState(fn: LocationChangeListener) {
     this.documentContainer.window.addEventListener('popstate', fn, false);
+
+    this.destruction.push(() => this.documentContainer.window.removeEventListener('popstate', fn));
   }
 
   onHashChange(fn: LocationChangeListener) {
     this.documentContainer.window.addEventListener('hashchange', fn, false);
+
+    this.destruction.push(() => this.documentContainer.window.removeEventListener('hashchange', fn));
   }
 
   get pathname(): string {
@@ -55,5 +61,9 @@ export class LocationImpl implements PlatformLocation {
 
   back() {
     this.documentContainer.window.history.back();
+  }
+
+  ngOnDestroy() {
+    this.destruction.forEach(d => d());
   }
 }

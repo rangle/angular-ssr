@@ -14,7 +14,7 @@ export class Application<V, M> extends ApplicationBuilder<V, M> {
     const {moduleType, routes} = this.operation;
 
     if (routes == null || routes.length === 0) {
-      this.operation.routes = await renderableRoutes(moduleType);
+      this.operation.routes = await renderableRoutes(moduleType, this.operation.templateDocument);
 
       if (this.operation.routes.length === 0) {
         throw new ApplicationException('No renderable routes were discovered');

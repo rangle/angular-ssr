@@ -1,4 +1,8 @@
-import {Injectable, Inject, OnDestroy} from '@angular/core';
+import {
+  Injectable,
+  Inject,
+  OnDestroy
+} from '@angular/core';
 
 const domino = require('domino');
 
@@ -16,10 +20,16 @@ export class DocumentContainer implements OnDestroy {
   }
 
   get window(): Window {
+    if (this.windowRef == null) {
+      throw new Error('No window container has been initialized');
+    }
     return this.windowRef;
   }
 
   get document(): Document {
+    if (this.windowRef == null) {
+      throw new Error('No DOM has been initialized');
+    }
     return this.windowRef.document;
   }
 
@@ -28,6 +38,10 @@ export class DocumentContainer implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.complete()
+    this.complete();
+
+    this.window.releaseEvents();
+
+    this.windowRef = null;
   }
 }

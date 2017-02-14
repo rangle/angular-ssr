@@ -1,6 +1,6 @@
 import {Observable} from 'rxjs';
 
-import {browserModuleToServerModule, instantiateApplicationModule} from 'platform';
+import {browserModuleToServerModule, bootstrapApplicationWithExecute, forkZone} from 'platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Snapshot, takeSnapshot} from '../snapshot';
 import {routeToUri} from '../route';
@@ -37,9 +37,9 @@ const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Pro
 
   const moduleWrapper = browserModuleToServerModule(moduleType, transition);
 
-  return await instantiateApplicationModule<M, Snapshot<V>>(
-    moduleWrapper,
-    templateDocument,
-    absoluteUri,
-    async (moduleRef) => await takeSnapshot(moduleRef, operation));
+  return forkZone(templateDocument, absoluteUri,
+    async () =>
+      await bootstrapApplicationWithExecute<M, Snapshot<V>>(
+        moduleWrapper,
+        async (moduleRef) => await takeSnapshot(moduleRef, operation)));
 };

@@ -23,7 +23,12 @@ export const browserModuleToServerModule = <M>(baseModule: Type<M>, transition: 
       ? <T>(componentRef: ComponentRef<T>) => transition(componentRef.injector)
       : () => {};
 
-  @NgModule({
+  const wrappedFunction = new Function('type', // unique name based on the real module name
+    `return function Wrapped${baseModule.name}() {
+        type.apply(this, arguments);
+     }`);
+
+  return NgModule({
     imports: [
       moduleType,
     ],
@@ -31,10 +36,7 @@ export const browserModuleToServerModule = <M>(baseModule: Type<M>, transition: 
       {provide: APP_BOOTSTRAP_LISTENER, useValue: boot, multi: true},
     ],
     bootstrap,
-  })
-  class WrappedModule {}
-
-  return WrappedModule;
+  })(wrappedFunction(baseModule));
 };
 
 const adjustModule = <M>(baseType: Type<M>): AdjustedModule<M> => {

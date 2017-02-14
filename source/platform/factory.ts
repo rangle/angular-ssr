@@ -1,7 +1,6 @@
 import {
   COMPILER_OPTIONS,
   ErrorHandler,
-  RootRenderer,
   Sanitizer,
   PlatformRef,
   Provider,
@@ -18,12 +17,12 @@ import {
   platformCoreDynamic
 } from '@angular/compiler';
 
-import {DocumentContainer} from './document';
+import {ErrorHandlerImpl, ExceptionStream} from './exception-stream';
 import {ResourceLoaderImpl} from './resource-loader';
-import {RootRendererImpl} from './render';
 import {LocationImpl} from './location';
+import {PlatformImpl} from './platform';
 import {SanitizerImpl} from './sanitizer';
-import {DomSharedStyles, SharedStyles} from './styles';
+import {CurrentZone} from './zone';
 
 import {privateCoreImplementation} from 'platform';
 
@@ -44,11 +43,11 @@ export const platformNode: PlatformFactory =
       multi: true,
     },
     APP_ID_RANDOM_PROVIDER,
-    {provide: DocumentContainer, useClass: DocumentContainer},
-    {provide: DomSharedStyles, useClass: DomSharedStyles},
-    {provide: SharedStyles, useClass: SharedStyles},
+    {provide: ExceptionStream, useClass: ExceptionStream},
+    {provide: PlatformRef, useClass: PlatformImpl},
     {provide: Sanitizer, useClass: SanitizerImpl},
-    {provide: ErrorHandler, useFactory: () => new ErrorHandler(true)},
-    {provide: RootRenderer, useClass: RootRendererImpl},
-    {provide: PlatformLocation, useClass: LocationImpl}
+    {provide: ErrorHandler, useClass: ErrorHandlerImpl},
+    {provide: PlatformLocation, useClass: LocationImpl},
+    {provide: CurrentZone, useClass: CurrentZone},
   ]);
+

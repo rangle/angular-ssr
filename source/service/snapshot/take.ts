@@ -15,31 +15,43 @@ import {
   RenderVariantOperation,
 } from '../operation';
 
-import {DocumentContainer, Reflector} from 'platform';
+import {
+  DocumentContainer,
+  ExceptionStream,
+  Reflector,
+} from 'platform';
 
 export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
-  const container = moduleRef.injector.get(DocumentContainer);
-
-  // Mark the DOM as loaded and invoke remaining initialization tasks
-  container.complete();
-
-  // Wait until the application enters a stable (idle) state
-  await waitUntilStable(moduleRef);
-
-  const renderedDocument = container.document.outerHTML;
-
-  const stateReader = conditionalInstantiate(vop.scope.stateReader);
-
-  const applicationState = await stateReader(moduleRef.injector);
+  const exceptions: ExceptionStream = moduleRef.injector.get(ExceptionStream);
 
   const {variant, route} = vop;
 
-  return <Snapshot<V>> {
-    renderedDocument,
-    variant,
-    route,
-    applicationState,
-  };
+  const snapshot: Partial<Snapshot<V>> = {variant, route, exceptions: new Array<Error>()};
+
+  // The exception stream is a replay subject so even if exceptions were thrown prior to this
+  // statement, we will still receive them through this subscription. It's important to be able
+  // to tell the consumer about all exceptions that occurred while running the application.
+  const subscription = exceptions.stream.subscribe(exception => snapshot.exceptions.push(exception));
+  try {
+    const container = moduleRef.injector.get(DocumentContainer);
+
+    // Mark the DOM as loaded and invoke remaining initialization tasks
+    container.complete();
+
+    // Wait until the application enters a stable (idle) state
+    await waitUntilStable(moduleRef);
+
+    const renderedDocument = container.document.outerHTML;
+
+    const stateReader = conditionalInstantiate(vop.scope.stateReader);
+
+    const applicationState = await stateReader(moduleRef.injector);
+
+    return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
+  }
+  finally {
+    subscription.unsubscribe();
+  }
 }
 
 const waitUntilStable = async <M>(moduleRef: NgModuleRef<M>): Promise<void> => {
