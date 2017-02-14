@@ -19,14 +19,20 @@ import {
   platformCoreDynamic
 } from '@angular/compiler';
 
+import {DOCUMENT} from '@angular/platform-browser';
+
+import {DomContext} from './dom';
 import {ResourceLoaderImpl} from './resource-loader';
 import {RootRendererImpl} from './render';
 import {LocationImpl} from './location';
 import {SanitizerImpl} from './sanitizer';
+import {SharedStylesImpl} from './styles';
 
 import {privateCoreImplementation} from 'platform';
 
-const {APP_ID_RANDOM_PROVIDER} = privateCoreImplementation();
+const {
+  APP_ID_RANDOM_PROVIDER,
+} = privateCoreImplementation();
 
 export const platformNode =
   createPlatformFactory(platformCoreDynamic, 'nodejs', [
@@ -36,9 +42,10 @@ export const platformNode =
       useValue: {providers: [
         {provide: ResourceLoader, useClass: ResourceLoaderImpl}
       ]},
-      multi: true
+      multi: true,
     },
     APP_ID_RANDOM_PROVIDER,
+    {provide: DomContext, useClass: DomContext},
     {provide: Sanitizer, useClass: SanitizerImpl},
     {provide: ErrorHandler, useFactory: () => new ErrorHandler(true)},
     {provide: RootRenderer, useClass: RootRendererImpl},

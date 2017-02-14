@@ -1,6 +1,5 @@
 import './dependencies';
 
-export * from './dom';
 export * from './exception';
 export * from './platform';
 export * from './service';

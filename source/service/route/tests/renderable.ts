@@ -8,7 +8,8 @@ describe('renderable routes', () => {
 
     routes.then(result => {
       expect(result.length).toBe(1);
-      expect(result[0]).toBe('/');
+      expect(result[0].path).not.toBeNull();
+      expect(result[0].path.length).toBe(0);
       done();
     });
   });

@@ -19,5 +19,5 @@ export const routeToUri = (route: Route): string => {
     return component;
   });
 
-  return `/${mapped.join('/')}`;
+  return `http://localhost/${mapped.filter(v => v).join('/')}`;
 };

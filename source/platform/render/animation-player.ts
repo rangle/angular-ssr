@@ -9,7 +9,7 @@ export class AnimationPlayerImpl implements AnimationPlayer {
 
   private started = false;
 
-  public parentPlayer: AnimationPlayer = null;
+  parentPlayer: AnimationPlayer = null;
 
   constructor() {
     setImmediate(() => this.finished());

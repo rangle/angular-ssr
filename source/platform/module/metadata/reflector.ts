@@ -19,6 +19,12 @@ export abstract class Reflector {
     Reflect.defineMetadata('annotations', annotations, type);
   }
 
+  static decorators<T, D>(type: Type<T>, decoratorType: Type<D>): Array<D> {
+    const annotations = Reflector.annotations<T>(type);
+
+    return annotations.filter(a => a instanceof decoratorType);
+  }
+
   static mutateAnnotation<T, D>(type: Type<T>, decoratorType: Type<D>, mutator: MutateDecorator<D>): void {
     const annotations = Reflector.annotations<T>(type).slice();
 

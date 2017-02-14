@@ -11,6 +11,6 @@ export class BasicComponent {}
 @NgModule({
   imports: [BrowserModule],
   declarations: [BasicComponent],
-  bootstrap: [BasicComponent]
+  bootstrap: [BasicComponent],
 })
 export class BasicModule {}

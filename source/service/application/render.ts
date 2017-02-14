@@ -1,8 +1,9 @@
 import {Observable} from 'rxjs';
 
-import {instantiateApplicationModule} from 'platform';
+import {browserModuleToServerModule, instantiateApplicationModule} from 'platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Snapshot, takeSnapshot} from '../snapshot';
+import {Route, routeToUri} from '../route';
 import {fork} from './fork';
 
 export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
@@ -23,10 +24,24 @@ export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observab
 };
 
 const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
-  const {transition, variant, scope: {moduleType, stateReader}} = operation;
+  const {
+    transition,
+    variant,
+    route,
+    scope: {
+      templateDocument,
+      moduleType,
+      stateReader
+    }
+  } = operation;
+
+  const absoluteUri = routeToUri(route);
+
+  const moduleWrapper = browserModuleToServerModule(moduleType, transition);
 
   return instantiateApplicationModule<M, Snapshot<V>>(
-    moduleType,
-    transition,
+    moduleWrapper,
+    templateDocument,
+    absoluteUri,
     moduleRef => takeSnapshot(moduleRef, variant, stateReader));
 };
