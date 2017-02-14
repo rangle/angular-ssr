@@ -2,8 +2,8 @@ import 'reflect-metadata';
 
 import {Type} from '@angular/core';
 
-import {ReflectionException} from './exception';
 import {privateCoreImplementation} from '../../imports';
+
 import {Clone} from 'transformation';
 
 const {reflector} = privateCoreImplementation();

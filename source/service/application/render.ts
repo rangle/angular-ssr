@@ -3,21 +3,21 @@ import {Observable} from 'rxjs';
 import {browserModuleToServerModule, instantiateApplicationModule} from 'platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Snapshot, takeSnapshot} from '../snapshot';
-import {Route, routeToUri} from '../route';
+import {routeToUri} from '../route';
 import {fork} from './fork';
 
 export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
   return Observable.create(publish => {
-    const bind = (suboperation: RenderVariantOperation<M, V>) =>
-      renderVariant(suboperation)
-        .then(snapshot => {
-          publish.next(snapshot);
-        })
-        .catch(exception => {
-          publish.error(exception);
-        });
+    const bind = async (suboperation: RenderVariantOperation<M, V>) => {
+      try {
+        publish.next(await renderVariant(suboperation));
+      }
+      catch (exception) {
+        publish.error(exception);
+      }
+    };
 
-    const promises = fork(operation).map(suboperation => bind(suboperation));
+    const promises = fork(operation).map(async (suboperation) => await bind(suboperation));
 
     Promise.all(promises).then(() => publish.complete());
   });
@@ -39,9 +39,9 @@ const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Pro
 
   const moduleWrapper = browserModuleToServerModule(moduleType, transition);
 
-  return instantiateApplicationModule<M, Snapshot<V>>(
+  return await instantiateApplicationModule<M, Snapshot<V>>(
     moduleWrapper,
     templateDocument,
     absoluteUri,
-    moduleRef => takeSnapshot(moduleRef, variant, stateReader));
+    async (moduleRef) => await takeSnapshot(moduleRef, variant, stateReader));
 };

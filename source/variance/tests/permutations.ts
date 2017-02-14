@@ -1,6 +1,5 @@
 import {
   permutations,
-  ComposedTransition,
 } from '../..';
 
 describe('variant permutations', () => {

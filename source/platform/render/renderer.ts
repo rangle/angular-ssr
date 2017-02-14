@@ -92,7 +92,7 @@ export class RendererImpl implements Renderer {
   }
 
   private createNamespacedElement(name: string): Element {
-    const [prefix, namespace, nsname] = name.match(/^:([^:]+):(.+)$/);
+    const [namespace, nsname] = name.match(/^:([^:]+):(.+)$/).slice(1);
 
     return this.root.document.createElementNS(namespaces.get(namespace), nsname);
   }
@@ -232,7 +232,7 @@ export class RendererImpl implements Renderer {
 
   setElementAttribute(renderElement: Element, attributeName: string, attributeValue: string): void {
     if (/^\:/.test(attributeName)) {
-      const [prefix, namespace, attrname] = attributeName.match(/^:([^:]+):(.+)$/);
+      const [namespace, attrname] = attributeName.match(/^:([^:]+):(.+)$/).slice(1);
 
       const ns = namespaces.get(namespace);
 

@@ -1,7 +1,9 @@
 import {ResourceLoader} from '@angular/compiler';
 
+import {ResourceException} from './exception';
+
 export class ResourceLoaderImpl implements ResourceLoader {
-  get(url: string): Promise<string> {
-    return Promise.reject(new Error('Not implemented'));
+  async get(url: string): Promise<string> {
+    throw new ResourceException('Not implemented');
   }
 }

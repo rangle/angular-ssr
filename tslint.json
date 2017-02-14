@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "adjacent-overload-signatures": true,
+    "ban": [true, ["setInterval"], ["setTimeout"]],
+    "member-access": false,
+    "quotemark": [true, "single", "avoid-escape"],
+    "no-eval": true,
+    "no-namespace": true,
+    "no-reference": true,
+    "prefer-for-of": true,
+    "promise-function-async": true,
+    "await-promise": true,
+    "one-line": [true, "check-open-brace", "check-whitespace"]
+  }
+}

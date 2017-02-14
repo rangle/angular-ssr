@@ -2,8 +2,6 @@ import {NgModuleRef, Type} from '@angular/core';
 
 import {platformNode} from 'platform';
 
-import {ComposedTransition} from 'variance';
-
 import {TemplateDocument, RequestUri} from '../document';
 
 export type ModuleExecute<M, R> = (moduleRef: NgModuleRef<M>) => R | Promise<R>;

@@ -1,9 +1,6 @@
-import {Type} from '@angular/core';
-
 import {CloneException} from './exception';
 
 export abstract class Clone {
-  // Create a facade atop another object using the prototype chain to overwrite methods or properties
   static facade<T, V>(obj: T, facade: V): T & V {
     const shallow = Object.assign({}, facade);
 
@@ -12,7 +9,6 @@ export abstract class Clone {
     return <T & V> shallow;
   }
 
-  // Deep clone an object including the prototype chain
   static deep<T>(obj: T): T {
     if (obj === null || obj === undefined) {
       return obj;

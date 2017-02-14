@@ -1,7 +1,4 @@
-import {
-  Injector,
-  Type,
-} from '@angular/core';
+import {Injector} from '@angular/core';
 
 export interface StateTransitionContract<T> {
   execute(value: T): Promise<void> | void;

@@ -7,45 +7,53 @@ import {
   PlatformLocation,
 } from '@angular/common';
 
+import {DocumentContainer} from '../document';
+
 @Injectable()
 export class LocationImpl implements PlatformLocation {
+  constructor(private documentContainer: DocumentContainer) {}
+
   getBaseHrefFromDOM(): string {
-    throw new Error('Not implemented');
+    const element = this.documentContainer.document.querySelector('base');
+    if (element == null) {
+      return null;
+    }
+    return element.getAttribute('href');
   }
 
-  onPopState(fn: LocationChangeListener): void {
-    throw new Error('Not implemented');
+  onPopState(fn: LocationChangeListener) {
+    this.documentContainer.window.addEventListener('popstate', fn, false);
   }
 
-  onHashChange(fn: LocationChangeListener): void {
-    throw new Error('Not implemented');
+  onHashChange(fn: LocationChangeListener) {
+    this.documentContainer.window.addEventListener('hashchange', fn, false);
   }
 
   get pathname(): string {
-    throw new Error('Not implemented');
+    return this.documentContainer.window.location.pathname;
   }
 
   get search(): string {
-    throw new Error('Not implemented');
+    return this.documentContainer.window.location.search;
   }
 
   get hash(): string {
-    throw new Error('Not implemented');
+    return this.documentContainer.window.location.hash;
   }
 
-  replaceState(state: any, title: string, url: string): void {
-    throw new Error('Not implemented');
+  replaceState(state, title: string, url: string) {
+    this.documentContainer.window.location.hash = url;
   }
 
-  pushState(state: any, title: string, url: string): void {
-    throw new Error('Not implemented');
+  pushState(state, title: string, url: string) {
+    this.documentContainer.window.location.hash = url;
   }
 
-  forward(): void {
-    throw new Error('Not implemented');
+  forward() {
+    this.documentContainer.window.history.forward();
   }
 
-  back(): void {
-    throw new Error('Not implemented');
+  back() {
+    this.documentContainer.window.history.back();
   }
 }

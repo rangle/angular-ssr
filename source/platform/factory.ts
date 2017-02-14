@@ -1,11 +1,10 @@
 import {
   COMPILER_OPTIONS,
   ErrorHandler,
-  NgModule,
-  PlatformRef,
-  Provider,
   RootRenderer,
   Sanitizer,
+  PlatformRef,
+  Provider,
   createPlatformFactory,
 } from '@angular/core';
 
@@ -18,8 +17,6 @@ import {
   ResourceLoader,
   platformCoreDynamic
 } from '@angular/compiler';
-
-import {DOCUMENT} from '@angular/platform-browser';
 
 import {DocumentContainer} from './document';
 import {ResourceLoaderImpl} from './resource-loader';
@@ -34,7 +31,9 @@ const {
   APP_ID_RANDOM_PROVIDER,
 } = privateCoreImplementation();
 
-export const platformNode =
+export type PlatformFactory = (extraProviders?: Array<Provider>) => PlatformRef;
+
+export const platformNode: PlatformFactory =
   createPlatformFactory(platformCoreDynamic, 'nodejs', [
     COMPILER_PROVIDERS,
     {

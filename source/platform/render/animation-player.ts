@@ -17,16 +17,20 @@ export class AnimationPlayerImpl implements AnimationPlayer {
 
   private finished() {
     this.finishedHandlers.forEach(fn => fn());
-    this.finishedHandlers = new Array<AnimationHandler>();
+    this.finishedHandlers.splice(0, this.finishedHandlers.length);
   }
 
   onStart = (fn: AnimationHandler) => this.startedHandlers.push(fn);
 
   onDone = (fn: AnimationHandler) => this.finishedHandlers.push(fn);
 
-  setPosition = (p: number) => {}
+  private position: number;
 
-  getPosition = (): number => 0;
+  setPosition = (p: number) => {
+    this.position = p;
+  }
+
+  getPosition = (): number => this.position;
 
   hasStarted = (): boolean => this.started;
 
@@ -35,7 +39,7 @@ export class AnimationPlayerImpl implements AnimationPlayer {
   play() {
     if (this.hasStarted() === false) {
       this.startedHandlers.forEach(fn => fn());
-      this.startedHandlers = new Array<AnimationHandler>();
+      this.startedHandlers.splice(0, this.startedHandlers.length);
     }
     this.started = true;
   }

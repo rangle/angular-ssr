@@ -1,5 +1,3 @@
-import {Type} from '@angular/core';
-
 import {Observable} from 'rxjs';
 
 import {ApplicationException} from './exception';
@@ -11,7 +9,7 @@ export class Application<M, V> extends ApplicationBuilder<M, V> {
   async render(): Promise<Observable<Snapshot<V>>> {
     this.validate();
 
-    const {templateDocument, moduleType, routes} = this.operation;
+    const {moduleType, routes} = this.operation;
 
     if (routes == null || routes.length === 0) {
       this.operation.routes = await renderableRoutes(moduleType);

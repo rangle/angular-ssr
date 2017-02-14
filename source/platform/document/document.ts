@@ -28,6 +28,6 @@ export class DocumentContainer implements OnDestroy {
   }
 
   ngOnDestroy() {
-
+    this.complete()
   }
 }

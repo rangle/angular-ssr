@@ -2,23 +2,20 @@ import {
   APP_BOOTSTRAP_LISTENER,
   ApplicationModule,
   ComponentRef,
-  ModuleWithProviders,
   NgModule,
-  Provider,
   Type
 } from '@angular/core';
 
 import {CommonModule} from '@angular/common';
-
 import {BrowserModule} from '@angular/platform-browser';
 
 import {Reflector} from './metadata';
+
 import {ComposedTransition} from '../../variance';
-import {privateCoreImplementation} from '../imports';
 
 type AdjustedModule<M> = {moduleType: Type<M>, bootstrap: Array<Type<any> | any>};
 
-export const browserModuleToServerModule = <M, V>(baseModule: Type<M>, transition: ComposedTransition): Type<any> => {
+export const browserModuleToServerModule = <M>(baseModule: Type<M>, transition: ComposedTransition): Type<any> => {
   const {moduleType, bootstrap} = adjustModule(baseModule);
 
   const boot =
@@ -59,7 +56,12 @@ const adjustModule = <M>(baseType: Type<M>): AdjustedModule<M> => {
 
       bootstrap = decorator.bootstrap;
 
-      return {imports, bootstrap: [], providers: decorator.providers, exports: (decorator.exports||[]).concat(decorator.declarations)};
+      const exports = [
+        ...(decorator.exports || []),
+        ...(decorator.declarations || []),
+      ];
+
+      return {imports, bootstrap: [], exports};
     });
 
   return {moduleType, bootstrap};
