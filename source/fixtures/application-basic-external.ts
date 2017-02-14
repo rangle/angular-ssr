@@ -1,6 +1,4 @@
-import {Component, NgModule} from '@angular/core';
-
-import {BrowserModule} from '@angular/platform-browser';
+import {Component} from '@angular/core';
 
 @Component({
   moduleId: module.id,
@@ -8,10 +6,3 @@ import {BrowserModule} from '@angular/platform-browser';
   templateUrl: './application-basic-external.html'
 })
 export class BasicExternalComponent {}
-
-@NgModule({
-  imports: [BrowserModule],
-  declarations: [BasicExternalComponent],
-  bootstrap: [BasicExternalComponent],
-})
-export class BasicExternalModule {}

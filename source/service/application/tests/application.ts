@@ -1,18 +1,17 @@
 import 'reflect-metadata';
 
-import {Type} from '@angular/core';
-
 import {Application} from 'service';
 
 import {
-  BasicExternalModule,
-  BasicInlineModule,
-  documentTemplate
+  BasicExternalComponent,
+  BasicInlineComponent,
+  renderFixture,
+  moduleFromComponent,
 } from 'fixtures';
 
 describe('Application', () => {
   it('should require a template document in order to render', async (done) => {
-    const application = new Application(BasicInlineModule);
+    const application = new Application(moduleFromComponent(BasicInlineComponent));
     try {
       await application.render();
 
@@ -21,18 +20,8 @@ describe('Application', () => {
     catch (exception) {done()}
   });
 
-  const render = async <M>(moduleType: Type<M>) => {
-    const application = new Application(moduleType);
-    application.templateDocument(documentTemplate);
-
-    const snapshot = await application.render();
-    expect(snapshot).not.toBeNull();
-
-    return snapshot;
-  };
-
   it('should be able to render a Hello World application with inline template', async (done) => {
-    const snapshot = await render(BasicInlineModule);
+    const snapshot = await renderFixture(BasicInlineComponent);
 
     return new Promise<void>((resolve, reject) => {
       snapshot.subscribe(
@@ -52,7 +41,7 @@ describe('Application', () => {
   });
 
   it('should be able to render a Hello World application with external template', async (done) => {
-    const snapshot = await render(BasicExternalModule);
+    const snapshot = await renderFixture(BasicExternalComponent);
 
     return new Promise<void>((resolve, reject) => {
       snapshot.subscribe(

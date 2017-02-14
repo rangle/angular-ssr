@@ -21,11 +21,6 @@ type AdjustedModule<M> = {moduleType: Type<M>, bootstrap: Array<Type<any> | any>
 export const browserModuleToServerModule = <M>(baseModule: Type<M>, transition: ComposedTransition): Type<any> => {
   const {moduleType, bootstrap} = adjustModule(baseModule);
 
-  const wrappedFunction = new Function('type', // unique name based on the real module name
-    `return function Wrapped${baseModule.name}() {
-        type.apply(this, arguments);
-     }`);
-
   return NgModule({
     imports: [
       moduleType,
@@ -41,7 +36,7 @@ export const browserModuleToServerModule = <M>(baseModule: Type<M>, transition: 
       },
     ],
     bootstrap,
-  })(wrappedFunction(baseModule));
+  })(baseModule);
 };
 
 const adjustModule = <M>(baseType: Type<M>): AdjustedModule<M> => {

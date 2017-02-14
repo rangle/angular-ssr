@@ -1,10 +1,14 @@
 import {renderableRoutes} from 'index';
 
-import {BasicInlineModule, documentTemplate} from 'fixtures';
+import {
+  BasicInlineComponent,
+  moduleFromComponent,
+  documentTemplate,
+} from 'fixtures';
 
 describe('renderable routes', () => {
   it('should return a single route for an NgModule that does not use Router', done => {
-    const routes = renderableRoutes(BasicInlineModule, documentTemplate);
+    const routes = renderableRoutes(moduleFromComponent(BasicInlineComponent), documentTemplate);
 
     routes.then(result => {
       expect(result.length).toBe(1);
