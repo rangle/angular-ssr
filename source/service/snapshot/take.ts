@@ -12,25 +12,32 @@ import {Snapshot} from './snapshot';
 import {
   StateReaderFunction,
   ApplicationStateReader,
+  RenderVariantOperation,
 } from '../operation';
 
 import {DocumentContainer, Reflector} from 'platform';
 
-export const takeSnapshot =
-    async <M, V>(moduleRef: NgModuleRef<M>, variant: V, asr?: ApplicationStateReader): Promise<Snapshot<V>> => {
-  await waitUntilStable(moduleRef);
-
+export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
   const container = moduleRef.injector.get(DocumentContainer);
+
+  // Mark the DOM as loaded and invoke remaining initialization tasks
+  container.complete();
+
+  // Wait until the application enters a stable (idle) state
+  await waitUntilStable(moduleRef);
 
   const renderedDocument = container.document.outerHTML;
 
-  const stateReader = conditionalInstantiate(asr);
+  const stateReader = conditionalInstantiate(vop.scope.stateReader);
 
   const applicationState = await stateReader(moduleRef.injector);
+
+  const {variant, route} = vop;
 
   return <Snapshot<V>> {
     renderedDocument,
     variant,
+    route,
     applicationState,
   };
 }
@@ -60,8 +67,7 @@ const conditionalInstantiate = (reader: ApplicationStateReader): StateReaderFunc
   if (reader == null) {
     return injector => Promise.resolve(undefined);
   }
-
-  if (typeof reader !== 'function') {
+  else if (typeof reader !== 'function') {
     throw new SnapshotException(`A state reader must either be an injectable class or a function, not a ${typeof reader}`);
   }
 

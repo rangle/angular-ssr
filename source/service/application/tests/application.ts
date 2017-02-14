@@ -14,7 +14,7 @@ describe('Application', () => {
     }
   });
 
-  xit('should be able to render a Hello World application', async (done) => {
+  it('should be able to render a Hello World application', async (done) => {
     const application = new Application(BasicModule);
     application.templateDocument(documentTemplate);
 
@@ -24,7 +24,13 @@ describe('Application', () => {
     return new Promise<void>((resolve, reject) => {
       snapshot.subscribe(
         rendered => {
-          debugger;
+          const {variant, applicationState, renderedDocument, route} = rendered;
+          expect(route).not.toBeNull();
+          expect(route.path.length).toBe(0); // route: /
+          expect(variant).toBeUndefined();
+          expect(applicationState).toBeUndefined();
+          const expr = /<application ng-version="([\d\.]+)"><div>Hello!<\/div><\/application>/;
+          expect(expr.test(renderedDocument)).toBeTruthy();
           done();
         },
         reject);

@@ -26,12 +26,10 @@ export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observab
 const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
   const {
     transition,
-    variant,
     route,
     scope: {
       templateDocument,
       moduleType,
-      stateReader
     }
   } = operation;
 
@@ -43,5 +41,5 @@ const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Pro
     moduleWrapper,
     templateDocument,
     absoluteUri,
-    async (moduleRef) => await takeSnapshot(moduleRef, variant, stateReader));
+    async (moduleRef) => await takeSnapshot(moduleRef, operation));
 };
