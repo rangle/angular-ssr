@@ -1,6 +1,6 @@
 import {renderableRoutes} from 'index';
 
-import {BasicInlineModule, documentTemplate} from 'tests';
+import {BasicInlineModule, documentTemplate} from 'fixtures';
 
 describe('renderable routes', () => {
   it('should return a single route for an NgModule that does not use Router', done => {

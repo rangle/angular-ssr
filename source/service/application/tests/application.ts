@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import {Type} from '@angular/core';
 
 import {Application} from 'service';
@@ -6,7 +8,7 @@ import {
   BasicExternalModule,
   BasicInlineModule,
   documentTemplate
-} from 'tests';
+} from 'fixtures';
 
 describe('Application', () => {
   it('should require a template document in order to render', async (done) => {
