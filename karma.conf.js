@@ -38,6 +38,7 @@ module.exports = function (config) {
       },
       coverageOptions: {
         instrumentation: config.singleRun === true,
+        exclude: /(\.(d|spec|test)\.ts$|tests(\\|\/))/i,
       },
       exclude: [
         'build',
@@ -46,8 +47,3 @@ module.exports = function (config) {
     },
   });
 };
-
-function tsconfig() {
-  return JSON.parse(readFileSync(resolve(join(__dirname, 'tsconfig.json')), 'utf8'));
-}
-
