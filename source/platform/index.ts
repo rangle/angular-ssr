@@ -1,4 +1,4 @@
-export * from './dom';
+export * from './document';
 export * from './imports';
 export * from './location';
 export * from './module';

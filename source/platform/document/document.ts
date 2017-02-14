@@ -1,11 +1,11 @@
-import {Injectable, Inject} from '@angular/core';
+import {Injectable, Inject, OnDestroy} from '@angular/core';
 
 const domino = require('domino');
 
 import {TemplateDocument, RequestUri} from './tokens';
 
 @Injectable()
-export class DomContext {
+export class DocumentContainer implements OnDestroy {
   private windowRef: Window;
 
   constructor(
@@ -21,5 +21,13 @@ export class DomContext {
 
   get document(): Document {
     return this.windowRef.document;
+  }
+
+  complete() {
+    this.document.close();
+  }
+
+  ngOnDestroy() {
+
   }
 }

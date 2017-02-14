@@ -21,12 +21,12 @@ import {
 
 import {DOCUMENT} from '@angular/platform-browser';
 
-import {DomContext} from './dom';
+import {DocumentContainer} from './document';
 import {ResourceLoaderImpl} from './resource-loader';
 import {RootRendererImpl} from './render';
 import {LocationImpl} from './location';
 import {SanitizerImpl} from './sanitizer';
-import {SharedStylesImpl} from './styles';
+import {DomSharedStyles, SharedStyles} from './styles';
 
 import {privateCoreImplementation} from 'platform';
 
@@ -45,7 +45,9 @@ export const platformNode =
       multi: true,
     },
     APP_ID_RANDOM_PROVIDER,
-    {provide: DomContext, useClass: DomContext},
+    {provide: DocumentContainer, useClass: DocumentContainer},
+    {provide: DomSharedStyles, useClass: DomSharedStyles},
+    {provide: SharedStyles, useClass: SharedStyles},
     {provide: Sanitizer, useClass: SanitizerImpl},
     {provide: ErrorHandler, useFactory: () => new ErrorHandler(true)},
     {provide: RootRenderer, useClass: RootRendererImpl},

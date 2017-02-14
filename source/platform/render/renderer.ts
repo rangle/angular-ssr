@@ -14,23 +14,26 @@ import {
 import {AnimationPlayerImpl} from './animation-player';
 import {RendererException} from './exception';
 import {namespaces} from './namespace';
-import {DomContext} from '../dom';
+import {DocumentContainer} from '../document';
+import {DomSharedStyles} from '../styles';
+import {flatten} from 'transformation';
 
 @Injectable()
 export class RootRendererImpl implements RootRenderer {
   private components = new Map<string, Renderer>();
 
   constructor(
-    private context: DomContext,
+    private container: DocumentContainer,
+    private sharedStyles: DomSharedStyles,
     @Inject(APP_ID) private applicationId: string
   ) {}
 
   get document(): Document {
-    return this.context.document;
+    return this.container.document;
   }
 
   get window(): Window {
-    return this.context.window;
+    return this.container.window;
   }
 
   renderComponent(component: RenderComponentType): Renderer {
@@ -39,6 +42,7 @@ export class RootRendererImpl implements RootRenderer {
 
   private renderFactory(component: RenderComponentType): Renderer {
     const renderer = new RendererImpl(
+      this.sharedStyles,
       this,
       component,
       `${this.applicationId}-${component.id}`);
@@ -49,14 +53,26 @@ export class RootRendererImpl implements RootRenderer {
   }
 }
 
-export class RendererImpl extends Renderer {
+export class RendererImpl implements Renderer {
   constructor(
+    private sharedStyles: DomSharedStyles,
     private root: RootRendererImpl,
     private component: RenderComponentType,
     private componentId: string,
   ) {
-    super();
+    this.styles =
+      flatten<string>(component.styles).map(s => s.replace(/%COMP%/g, componentId));
+
+    switch (component.encapsulation) {
+      case ViewEncapsulation.Native:
+        break;
+      default:
+        sharedStyles.addStyles(this.styles);
+        break;
+    }
   }
+
+  private styles: Array<string>;
 
   selectRootElement(selectorOrNode: string | any, debugInfo?) {
     const element: Element =
@@ -95,17 +111,25 @@ export class RendererImpl extends Renderer {
   }
 
   createViewRoot(hostElement: Element) {
-    if (this.component.encapsulation === ViewEncapsulation.Native) {
-      // apply component styles to new root element
+    switch (this.component.encapsulation) {
+      case ViewEncapsulation.Native:
+        const fragment = this.root.document.createDocumentFragment();
 
-      return this.root.document.createDocumentFragment();
+        this.sharedStyles.addHost(fragment);
+
+        for (const style of this.styles) {
+          const element = document.createElement('style');
+          element.textContent = style;
+          fragment.appendChild(element);
+        }
+        return fragment;
+
+      default:
+        if (this.hostIdentifier != null) {
+          hostElement.setAttribute(this.hostIdentifier, String());
+        }
+        return hostElement;
     }
-
-    if (this.hostIdentifier) {
-      hostElement.setAttribute(this.hostIdentifier, String());
-    }
-
-    return hostElement;
   }
 
   createTemplateAnchor(parentElement: Element | DocumentFragment, debugInfo?) {
@@ -161,7 +185,16 @@ export class RendererImpl extends Renderer {
     }
   }
 
-  destroyView(hostElement: Element | DocumentFragment, viewAllNodes: Array<Node>): void {}
+  destroyView(hostElement: Element | DocumentFragment, viewAllNodes: Array<Node>): void {
+    switch (this.component.encapsulation) {
+      case ViewEncapsulation.Native:
+        if (hostElement != null) {
+          this.sharedStyles.removeHost(hostElement);
+        }
+      default:
+        break;
+    }
+  }
 
   listen(renderElement: Element, name: string, callback: (event: Event) => boolean | void): Function {
     const bound = this.bindCallback(callback);
@@ -176,20 +209,21 @@ export class RendererImpl extends Renderer {
   listenGlobal(target: string, name: string, callback: (event: Event) => boolean | void): Function {
     const bound = this.bindCallback(callback);
 
+    let eventTarget: EventTarget;
     switch (target) {
       case 'document':
-        this.root.document.addEventListener(name, bound);
-        return () => {
-          this.root.document.removeEventListener(name, bound);
-        };
+        eventTarget = this.root.document;
+        break;
       case 'window':
-        this.root.window.addEventListener(name, bound);
-        return () => {
-          this.root.window.removeEventListener(name, bound);
-        };
+        eventTarget = this.root.window;
+        break;
       default:
         throw new RendererException(`Unknown global event target: ${target}`);
     }
+
+    eventTarget.addEventListener(name, bound);
+
+    return () => eventTarget.removeEventListener(name, bound);
   }
 
   setElementProperty(renderElement: Element | DocumentFragment, propertyName: string, propertyValue: any): void {
