@@ -1,22 +1,24 @@
 import {Observable} from 'rxjs';
 
-import {ApplicationException} from './exception';
-import {Snapshot} from '../snapshot';
-import {RenderOperation} from '../operation';
-import {ApplicationBuilder} from './builder';
-import {renderableRoutes} from '../route';
-import {renderToStream} from './render';
+import {ApplicationException} from '../exception';
+import {ApplicationBuilderBase} from './base';
+import {Snapshot} from '../../snapshot';
+import {RenderOperation} from '../../operation';
+import {renderableRoutes} from '../../route';
+import {renderToStream} from '../render';
 
-export class Application<V, M> extends ApplicationBuilder<V, M> {
+export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M> {
   async render(): Promise<Observable<Snapshot<V>>> {
     this.validate();
 
-    const {moduleType, routes} = this.operation;
+    const operation = this.operation;
 
-    if (routes == null || routes.length === 0) {
-      this.operation.routes = await renderableRoutes(moduleType, this.operation.templateDocument);
+    operation.moduleType = await this.getModule();
 
-      if (this.operation.routes.length === 0) {
+    if (operation.routes == null || operation.routes.length === 0) {
+      operation.routes = await renderableRoutes(operation.moduleType, this.operation.templateDocument);
+
+      if (operation.routes.length === 0) {
         throw new ApplicationException('No renderable routes were discovered');
       }
     }
@@ -25,10 +27,6 @@ export class Application<V, M> extends ApplicationBuilder<V, M> {
   }
 
   validate() {
-    if (this.operation.moduleType == null) {
-      throw new ApplicationException('No application module type specified');
-    }
-
     if (this.operation.templateDocument == null) {
       throw new ApplicationException('No template HTML document provided');
     }

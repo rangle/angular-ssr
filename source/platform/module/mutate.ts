@@ -46,14 +46,11 @@ const mutateComponent = (component: Type<any>): Type<any> => {
     return component;
   }
 
-  const uris = [
-    componentDecorator.templateUrl,
-    ...(componentDecorator.styleUrls || []),
-  ].filter(v => v);
+  const uris = [componentDecorator.templateUrl].concat(componentDecorator.styleUrls);
 
   if (componentDecorator.moduleId == null) {
-    if (uris.some(u => u.startsWith('/') === false)) {
-      throw new PlatformException(`${component.name} uses templateUrl or styleUrls without "moduleId: module.id"`);
+    if (uris.filter(v => v).some(u => u.startsWith('/') === false)) {
+      throw new PlatformException(`${component.name} uses relative templateUrl or styleUrls that cannot be resolved without moduleId`);
     }
   }
 

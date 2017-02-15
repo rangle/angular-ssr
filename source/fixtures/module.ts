@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 
 import {BrowserModule} from '@angular/platform-browser';
 
-import {Application, Snapshot} from 'service';
+import {ApplicationFromModule, Snapshot} from 'service';
 
 import {documentTemplate} from './document';
 
@@ -16,7 +16,7 @@ export const moduleFromComponent = (componentType: Type<any>): Type<any> =>
   })(namedFunction(`${componentType.name}_${randomId()}`, function() {})); // defeat cache
 
 export const renderFixture = async <M>(componentType: Type<M>): Promise<Observable<Snapshot<void>>> => {
-  const application = new Application<void, any>(moduleFromComponent(componentType));
+  const application = new ApplicationFromModule<void, any>(moduleFromComponent(componentType));
   application.templateDocument(documentTemplate);
 
   return await application.render();

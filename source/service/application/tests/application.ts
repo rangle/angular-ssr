@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import {Application} from 'service';
+import {ApplicationFromModule} from 'service';
 
 import {
   BasicExternalComponent,
@@ -11,7 +11,7 @@ import {
 
 describe('Application', () => {
   it('should require a template document in order to render', async (done) => {
-    const application = new Application(moduleFromComponent(BasicInlineComponent));
+    const application = new ApplicationFromModule(moduleFromComponent(BasicInlineComponent));
     try {
       await application.render();
 

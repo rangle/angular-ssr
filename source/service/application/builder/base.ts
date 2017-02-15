@@ -1,17 +1,15 @@
 import {Type} from '@angular/core';
 
-import {RenderOperation, ApplicationStateReader} from '../operation';
+import {RenderOperation, ApplicationStateReader} from '../../operation';
 
-import {Route} from '../route';
+import {Route} from '../../route';
 
 import {VariantDefinitions, permutations} from 'variance';
 
-export abstract class ApplicationBuilder<V, M> {
+export abstract class ApplicationBuilderBase<V, M> {
   protected operation: Partial<RenderOperation<M, V>> = {};
 
-  constructor(moduleType: Type<M>) {
-    this.operation = {moduleType};
-  }
+  protected abstract getModule(): Promise<Type<M>>;
 
   templateDocument(template: string) {
     this.operation.templateDocument = template;
