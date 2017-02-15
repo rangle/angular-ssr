@@ -1,4 +1,4 @@
-import {Type} from '@angular/core';
+import {NgModuleFactory} from '@angular/core';
 
 import {RenderOperation, ApplicationStateReader} from '../../operation';
 
@@ -9,7 +9,7 @@ import {VariantDefinitions, permutations} from 'variance';
 export abstract class ApplicationBuilderBase<V, M> {
   protected operation: Partial<RenderOperation<M, V>> = {};
 
-  protected abstract getModule(): Promise<Type<M>>;
+  protected abstract getModuleFactory(): Promise<NgModuleFactory<M>>;
 
   templateDocument(template: string) {
     this.operation.templateDocument = template;

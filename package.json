@@ -42,7 +42,7 @@
     "reflect-metadata": "^0.1.9",
     "rimraf": "^2.5.4",
     "rxjs": "^5.1.0",
-    "typescript": "^2.1.6"
+    "typescript": "^2.2.0"
   },
   "devDependencies": {
     "@angular/common": "^2.4.6",

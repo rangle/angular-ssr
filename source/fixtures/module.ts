@@ -1,22 +1,24 @@
-import {NgModule, Type} from '@angular/core';
+import {NgModule, NgModuleFactory, Type} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {BrowserModule} from '@angular/platform-browser';
-
 import {ApplicationFromModule, Snapshot} from 'service';
-
+import {compileModule} from 'platform';
 import {documentTemplate} from './document';
 
 export const moduleFromComponent = (componentType: Type<any>): Type<any> =>
   NgModule({
-    imports: [BrowserModule],
     declarations: [componentType],
     bootstrap: [componentType],
   })(namedFunction(`${componentType.name}_${randomId()}`, function() {})); // defeat cache
 
+export const moduleFactoryFromComponent = async (componentType: Type<any>): Promise<NgModuleFactory<any>> =>
+  await compileModule(moduleFromComponent(componentType));
+
 export const renderFixture = async <M>(componentType: Type<M>): Promise<Observable<Snapshot<void>>> => {
-  const application = new ApplicationFromModule<void, any>(moduleFromComponent(componentType));
+  const module = moduleFromComponent(componentType);
+
+  const application = new ApplicationFromModule<void, any>(module);
   application.templateDocument(documentTemplate);
 
   return await application.render();

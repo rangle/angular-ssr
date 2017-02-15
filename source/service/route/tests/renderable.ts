@@ -2,13 +2,15 @@ import {renderableRoutes} from 'index';
 
 import {
   BasicInlineComponent,
-  moduleFromComponent,
-  documentTemplate,
+  moduleFactoryFromComponent,
+  documentTemplate
 } from 'fixtures';
 
 describe('renderable routes', () => {
-  it('should return a single route for an NgModule that does not use Router', done => {
-    const routes = renderableRoutes(moduleFromComponent(BasicInlineComponent), documentTemplate);
+  it('should return a single route for an NgModule that does not use Router', async (done) => {
+    const moduleFactory = await moduleFactoryFromComponent(BasicInlineComponent);
+
+    const routes = renderableRoutes(moduleFactory, documentTemplate);
 
     routes.then(result => {
       expect(result.length).toBe(1);

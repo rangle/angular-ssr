@@ -13,10 +13,10 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
 
     const operation = this.operation;
 
-    operation.moduleType = await this.getModule();
+    operation.moduleFactory = await this.getModuleFactory();
 
     if (operation.routes == null || operation.routes.length === 0) {
-      operation.routes = await renderableRoutes(operation.moduleType, this.operation.templateDocument);
+      operation.routes = await renderableRoutes(operation.moduleFactory, this.operation.templateDocument);
 
       if (operation.routes.length === 0) {
         throw new ApplicationException('No renderable routes were discovered');

@@ -1,4 +1,4 @@
-import {Injector, Type} from '@angular/core';
+import {Injector, NgModuleFactory, Type} from '@angular/core';
 
 import {ComposedTransition} from 'variance';
 
@@ -14,7 +14,7 @@ export type ApplicationStateReader = Type<StateReader> | StateReaderFunction;
 
 export interface RenderOperation<M, V> {
   templateDocument: string;
-  moduleType: Type<M>;
+  moduleFactory: NgModuleFactory<M>;
   routes: Array<Route>;
   variants: Map<V, ComposedTransition>;
   stateReader?: ApplicationStateReader;

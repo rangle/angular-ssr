@@ -16,6 +16,8 @@ import {
   Type,
 } from '@angular/core';
 
+import {BrowserModule} from '@angular/platform-browser';
+
 import {PlatformException} from '../exception';
 import {DocumentContainer, TemplateDocument, RequestUri} from '../document';
 import {RootRendererImpl} from '../render';
@@ -45,17 +47,15 @@ export class PlatformImpl implements PlatformRef {
     return this.disposed;
   }
 
-  async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []): Promise<NgModuleRef<M>> {
-    if (compilerOptions != null) {
+  async compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions>) {
+    if (nonstandardOptions(compilerOptions)) {
       // We cannot use our cached compiler or cached modules if the compilation options
       // have changed. The majority of callers of this method are not going to be giving
       // compilerOptions, so this is an unusual path for the code to take and is not
       // necessary to optimize with caching.
       const compiler = this.getCompiler(compilerOptions);
       try {
-        const moduleFactory = await compiler.compileModuleAsync(moduleType);
-
-        return await this.bootstrapModuleFactory<M>(moduleFactory);
+        return await compiler.compileModuleAsync(moduleType);
       }
       finally {
         compiler.clearCache();
@@ -70,7 +70,13 @@ export class PlatformImpl implements PlatformRef {
       this.compiledModules.set(moduleType.name, moduleFactory);
     }
 
-    return await this.bootstrapModuleFactory(this.compiledModules.get(moduleType.name));
+    return this.compiledModules.get(moduleType.name);
+  }
+
+  async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []): Promise<NgModuleRef<M>> {
+    const moduleFactory = await this.compileModule(moduleType, compilerOptions);
+
+    return await this.bootstrapModuleFactory(moduleFactory);
   }
 
   async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>> {
@@ -79,6 +85,10 @@ export class PlatformImpl implements PlatformRef {
     return await zone.run(async () => {
       const moduleRef = moduleFactory.create(this.injectorFactory(zone));
       try {
+        if (moduleRef.injector.get(BrowserModule, null) != null) {
+          throw new PlatformException('You cannot use an NgModuleFactory that has been compiled with a BrowserModule import');
+        }
+
         moduleRef.onDestroy(() => this.live.delete(moduleRef));
 
         await this.completeBootstrap(zone, moduleRef);
@@ -191,3 +201,10 @@ export class PlatformImpl implements PlatformRef {
     this.disposed = true;
   }
 }
+
+const nonstandardOptions = (compilerOptions: CompilerOptions | Array<CompilerOptions>) => {
+  if (Array.isArray(compilerOptions)) {
+    return compilerOptions.length > 0;
+  }
+  return compilerOptions != null;
+};

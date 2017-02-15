@@ -4,7 +4,7 @@ export abstract class Clone {
   static facade<T, V>(obj: T, facade: V): T & V {
     const shallow = Object.assign({}, facade);
 
-    Object.setPrototypeOf(shallow, obj);
+    Object.setPrototypeOf(shallow, <any> obj);
 
     return <T & V> shallow;
   }

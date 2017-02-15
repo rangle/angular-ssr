@@ -1,6 +1,6 @@
 import {Observable} from 'rxjs';
 
-import {browserModuleToServerModule, bootstrapApplicationWithExecute, forkZone} from 'platform';
+import {bootstrapModuleFactory, forkZone} from 'platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Snapshot, takeSnapshot} from '../snapshot';
 import {routeToUri} from '../route';
@@ -25,21 +25,18 @@ export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observab
 
 const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
   const {
-    transition,
     route,
     scope: {
       templateDocument,
-      moduleType,
+      moduleFactory,
     }
   } = operation;
 
   const absoluteUri = routeToUri(route);
 
-  const moduleWrapper = browserModuleToServerModule(moduleType, transition);
-
   return forkZone(templateDocument, absoluteUri,
     async () =>
-      await bootstrapApplicationWithExecute<M, Snapshot<V>>(
-        moduleWrapper,
+      await bootstrapModuleFactory<M, Snapshot<V>>(
+        moduleFactory,
         async (moduleRef) => await takeSnapshot(moduleRef, operation)));
 };

@@ -24,7 +24,7 @@ import {
 export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
   const exceptions: ExceptionStream = moduleRef.injector.get(ExceptionStream);
 
-  const {variant, route} = vop;
+  const {variant, route, transition} = vop;
 
   const snapshot: Partial<Snapshot<V>> = {variant, route, exceptions: new Array<Error>()};
 
@@ -37,6 +37,10 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
 
     // Mark the DOM as loaded and invoke remaining initialization tasks
     container.complete();
+
+    if (transition != null) {
+      transition(moduleRef.injector);
+    }
 
     await stableZone(moduleRef);
 
