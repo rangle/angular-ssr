@@ -21,7 +21,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {PlatformException} from '../exception';
 import {DocumentContainer, TemplateDocument, RequestUri} from '../document';
 import {RootRendererImpl} from '../render';
-import {DomSharedStyles, SharedStyles} from '../styles';
+import {DocumentStyles, SharedStyles} from '../styles';
 import {CurrentZone, stableZone} from '../zone';
 import {Publisher} from 'publisher';
 
@@ -152,7 +152,7 @@ export class PlatformImpl implements PlatformRef {
       {provide: DocumentContainer, useClass: DocumentContainer},
       {provide: RootRenderer, useClass: RootRendererImpl},
       {provide: SharedStyles, useClass: SharedStyles},
-      {provide: DomSharedStyles, useClass: DomSharedStyles},
+      {provide: DocumentStyles, useClass: DocumentStyles},
       {
         provide: TemplateDocument,
         useFactory: (currentZone: CurrentZone) => {

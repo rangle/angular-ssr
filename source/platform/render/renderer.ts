@@ -16,7 +16,7 @@ import {AnimationPlayerImpl} from './animation-player';
 import {RendererException} from './exception';
 import {namespaces} from './namespace';
 import {DocumentContainer} from '../document';
-import {DomSharedStyles} from '../styles';
+import {DocumentStyles} from '../styles';
 import {flatten} from 'transformation';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class RootRendererImpl implements RootRenderer, OnDestroy {
   constructor(
     @Inject(APP_ID) private applicationId: string,
     private container: DocumentContainer,
-    private sharedStyles: DomSharedStyles
+    private sharedStyles: DocumentStyles
   ) {}
 
   get document(): Document {
@@ -60,12 +60,11 @@ export class RootRendererImpl implements RootRenderer, OnDestroy {
 
 export class RendererImpl implements Renderer {
   constructor(
-    private sharedStyles: DomSharedStyles,
+    private documentStyles: DocumentStyles,
     private root: RootRendererImpl,
     private component: RenderComponentType,
     private componentId: string,
   ) {
-    console.log('YO COMPONENT STYLES', component.styles);
     this.styles =
       flatten<string>(component.styles).map(s => s.replace(/%COMP%/g, componentId));
 
@@ -73,7 +72,7 @@ export class RendererImpl implements Renderer {
       case ViewEncapsulation.Native:
         break;
       default:
-        sharedStyles.addStyles(this.styles);
+        documentStyles.addStyles(this.styles);
         break;
     }
   }
@@ -125,7 +124,7 @@ export class RendererImpl implements Renderer {
       case ViewEncapsulation.Native:
         const fragment = this.root.document.createDocumentFragment();
 
-        this.sharedStyles.addHost(fragment);
+        this.documentStyles.addHost(fragment);
 
         for (const style of this.styles) {
           const element = document.createElement('style');
@@ -199,7 +198,7 @@ export class RendererImpl implements Renderer {
     switch (this.component.encapsulation) {
       case ViewEncapsulation.Native:
         if (hostElement != null) {
-          this.sharedStyles.removeHost(hostElement);
+          this.documentStyles.removeHost(hostElement);
         }
       default:
         break;
