@@ -1,6 +1,7 @@
 import {
   ApplicationInitStatus,
   ApplicationRef,
+  Compiler,
   CompilerFactory,
   CompilerOptions,
   ErrorHandler,
@@ -15,27 +16,26 @@ import {
   Type,
 } from '@angular/core';
 
-import {PlatformException} from './exception';
+import {PlatformException} from '../exception';
 import {DocumentContainer, TemplateDocument, RequestUri} from '../document';
 import {RootRendererImpl} from '../render';
 import {DomSharedStyles, SharedStyles} from '../styles';
-import {CurrentZone} from '../zone';
+import {CurrentZone, stableZone} from '../zone';
+import {Publisher} from 'publisher';
 
 @Injectable()
 export class PlatformImpl implements PlatformRef {
-  private destructionCallbacks = new Set<() => void>();
+  private disposal = new Publisher<() => void>();
 
-  private compiledCache = new Map<string, NgModuleFactory<any>>();
+  private compiler: Compiler;
 
-  private runningModules = new Set<NgModuleRef<any>>();
+  private compiledModules = new Map<string, NgModuleFactory<any>>();
 
-  private disposed = false;
+  private live = new Set<NgModuleRef<any>>();
+
+  private disposed: boolean = false;
 
   constructor(private rootInjector: Injector) {}
-
-  onDestroy(callback: () => void) {
-    this.destructionCallbacks.add(callback);
-  }
 
   get injector(): Injector {
     return this.rootInjector;
@@ -45,72 +45,82 @@ export class PlatformImpl implements PlatformRef {
     return this.disposed;
   }
 
-  destroy() {
-    for (const module of Array.from(this.runningModules)) {
-      module.destroy();
+  async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []): Promise<NgModuleRef<M>> {
+    if (compilerOptions != null) {
+      // We cannot use our cached compiler or cached modules if the compilation options
+      // have changed. The majority of callers of this method are not going to be giving
+      // compilerOptions, so this is an unusual path for the code to take and is not
+      // necessary to optimize with caching.
+      const compiler = this.getCompiler(compilerOptions);
+      try {
+        const moduleFactory = await compiler.compileModuleAsync(moduleType);
+
+        return await this.bootstrapModuleFactory<M>(moduleFactory);
+      }
+      finally {
+        compiler.clearCache();
+      }
     }
 
-    this.runningModules.clear();
+    if (this.compiledModules.has(moduleType.name) === false) {
+      const compiler = this.getCompiler(compilerOptions);
 
-    this.compiledCache.clear();
+      const moduleFactory = await compiler.compileModuleAsync(moduleType);
 
-    for (const destructionCallback of Array.from(this.destructionCallbacks)) {
-      destructionCallback();
+      this.compiledModules.set(moduleType.name, moduleFactory);
     }
 
-    this.destructionCallbacks.clear();
-
-    this.disposed = true;
+    return await this.bootstrapModuleFactory(this.compiledModules.get(moduleType.name));
   }
 
   async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>> {
-    const ngZone = new NgZone({
-      enableLongStackTrace: true
-    });
+    const zone = new NgZone({enableLongStackTrace: true});
 
-    return await ngZone.run(async () => {
-      const moduleRef = moduleFactory.create(this.injectorFactory(ngZone));
+    return await zone.run(async () => {
+      const moduleRef = moduleFactory.create(this.injectorFactory(zone));
+      try {
+        moduleRef.onDestroy(() => this.live.delete(moduleRef));
 
-      moduleRef.onDestroy(() => this.runningModules.delete(moduleRef));
+        await this.completeBootstrap(zone, moduleRef);
 
-      const exceptionHandler: ErrorHandler = moduleRef.injector.get(ErrorHandler);
+        return moduleRef;
+      }
+      catch (exception) {
+        moduleRef.destroy();
 
-      ngZone.onError.subscribe(exception => exceptionHandler.handleError(exception));
-
-      const {donePromise: initialized} = moduleRef.injector.get(ApplicationInitStatus);
-      await initialized;
-
-      this.completeBootstrap(moduleRef);
-
-      this.runningModules.add(moduleRef);
-
-      return moduleRef;
+        throw exception;
+      }
     });
   }
 
-  async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []): Promise<NgModuleRef<M>> {
-    if (this.compiledCache.has(moduleType.name)) {
-      return this.bootstrapModuleFactory(this.compiledCache.get(moduleType.name));
+  private getCompiler(compilerOptions: CompilerOptions | Array<CompilerOptions>): Compiler {
+    const create = () => {
+      const compilerFactory: CompilerFactory = this.injector.get(CompilerFactory);
+
+      return compilerFactory.createCompiler(Array.isArray(compilerOptions) ? compilerOptions : [compilerOptions]);
+    };
+
+    if (compilerOptions != null) {
+      return create();
     }
-
-    const compilerFactory: CompilerFactory = this.injector.get(CompilerFactory);
-
-    const compiler =
-      compilerFactory.createCompiler(
-        Array.isArray(compilerOptions) ? compilerOptions : [compilerOptions]);
-
-    const moduleFactory = await compiler.compileModuleAsync(moduleType);
-
-    this.compiledCache.set(moduleType.name, moduleFactory);
-
-    return this.bootstrapModuleFactory(moduleFactory);
+    else {
+      if (this.compiler == null) {
+        this.compiler = create();
+      }
+      return this.compiler;
+    }
   }
 
-  private completeBootstrap(moduleRef) {
+  private async completeBootstrap<M>(zone: NgZone, moduleRef: NgModuleRef<M>) {
+    const exceptionHandler: ErrorHandler = moduleRef.injector.get(ErrorHandler);
+
+    zone.onError.subscribe(exception => exceptionHandler.handleError(exception));
+
+    await moduleRef.injector.get(ApplicationInitStatus).donePromise;
+
     const applicationRef = moduleRef.injector.get(ApplicationRef);
 
-    const {bootstrapFactories, instance: {ngDoBootstrap}} = moduleRef;
-
+    const {bootstrapFactories, instance: {ngDoBootstrap}} = <any> moduleRef;
     if (bootstrapFactories.length > 0) {
       for (const component of bootstrapFactories) {
         applicationRef.bootstrap(component);
@@ -122,6 +132,8 @@ export class PlatformImpl implements PlatformRef {
     else {
       throw new PlatformException(`Module declares neither bootstrap nor ngDoBootstrap`);
     }
+
+    this.live.add(moduleRef);
   }
 
   private injectorFactory(ngZone: NgZone): Injector {
@@ -148,5 +160,34 @@ export class PlatformImpl implements PlatformRef {
     ];
 
     return ReflectiveInjector.resolveAndCreate(providers, this.injector);
+  }
+
+  onDestroy(callback: () => void) {
+    this.disposal.subscribe(callback);
+  }
+
+  async destroy() {
+    if (this.disposed === true) {
+      throw new PlatformException('Attempting to dispose of the same PlatformImpl twice');
+    }
+
+    this.disposal.publish();
+
+    for (const module of Array.from(this.live)) {
+      // We want to avoid destroying a module that is in the middle of some asynchronous
+      // operations, because the handlers for those operations are likely to blow up in
+      // spectacular ways if their entire execution context has been ripped out from under
+      // them. So we wait for the zone associated with the module to become stable before
+      // we attempt to dispose of it.
+      stableZone(module).then(() => {
+        module.destroy();
+
+        this.live.delete(module);
+      });
+    }
+
+    this.compiledModules.clear();
+
+    this.disposed = true;
   }
 }

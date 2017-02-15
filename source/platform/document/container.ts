@@ -8,6 +8,8 @@ const domino = require('domino');
 
 import {TemplateDocument, RequestUri} from './tokens';
 
+import {PlatformException} from '../exception';
+
 @Injectable()
 export class DocumentContainer implements OnDestroy {
   private windowRef: Window;
@@ -20,15 +22,14 @@ export class DocumentContainer implements OnDestroy {
   }
 
   get window(): Window {
-    if (this.windowRef == null) {
-      throw new Error('No window container has been initialized');
-    }
-    return this.windowRef;
+    return this.windowRef || (() => {
+      throw new PlatformException('No window container has been initialized');
+    })();
   }
 
   get document(): Document {
     if (this.windowRef == null) {
-      throw new Error('No DOM has been initialized');
+      throw new PlatformException('No DOM has been initialized');
     }
     return this.windowRef.document;
   }
@@ -40,7 +41,15 @@ export class DocumentContainer implements OnDestroy {
   ngOnDestroy() {
     this.complete();
 
-    this.window.releaseEvents();
+    // This may seem pointless but we just want to release all references
+    // to the node elements in this document so that they can be garbage
+    // collected.
+    if (this.document) {
+      const child = () => this.document.body.firstChild;
+      while (child()) {
+        this.document.removeChild(child());
+      }
+    }
 
     this.windowRef = null;
   }

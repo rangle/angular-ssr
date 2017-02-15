@@ -4,7 +4,7 @@ import {Observable, ReplaySubject} from 'rxjs';
 
 import {ErrorHandlerImpl} from './handler';
 
-import {Subscription} from 'subscription';
+import {Subscription} from 'publisher';
 
 @Injectable()
 export class ExceptionStream implements OnDestroy {

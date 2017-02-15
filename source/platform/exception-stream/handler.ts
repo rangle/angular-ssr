@@ -1,6 +1,6 @@
 import {Injectable, ErrorHandler, OnDestroy} from '@angular/core';
 
-import {Subscription} from 'subscription';
+import {Publisher, Subscription} from 'publisher';
 
 export type ExceptionHandler = (exception: Error) => void;
 
@@ -10,23 +10,19 @@ export class ErrorHandlerImpl extends ErrorHandler implements OnDestroy {
     super(true);
   }
 
-  private subscriptions = new Set<ExceptionHandler>();
+  private subscriber = new Publisher<ExceptionHandler>();
 
   subscribe(handler: ExceptionHandler): Subscription {
-    this.subscriptions.add(handler);
-
-    return {
-      unsubscribe: () => this.subscriptions.delete(handler)
-    };
+    return this.subscriber.subscribe(handler);
   }
 
   handleError(exception: Error) {
-    this.subscriptions.forEach(subscription => subscription(exception));
+    this.subscriber.publish(exception);
 
     super.handleError(exception);
   }
 
   ngOnDestroy() {
-    this.subscriptions.clear();
+    this.subscriber.dispose();
   }
 }

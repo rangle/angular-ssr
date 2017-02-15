@@ -5,7 +5,7 @@ export class Exception extends Error {
 
   public get stack(): string {
     if (this.innerException) {
-      return `${super.stack} -> (inner ex) ${this.innerException.stack}`;
+      return `${super.stack} -> ${this.innerException.stack}`;
     }
 
     return super.stack;
