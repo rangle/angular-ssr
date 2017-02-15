@@ -65,6 +65,7 @@ export class RendererImpl implements Renderer {
     private component: RenderComponentType,
     private componentId: string,
   ) {
+    console.log('YO COMPONENT STYLES', component.styles);
     this.styles =
       flatten<string>(component.styles).map(s => s.replace(/%COMP%/g, componentId));
 
@@ -107,6 +108,10 @@ export class RendererImpl implements Renderer {
       /^\:/.test(name)
         ? this.createNamespacedElement(name)
         : this.root.document.createElement(name);
+
+    if (this.contentIdentifier) {
+      element.setAttribute(this.contentIdentifier, String());
+    }
 
     if (parentElement != null) {
       parentElement.appendChild(element);
