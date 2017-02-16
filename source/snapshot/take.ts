@@ -13,7 +13,7 @@ import {
   StateReaderFunction,
   ApplicationStateReader,
   RenderVariantOperation,
-} from '../operation';
+} from 'application/operation';
 
 import {
   DocumentContainer,

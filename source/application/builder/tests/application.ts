@@ -1,4 +1,4 @@
-import {ApplicationFromModule} from 'service';
+import {ApplicationFromModule} from 'application';
 
 import {
   BasicExternalComponent,

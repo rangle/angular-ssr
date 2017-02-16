@@ -2,7 +2,8 @@ import {NgModule, NgModuleFactory, Type} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {ApplicationFromModule, Snapshot} from 'service';
+import {ApplicationFromModule} from 'application';
+import {Snapshot} from 'snapshot';
 import {compileModule} from 'platform';
 import {documentTemplate} from './document';
 
