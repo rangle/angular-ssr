@@ -5,7 +5,8 @@ import {
   Type,
 } from '@angular/core';
 
-import {SnapshotException} from './exception';
+import {SnapshotException} from 'exception';
+
 import {Snapshot} from './snapshot';
 
 import {

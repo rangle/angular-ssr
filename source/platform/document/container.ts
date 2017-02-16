@@ -8,7 +8,7 @@ const domino = require('domino');
 
 import {TemplateDocument, RequestUri} from './tokens';
 
-import {PlatformException} from '../exception';
+import {PlatformException} from 'exception';
 
 @Injectable()
 export class DocumentContainer implements OnDestroy {

@@ -18,11 +18,11 @@ import {
 
 import {BrowserModule} from '@angular/platform-browser';
 
-import {PlatformException} from '../exception';
-import {DocumentContainer, TemplateDocument, RequestUri} from '../document';
-import {RootRendererImpl} from '../render';
-import {DocumentStyles, SharedStyles} from '../styles';
-import {CurrentZone, stableZone} from '../zone';
+import {PlatformException} from 'exception';
+import {DocumentContainer, TemplateDocument, RequestUri} from './document';
+import {RootRendererImpl} from './render';
+import {DocumentStyles, SharedStyles} from './styles';
+import {CurrentZone, stableZone} from './zone';
 import {Publisher} from 'publisher';
 
 @Injectable()
@@ -126,7 +126,12 @@ export class PlatformImpl implements PlatformRef {
 
     zone.onError.subscribe(exception => exceptionHandler.handleError(exception));
 
-    await moduleRef.injector.get(ApplicationInitStatus).donePromise;
+    const applicationInit = moduleRef.injector.get(ApplicationInitStatus, null);
+    if (applicationInit == null) {
+      throw new PlatformException('Your application module does not import ApplicationModule, but it must');
+    }
+
+    await applicationInit.donePromise;
 
     const applicationRef = moduleRef.injector.get(ApplicationRef);
 

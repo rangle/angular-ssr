@@ -1,6 +1,6 @@
 import {Route} from './route';
 
-import {RouteException} from './exception';
+import {RouteException} from 'exception';
 
 export const routeToUri = (route: Route): string => {
   const split = route.path.reduce((p, c) => p.concat(c.split('/')), []);

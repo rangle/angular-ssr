@@ -7,7 +7,7 @@ import {
   PlatformLocation,
 } from '@angular/common';
 
-import {DocumentContainer} from '../document';
+import {DocumentContainer} from './document';
 
 @Injectable()
 export class LocationImpl implements PlatformLocation, OnDestroy {

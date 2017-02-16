@@ -13,10 +13,10 @@ import {
 } from '@angular/core';
 
 import {AnimationPlayerImpl} from './animation-player';
-import {RendererException} from './exception';
 import {namespaces} from './namespace';
 import {DocumentContainer} from '../document';
 import {DocumentStyles} from '../styles';
+import {RendererException} from 'exception';
 import {flatten} from 'transformation';
 
 @Injectable()

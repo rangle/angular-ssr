@@ -1,4 +1,5 @@
 export * from './builder';
-export * from './exception';
+export * from './compiler';
 export * from './fork';
+export * from './project';
 export * from './render';

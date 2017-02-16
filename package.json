@@ -26,6 +26,7 @@
   "peerDependencies": {
     "@angular/common": "^2.4.6",
     "@angular/compiler": "^2.4.6",
+    "@angular/compiler-cli": "^2.4.6",
     "@angular/core": "^2.4.6",
     "@angular/router": "^3.4.6",
     "reflect-metadata": "^0.1",
@@ -35,6 +36,8 @@
     "@ngrx/store": "^2.2.1"
   },
   "dependencies": {
+    "@angular/compiler-cli": "^2.4.7",
+    "@angular/tsc-wrapped": "^0.5.2",
     "@types/codependency": "^0.1.1",
     "@types/jasmine": "^2.5.41",
     "codependency": "^0.1.4",
@@ -62,7 +65,7 @@
     "modulePaths": [
       "<rootDir>/source"
     ],
-    "setupTestFrameworkScriptFile": "jasmine-promises",
+    "setupTestFrameworkScriptFile": "<rootDir>/source/dependencies.ts",
     "transform": {
       ".ts": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },

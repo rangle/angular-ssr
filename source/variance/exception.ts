@@ -1,4 +1,4 @@
-import {Exception} from '../exception';
+import {Exception} from 'exception';
 
 export class TransitionException extends Exception {
   constructor(innerException: Error, key: string, values) {

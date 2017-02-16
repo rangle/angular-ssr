@@ -9,7 +9,7 @@ import {BrowserModule} from '@angular/platform-browser';
 
 import {Reflector} from './metadata';
 
-import {PlatformException} from '../exception';
+import {PlatformException} from 'exception';
 
 import {flatten} from 'transformation';
 

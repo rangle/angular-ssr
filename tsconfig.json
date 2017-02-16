@@ -23,6 +23,7 @@
   "exclude": [
     "build",
     "node_modules",
-    "source/**/tests"
+    "source/**/tests",
+    "source/test-fixtures"
   ]
 }

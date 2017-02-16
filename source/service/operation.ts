@@ -2,7 +2,7 @@ import {Injector, NgModuleFactory, Type} from '@angular/core';
 
 import {ComposedTransition} from 'variance';
 
-import {Route} from '../route';
+import {Route} from './route';
 
 export interface StateReader {
   getState(): Promise<any>;

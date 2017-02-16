@@ -4,7 +4,7 @@ import {
   BasicInlineComponent,
   moduleFactoryFromComponent,
   documentTemplate
-} from 'fixtures';
+} from 'test-fixtures';
 
 describe('renderable routes', () => {
   it('should return a single route for an NgModule that does not use Router', async (done) => {
