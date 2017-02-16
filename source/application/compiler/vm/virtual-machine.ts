@@ -21,10 +21,14 @@ export class VirtualMachine implements Disposable {
     }
 
     const wrappedCode = `(function() {
-      const module = {id: '${moduleId}', exports: {}, filename: '${filename}'};
+      const module = {
+        exports: {},
+        filename: '${filename}',
+        id: '${moduleId}'
+      };
       const exports = module.exports;
       ${code};
-      return exports;
+      return module.exports;
     })()`;
 
     const script = new Script(wrappedCode, {filename, displayErrors: true});
@@ -38,7 +42,7 @@ export class VirtualMachine implements Disposable {
     if (this.modules.has(absolutePath) === false) {
       const script = this.scripts.get(absolutePath);
       if (script == null) {
-        return require(moduleId); // probably a third-party module
+        return require(moduleId); // FIXME(cbond): Find a way to run this through babel require
       }
 
       const context = createContext({require: mid => this.require(mid, moduleId)});

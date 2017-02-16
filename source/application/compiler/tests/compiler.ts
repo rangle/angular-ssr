@@ -15,7 +15,7 @@ describe('Compiler', () => {
     });
   };
 
-  it('should be able to build a TypeScript application and produce in-memory artifacts', async () => {
+  xit('should be able to build a TypeScript application and produce in-memory artifacts', async () => {
     const compiler = createCompiler();
     const module = await compiler.compile();
     expect(module).not.toBeNull();

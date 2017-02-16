@@ -38,8 +38,11 @@
   "dependencies": {
     "@angular/compiler-cli": "^2.4.7",
     "@angular/tsc-wrapped": "^0.5.2",
+    "@types/babel-core": "^6.7.14",
     "@types/codependency": "^0.1.1",
     "@types/jasmine": "^2.5.41",
+    "babel-core": "^6.23.1",
+    "babel-preset-es2015": "^6.22.0",
     "codependency": "^0.1.4",
     "domino": "^1.0.28",
     "reflect-metadata": "^0.1.9",

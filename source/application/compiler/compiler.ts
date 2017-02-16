@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 
 import {
+  CompilerHost,
   CompilerOptions,
   Diagnostic,
   ModuleKind,
@@ -23,6 +24,7 @@ import {Project} from '../project';
 import {Reflector} from 'platform';
 import {VirtualMachine} from './vm';
 import {diagnosticsToException} from './diagnostics';
+import {templateCompiler} from './template';
 import {flatten} from 'transformation';
 
 export class Compiler {
@@ -37,16 +39,16 @@ export class Compiler {
     }
   }
 
-  compile(): NgModuleFactory<any> {
+  async compile(): Promise<NgModuleFactory<any>> {
     const vm = new VirtualMachine();
     try {
-      this.compileToVm(vm);
+      await this.compileToVm(vm);
 
       const [moduleId, exported] = this.project.ngModule;
 
-      const requiredModule = vm.require(moduleId);
+      const requiredModule = vm.require(`${moduleId}.ngfactory`); // use the compiled template, not the jit version
       if (requiredModule == null) {
-        throw new CompilerException(`Attempted to require ${moduleId} but received a null or undefined object`);
+        throw new CompilerException(`Attempted to require ${moduleId}.ngfactory but received a null or undefined object`);
       }
 
       const rootModule =
@@ -65,10 +67,12 @@ export class Compiler {
     }
   }
 
-  private compileToVm(vm: VirtualMachine) {
-    const program = this.createProgram(null);
+  private async compileToVm(vm: VirtualMachine): Promise<void> {
+    const {program, compilerHost} = this.createProgram(null);
 
     const compilerOptions = program.getCompilerOptions();
+
+    const templatedProgram = await templateCompiler(this.options, program, compilerHost);
 
     const writer: WriteFileCallback =
       (fileName, data, writeByteOrderMark, onError?, sourceFiles?) => {
@@ -85,10 +89,10 @@ export class Compiler {
         }
       };
 
-    program.emit(undefined, writer, null, false);
+    templatedProgram.emit(undefined, writer, null, false);
   }
 
-  private createProgram(previousProgram?: Program): Program {
+  private createProgram(previousProgram?: Program): {program: Program, compilerHost: CompilerHost} {
     const {typescriptOptions} = this.options;
 
     const options = Object.assign({}, typescriptOptions.options, {
@@ -110,7 +114,7 @@ export class Compiler {
 
     this.assertions(program);
 
-    return program;
+    return {program, compilerHost};
   }
 
   private assertions(program: Program) {
