@@ -5,7 +5,7 @@ import {ParsedCommandLine} from 'typescript';
 
 import {Project} from '../project';
 
-export interface CompilerOptions {
+export interface CompileOptions {
   // TypeScript compiler options
   typescriptOptions: ParsedCommandLine;
 
@@ -13,7 +13,7 @@ export interface CompilerOptions {
   angularOptions: AngularCompilerOptions;
 }
 
-export const loadProjectOptions = (project: Project): CompilerOptions => {
+export const loadProjectOptions = (project: Project): CompileOptions => {
   const tsc = new Tsc();
 
   const {parsed, ngOptions} = tsc.readConfiguration(project.tsconfig, project.basePath);

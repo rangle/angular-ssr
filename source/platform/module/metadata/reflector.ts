@@ -29,6 +29,10 @@ export abstract class Reflector {
     return reflector.parameters(type);
   }
 
+  static decorated<T, D>(type: Type<T>, decoratorType: Type<D>): boolean {
+    return Reflector.decorators<T, D>(type, decoratorType).length > 0;
+  }
+
   static mutateAnnotation<T, D>(type: Type<T>, decoratorType: Type<D>, mutator: MutateDecorator<D>): void {
     const annotations = Reflector.annotations<T>(type).slice();
 

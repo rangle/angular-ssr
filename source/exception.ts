@@ -1,7 +1,16 @@
 export class Exception extends Error {
-  constructor(msg: string, private innerException?: Error) {
-    super(msg);
-  }
+  private innerException: Error;
+
+  constructor(msg: string, innerException?: Error) {
+    if (innerException) {
+      super(`${msg} -> ${innerException.stack}`);
+    }
+    else {
+      super(msg);
+    }
+
+    this.innerException = innerException;
+ }
 
   public get stack(): string {
     if (this.innerException) {
@@ -21,3 +30,5 @@ export class RendererException extends Exception {}
 export class ResourceException extends Exception {}
 export class RouteException extends Exception {}
 export class SnapshotException extends Exception {}
+export class MemoryFilesystemException extends Exception {}
+export class VirtualMachineException extends Exception {}

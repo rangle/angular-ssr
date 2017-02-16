@@ -1,54 +1,110 @@
 import {
+  NgModuleFactory,
+  NgModule
+} from '@angular/core';
+
+import {
+  CompilerOptions,
   Diagnostic,
-  FormatDiagnosticsHost,
+  ModuleKind,
+  ModuleResolutionKind,
   Program,
-  SourceFile,
   WriteFileCallback,
   createCompilerHost,
   createProgram,
-  formatDiagnostics,
   getPreEmitDiagnostics,
 } from 'typescript';
 
-import {EOL} from 'os';
-import {cwd} from 'process';
-import {relative} from 'path';
+import {dirname} from 'path';
 
-import {ApplicationBundle} from './bundle';
-import {CompilerOptions, loadProjectOptions} from './options';
+import {CompileOptions, loadProjectOptions} from './options';
 import {CompilerException} from 'exception';
 import {Project} from '../project';
-
+import {Reflector} from 'platform';
+import {VirtualMachine} from './vm';
+import {diagnosticsToException} from './diagnostics';
 import {flatten} from 'transformation';
 
 export class Compiler {
-  private options: CompilerOptions;
+  private options: CompileOptions;
 
-  constructor(project: Project) {
+  constructor(private project: Project) {
     this.options = loadProjectOptions(project);
+
+    if (project.ngModule == null ||
+        project.ngModule.length < 2) {
+      throw new CompilerException('Compiler requires a module ID and an export name in ngModule');
+    }
   }
 
-  async compile(): Promise<ApplicationBundle> {
+  compile(): NgModuleFactory<any> {
+    const vm = new VirtualMachine();
+    try {
+      this.compileToVm(vm);
+
+      const [moduleId, exported] = this.project.ngModule;
+
+      const requiredModule = vm.require(moduleId);
+      if (requiredModule == null) {
+        throw new CompilerException(`Attempted to require ${moduleId} but received a null or undefined object`);
+      }
+
+      const rootModule =
+        !exported
+          ? requiredModule
+          : requiredModule[exported];
+
+      if (Reflector.decorated(rootModule, NgModule) === false) {
+        throw new CompilerException(`Root module type ${rootModule.name} is not decorated with @NgModule`);
+      }
+
+      return rootModule;
+    }
+    finally {
+      vm.dispose();
+    }
+  }
+
+  private compileToVm(vm: VirtualMachine) {
     const program = this.createProgram(null);
 
-    return new Promise(resolve => {
-      const writer: WriteFileCallback =
-        (fileName: string, data: string, writeByteOrderMark: boolean, onError?: (message: string) => void, sourceFiles?: SourceFile[]) => {
-          throw new CompilerException('Not implemented');
-        };
+    const compilerOptions = program.getCompilerOptions();
 
-      program.emit(undefined, writer, null, false);
-    });
+    const writer: WriteFileCallback =
+      (fileName, data, writeByteOrderMark, onError?, sourceFiles?) => {
+        try {
+          const moduleId = this.moduleIdFromFilename(fileName, compilerOptions);
+
+          vm.define(fileName, moduleId, data);
+        }
+        catch (exception) {
+          if (onError == null) {
+            throw exception;
+          }
+          onError(exception.stack);
+        }
+      };
+
+    program.emit(undefined, writer, null, false);
   }
 
   private createProgram(previousProgram?: Program): Program {
     const {typescriptOptions} = this.options;
 
-    const compilerHost = createCompilerHost(typescriptOptions.options, true);
+    const options = Object.assign({}, typescriptOptions.options, {
+      declaration: false,
+      sourceMap: false,
+      sourceRoot: null,
+      inlineSourceMap: false,
+      module: ModuleKind.CommonJS,
+      moduleResolution: ModuleResolutionKind.NodeJs,
+    });
+
+    const compilerHost = createCompilerHost(options, true);
 
     const program = createProgram(
       typescriptOptions.fileNames,
-      typescriptOptions.options,
+      options,
       compilerHost,
       previousProgram);
 
@@ -64,18 +120,37 @@ export class Compiler {
   }
 
   private conditionalException(diagnostics: Array<Diagnostic>) {
-    if (diagnostics == null || diagnostics.length === 0) {
+    if (diagnostics == null ||
+        diagnostics.length === 0) {
       return;
     }
+    throw new CompilerException(diagnosticsToException(diagnostics));
+  }
 
-    const host: FormatDiagnosticsHost = {
-       getCurrentDirectory: (): string => cwd(),
-       getCanonicalFileName: (filename: string): string => relative(cwd(), filename),
-       getNewLine: (): string => EOL,
-    };
+  private moduleIdFromFilename(filename: string, compilerOptions: CompilerOptions): string {
+    const projectPath = (path: string): string =>
+      path.toLowerCase().endsWith('.json')
+        ? dirname(path)
+        : path;
 
-    const formatted = formatDiagnostics(diagnostics, host);
+    const candidates = [
+      compilerOptions.baseUrl,
+      compilerOptions.outDir,
+      compilerOptions.rootDir,
+      compilerOptions.project
+        ? projectPath(compilerOptions.project)
+        : null,
+    ].concat(compilerOptions.rootDirs || []).filter(v => v);
 
-    throw new CompilerException(formatted);
+    const lowerfile = filename.toLowerCase();
+
+    const matches = candidates.map(v => v.toLowerCase()).filter(p => lowerfile.startsWith(p));
+    if (matches.length > 0) {
+      return filename.substring(matches[0].length)
+        .replace(/\.js$/, String())
+        .replace(/^\//, String());
+    }
+
+    throw new CompilerException(`Cannot determine module ID of file ${filename}`);
   }
 }
