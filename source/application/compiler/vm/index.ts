@@ -1,1 +1,1 @@
-export * from './virtual-machine';
+export * from './vm';
