@@ -4,3 +4,4 @@ export * from './application-basic-inline';
 export * from './document';
 export * from './module';
 export * from './path';
+export * from './project';

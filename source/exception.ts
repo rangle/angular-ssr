@@ -24,7 +24,6 @@ export class Exception extends Error {
 export class ApplicationException extends Exception {}
 export class CompilerException extends Exception {}
 export class ModuleException extends Exception {}
-export class PathException extends Exception {}
 export class PlatformException extends Exception {}
 export class RendererException extends Exception {}
 export class ResourceException extends Exception {}

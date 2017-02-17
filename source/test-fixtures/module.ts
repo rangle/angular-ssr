@@ -5,7 +5,7 @@ import {Observable} from 'rxjs';
 import {ApplicationFromModule} from 'application';
 import {Snapshot} from 'snapshot';
 import {compileModule} from 'platform';
-import {documentTemplate} from './document';
+import {templateDocument} from './document';
 
 export const moduleFromComponent = (componentType: Type<any>): Type<any> =>
   NgModule({
@@ -20,7 +20,7 @@ export const renderFixture = async <M>(componentType: Type<M>): Promise<Observab
   const module = moduleFromComponent(componentType);
 
   const application = new ApplicationFromModule<void, any>(module);
-  application.templateDocument(documentTemplate);
+  application.templateDocument(templateDocument);
 
   return await application.render();
 };

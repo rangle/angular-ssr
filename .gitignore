@@ -9,8 +9,9 @@ source/**/*.ngfactory.ts
 source/**/*.ngfactory.js
 source/**/*.ngsummary.json
 source/**/*.ngstyle.ts
+source/**/*.shim.ngstyle.ts
 source/**/*.shim.ts
-source/**/*.shim.jsq
+source/**/*.shim.js
 source/**/*.metadata.json
 source/**/*.js
 source/**/*.js.map

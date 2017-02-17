@@ -1,4 +1,4 @@
-export const documentTemplate = `
+export const templateDocument = `
   <!doctype html>
   <html>
     <head></head>

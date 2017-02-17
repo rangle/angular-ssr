@@ -5,6 +5,9 @@ export interface Project {
   // path to the tsconfig.json file for this project
   tsconfig: string;
 
-  // path to the application root NgModule, and the name of that module
-  ngModule: [string, string];
+  // path to the application root NgModule file, and the name of that module
+  rootModule: {
+    source: string;
+    symbol: string;
+  }
 }

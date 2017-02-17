@@ -83,13 +83,15 @@ const normalizeModuleId = (to: string, from?: string): string => {
 };
 
 const baseRequire = (moduleId: string) => {
+  console.log('base require', moduleId);
+
   // For whatever reason, the unbundled JS code in the Angular npm module is compiled into
   // ES2015 code which cannot be run on most NodeJS versions. So for Angular, we transpile
   // using Babel from ES2015 -> ES5 so that we can get broadly-compatible code (like what
   // is in the umd bundles) which we can execute in our VM. Ideally, this hack would not
   // be necessary. Other libraries are just require()d normally without the transpilation
   // because they do not require it and it would be a performance drain.
-  if (/^@angular\//.test(moduleId)) {
+  if (/^\@angular\//.test(moduleId)) {
     return transpile(moduleId);
   }
   return require(moduleId);

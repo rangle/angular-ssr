@@ -1,7 +1,4 @@
-import {
-  NgModuleFactory,
-  NgModule
-} from '@angular/core';
+import {NgModuleFactory} from '@angular/core';
 
 import {
   CompilerHost,
@@ -21,7 +18,6 @@ import {dirname} from 'path';
 import {CompileOptions, loadProjectOptions} from './options';
 import {CompilerException} from 'exception';
 import {Project} from '../project';
-import {Reflector} from 'platform';
 import {VirtualMachine} from './vm';
 import {diagnosticsToException} from './diagnostics';
 import {templateCompiler} from './template';
@@ -33,8 +29,11 @@ export class Compiler {
   constructor(private project: Project) {
     this.options = loadProjectOptions(project);
 
-    if (project.ngModule == null ||
-        project.ngModule.length < 2) {
+    const {rootModule} = project;
+
+    const none = (identifier: string) => identifier == null || identifier.length === 0;
+
+    if (rootModule == null || none(rootModule.source) || none(rootModule.symbol)) {
       throw new CompilerException('Compiler requires a module ID and an export name in ngModule');
     }
   }
@@ -44,23 +43,23 @@ export class Compiler {
     try {
       await this.compileToVm(vm);
 
-      const [moduleId, exported] = this.project.ngModule;
+      const {source, symbol} = this.project.rootModule;
 
-      const requiredModule = vm.require(`${moduleId}.ngfactory`); // use the compiled template, not the jit version
+      const requiredModule = vm.require(`${source}.ngfactory`); // use the compiled template, not the jit version
       if (requiredModule == null) {
-        throw new CompilerException(`Attempted to require ${moduleId}.ngfactory but received a null or undefined object`);
+        throw new CompilerException(`Attempted to load ${source}.ngfactory but received a null or undefined object`);
       }
 
-      const rootModule =
-        !exported
-          ? requiredModule
-          : requiredModule[exported];
+      const factorySymbol =
+        /NgFactory$/.test(symbol) === false
+          ? `${symbol}NgFactory`
+          : `${symbol}`;
 
-      if (Reflector.decorated(rootModule, NgModule) === false) {
-        throw new CompilerException(`Root module type ${rootModule.name} is not decorated with @NgModule`);
+      if (requiredModule.hasOwnProperty(factorySymbol) === false) {
+        throw new CompilerException(`Module ${source} does not export a ${factorySymbol} symbol`);
       }
 
-      return rootModule;
+      return requiredModule[factorySymbol];
     }
     finally {
       vm.dispose();

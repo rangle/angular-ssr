@@ -9,7 +9,7 @@ import {
   trimDocument,
 } from 'test-fixtures';
 
-describe('Application builder', () => {
+describe('ApplicationFromModule', () => {
   it('should require a template document in order to render', async (done) => {
     const application = new ApplicationFromModule(moduleFromComponent(BasicInlineComponent));
     try {

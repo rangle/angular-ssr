@@ -1,7 +1,7 @@
 import {NgModuleFactory} from '@angular/core';
 
 import {ApplicationBase} from './application';
-import {CompilerException} from 'exception';
+import {Compiler} from '../compiler';
 import {Project} from '../project';
 
 export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
@@ -9,7 +9,9 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
     super();
   }
 
-  protected getModuleFactory(): Promise<NgModuleFactory<any>> {
-    throw new CompilerException('Not implemented');
+  protected async getModuleFactory(): Promise<NgModuleFactory<any>> {
+    const compiler = new Compiler(this.project);
+
+    return await compiler.compile();
   }
 }
