@@ -9,7 +9,7 @@
     "prebuild": "rimraf build",
     "build": "tsc",
     "watch": "tsc --watch",
-    "pretest": "rimraf coverage && npm run lint",
+    "pretest": "npm run lint",
     "lint": "tslint --project tsconfig.json --type-check",
     "test": "jest",
     "test:watch": "jest --watch"
@@ -75,7 +75,8 @@
     "testRegex": "source/.*/tests/.*\\.ts$",
     "moduleFileExtensions": [
       "ts",
-      "js"
+      "js",
+      "json"
     ]
   }
 }
