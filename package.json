@@ -70,7 +70,7 @@
     ],
     "setupTestFrameworkScriptFile": "<rootDir>/source/dependencies.ts",
     "transform": {
-      ".ts": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+      "\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "source/.*/tests/.*\\.ts$",
     "moduleFileExtensions": [

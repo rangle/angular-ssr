@@ -17,6 +17,7 @@ import {dirname} from 'path';
 
 import {CompileOptions, loadProjectOptions} from './options';
 import {CompilerException} from 'exception';
+import {CompilerVmHost} from './compiler-vm-host';
 import {Project} from '../project';
 import {VirtualMachine} from './vm';
 import {diagnosticsToException} from './diagnostics';
@@ -45,7 +46,8 @@ export class Compiler {
 
       const {source, symbol} = this.project.rootModule;
 
-      const requiredModule = vm.require(`${source}.ngfactory`); // use the compiled template, not the jit version
+      // use the compiled template factory, not the jit class
+      const requiredModule = vm.require(`${source}.ngfactory`);
       if (requiredModule == null) {
         throw new CompilerException(`Attempted to load ${source}.ngfactory but received a null or undefined object`);
       }
@@ -67,18 +69,18 @@ export class Compiler {
   }
 
   private async compileToVm(vm: VirtualMachine): Promise<void> {
-    const {program, compilerHost} = this.createProgram(null);
+    const compilerHost = createCompilerHost(this.typescriptOptions(), true);
+
+    const options = this.options.typescriptOptions;
+
+    const program = this.createProgram(options.fileNames, options.options, compilerHost);
 
     const compilerOptions = program.getCompilerOptions();
-
-    const templatedProgram = await templateCompiler(this.options, program, compilerHost);
 
     const writer: WriteFileCallback =
       (fileName, data, writeByteOrderMark, onError?, sourceFiles?) => {
         try {
-          const moduleId = this.moduleIdFromFilename(fileName, compilerOptions);
-
-          vm.define(fileName, moduleId, data);
+          vm.define(fileName, this.moduleIdFromFilename(fileName, compilerOptions), data);
         }
         catch (exception) {
           if (onError == null) {
@@ -88,13 +90,37 @@ export class Compiler {
         }
       };
 
+    compilerHost.writeFile = writer;
+
+    const metadataWriter = await templateCompiler(this.options, program, compilerHost);
+
+    const compilerVmHost = new CompilerVmHost(this.project, vm, metadataWriter);
+
+    const {parsedCommandLine} = compilerVmHost;
+
+    const suboptions = this.typescriptOptions(parsedCommandLine.options);
+
+    const templatedProgram = this.createProgram(parsedCommandLine.fileNames, suboptions, compilerVmHost, program);
+
     templatedProgram.emit(undefined, writer, null, false);
   }
 
-  private createProgram(previousProgram?: Program): {program: Program, compilerHost: CompilerHost} {
-    const {typescriptOptions} = this.options;
+  private createProgram(files: Array<string>, compilerOptions: CompilerOptions, compilerHost: CompilerHost, previousProgram?: Program): Program {
+    const program = createProgram(
+      files,
+      compilerOptions,
+      compilerHost,
+      previousProgram);
 
-    const options = Object.assign({}, typescriptOptions.options, {
+    this.assertions(program);
+
+    return program;
+  }
+
+  private typescriptOptions(baseOptions?: CompilerOptions) {
+    const tsoptions = baseOptions || this.options.typescriptOptions.options;
+
+    return Object.assign({}, tsoptions, {
       declaration: false,
       sourceMap: false,
       sourceRoot: null,
@@ -102,18 +128,6 @@ export class Compiler {
       module: ModuleKind.CommonJS,
       moduleResolution: ModuleResolutionKind.NodeJs,
     });
-
-    const compilerHost = createCompilerHost(options, true);
-
-    const program = createProgram(
-      typescriptOptions.fileNames,
-      options,
-      compilerHost,
-      previousProgram);
-
-    this.assertions(program);
-
-    return {program, compilerHost};
   }
 
   private assertions(program: Program) {

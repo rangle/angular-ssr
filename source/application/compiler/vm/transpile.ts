@@ -6,7 +6,7 @@ installExtensions();
 
 const {transform} = require('babel-core');
 
-export const transpile = (moduleId: string): string => {
+export const transpile = (moduleId: string): [string, string] => {
   const path = require.resolve(moduleId);
   if (path == null) {
     throw new CompilerException(`Cannot resolve module path: ${moduleId}`);
@@ -16,7 +16,7 @@ export const transpile = (moduleId: string): string => {
 
   try {
     const {code} = transform(content, {presets: ['es2015'], sourceMaps: false});
-    return code;
+    return [path, code];
   }
   catch (exception) {
     throw new CompilerException(`Transpilation of ${moduleId} failed: ${exception.message}`, exception);

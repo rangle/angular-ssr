@@ -9,12 +9,11 @@ import {MetadataWriterHost, NgcCliOptions} from '@angular/tsc-wrapped';
 import {
   CompilerHost as TsCompilerHost,
   Program,
-  createProgram
 } from 'typescript';
 
 import {CompileOptions} from './options';
 
-export const templateCompiler = async (options: CompileOptions, program: Program, compilerHost: TsCompilerHost): Promise<Program> => {
+export const templateCompiler = async (options: CompileOptions, program: Program, compilerHost: TsCompilerHost): Promise<TsCompilerHost> => {
   const hostContext = new NodeCompilerHostContext();
 
   const ngCompiler = new CompilerHost(program, options.angularOptions, hostContext);
@@ -34,9 +33,5 @@ export const templateCompiler = async (options: CompileOptions, program: Program
 
   metadataWriter.writeFile = compilerHost.writeFile;
 
-  return createProgram(
-    options.typescriptOptions.fileNames,
-    options.typescriptOptions.options,
-    metadataWriter,
-    program);
+  return metadataWriter;
 };

@@ -1,4 +1,4 @@
-import {Script, createContext} from 'vm';
+import {Context, Script, createContext} from 'vm';
 
 import {dirname, join, normalize} from 'path';
 
@@ -12,8 +12,28 @@ export class VirtualMachine implements Disposable {
   private scripts = new Map<string, Script>();
   private modules = new Map<string, any>();
 
+  private paths = new Set<string>();
+  private files = new Set<string>();
+
+  private fileContents = new Map<string, string>();
+
+  private context: Context;
+
+  constructor() {
+    this.context = createContext({global, require: mid => this.require(mid)});
+  }
+
+  read(filename): string {
+    return this.fileContents.get(filename);
+  }
+
   define(filename: string, moduleId: string, code: string) {
-    const normalizedModuleId = normalizeModuleId(moduleId);
+    this.paths.add(normalize(dirname(filename)));
+    this.files.add(normalize(filename));
+
+    this.fileContents.set(filename, code);
+
+    const normalizedModuleId = this.normalizeModuleId(moduleId);
 
     if (this.scripts.has(moduleId)) {
       throw new VirtualMachineException(`Cannot overwrite existing module '${normalizedModuleId}'`);
@@ -33,22 +53,45 @@ export class VirtualMachine implements Disposable {
     this.scripts.set(moduleId, script);
   }
 
-  require(moduleId: string, relativeTo?: string) {
-    const normalizedModuleId = normalizeModuleId(moduleId, relativeTo);
+  private requireStack = new Array<string>();
+
+  require(moduleId: string, from?: string) {
+    if (from) {
+      this.requireStack.push(from);
+    }
+
+    const normalizedModuleId = this.normalizeModuleId(moduleId);
 
     let moduleResult = this.readCache(moduleId, normalizedModuleId);
     if (moduleResult === undefined) {
       const script = this.scripts.get(normalizedModuleId);
       if (script != null) {
-        moduleResult = this.executeScript(script, moduleId, relativeTo);
-        this.modules.set(normalizedModuleId, moduleResult);
+        this.requireStack.push(moduleId);
+        try {
+          this.modules.set(normalizedModuleId, this.executeScript(script, moduleId));
+        }
+        finally {
+          this.requireStack.pop();
+        }
       }
       else {
-        moduleResult = baseRequire(moduleId);
+        moduleResult = this.conditionalTranspile(normalizedModuleId);
         this.modules.set(moduleId, moduleResult);
       }
     }
     return moduleResult;
+  }
+
+  directories(from?: string): Set<string> {
+    return from
+      ? new Set<string>(Array.from(this.paths).filter(d => normalize(dirname(d)) === normalize(from)))
+      : this.paths;
+  };
+
+  filenames(from?: string): Set<string> {
+    return from
+      ? new Set<string>(Array.from(this.files).filter(d => normalize(dirname(d)) === normalize(from)))
+      : this.files;
   }
 
   dispose() {
@@ -56,43 +99,41 @@ export class VirtualMachine implements Disposable {
     this.modules.clear();
   }
 
-  private executeScript(script: Script, moduleId: string, fromModuleId: string) {
-    const context = createContext({require: mid => this.require(mid, fromModuleId)});
+  private executeScript(script: Script, moduleId: string) {
     try {
-      return script.runInContext(context);
+      return script.runInContext(this.context);
     }
     catch (exception) {
       throw new VirtualMachineException(
-        `Exception in ${moduleId} (from ${fromModuleId}) in sandboxed virtual machine: ${exception.stack}`, exception);
+        `Exception in ${moduleId} in sandboxed virtual machine: ${exception.stack}`, exception);
     }
   }
 
   private readCache(moduleId: string, normalizedModuleId: string) {
     return this.modules.get(normalizedModuleId) || this.modules.get(moduleId);
   }
+
+  normalizeModuleId(to: string): string {
+    const stack = this.requireStack;
+
+    if (/^\./.test(to)) {
+      if (this.requireStack.length > 0) {
+        return join(dirname(stack[stack.length - 1]), to);
+      }
+      else {
+        throw new VirtualMachineException(
+          `Cannot determine relative path to ${to} (require stack: ${stack.join(' -> ')})`);
+      }
+    }
+    return to;
+  }
+
+  private conditionalTranspile(moduleId: string) {
+    if (/^\@angular/.test(moduleId)) {
+      const [path, code] = transpile(moduleId);
+      this.define(path, moduleId, code);
+      return this.require(moduleId);
+    }
+    return require(moduleId);
+  }
 }
-
-const normalizeModuleId = (to: string, from?: string): string => {
-  if (to.startsWith('/')) {
-    throw new VirtualMachineException(`Cannot resolve a path that starts with /: ${to} (from ${from})`);
-  }
-  if (from) {
-    return normalize(join(dirname(from), to));
-  }
-  return normalize(to);
-};
-
-const baseRequire = (moduleId: string) => {
-  console.log('base require', moduleId);
-
-  // For whatever reason, the unbundled JS code in the Angular npm module is compiled into
-  // ES2015 code which cannot be run on most NodeJS versions. So for Angular, we transpile
-  // using Babel from ES2015 -> ES5 so that we can get broadly-compatible code (like what
-  // is in the umd bundles) which we can execute in our VM. Ideally, this hack would not
-  // be necessary. Other libraries are just require()d normally without the transpilation
-  // because they do not require it and it would be a performance drain.
-  if (/^\@angular\//.test(moduleId)) {
-    return transpile(moduleId);
-  }
-  return require(moduleId);
-};

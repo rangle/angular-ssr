@@ -2,7 +2,7 @@ import {ApplicationFromSource} from '../from-source';
 
 import {templateDocument, getApplicationProject} from 'test-fixtures';
 
-xdescribe('ApplicationFromSource', () => {
+describe('ApplicationFromSource', () => {
   it('can compile a project from source and load a NgFactory module', async (done) => {
     const application =
       new ApplicationFromSource(
