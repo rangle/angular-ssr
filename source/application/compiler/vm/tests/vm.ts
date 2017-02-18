@@ -15,7 +15,7 @@ describe('VirtualMachine', () => {
     vmexec(vm => {
       vm.define('/foo.js', 'foo', 'return 0');
 
-      const result = vm.require('./foo');
+      const result = vm.require('foo');
       expect(result).not.toBeNull();
       expect(result).toBe(0);
     });
@@ -40,7 +40,7 @@ describe('VirtualMachine', () => {
     vmexec(vm => {
       vm.define('/foo.js', 'foo', 'return require("@angular/core")');
 
-      const core = vm.require('./foo');
+      const core = vm.require('foo');
       expect(core).not.toBeNull();
       expect(core.createPlatform).not.toBeNull();
     });

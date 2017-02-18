@@ -102,7 +102,13 @@ export class Compiler {
 
     const templatedProgram = this.createProgram(parsedCommandLine.fileNames, suboptions, compilerVmHost, program);
 
-    templatedProgram.emit(undefined, writer, null, false);
+    const emitResult = templatedProgram.emit(undefined, writer, null, false);
+    if (emitResult) {
+      this.conditionalException(emitResult.diagnostics);
+    }
+    else {
+      throw new CompilerException('Complete compilation failure for unknown reason');
+    }
   }
 
   private createProgram(files: Array<string>, compilerOptions: CompilerOptions, compilerHost: CompilerHost, previousProgram?: Program): Program {

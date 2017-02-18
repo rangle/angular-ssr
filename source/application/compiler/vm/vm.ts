@@ -1,4 +1,6 @@
-import {Context, Script, createContext} from 'vm';
+import 'reflect-metadata';
+
+import {Script, createContext} from 'vm';
 
 import {dirname, join, normalize} from 'path';
 
@@ -9,7 +11,7 @@ import {VirtualMachineException} from 'exception';
 import {transpile} from './transpile';
 
 export class VirtualMachine implements Disposable {
-  private scripts = new Map<string, Script>();
+  private scripts = new Map<string, [Script, string]>();
   private modules = new Map<string, any>();
 
   private paths = new Set<string>();
@@ -17,11 +19,7 @@ export class VirtualMachine implements Disposable {
 
   private fileContents = new Map<string, string>();
 
-  private context: Context;
-
-  constructor() {
-    this.context = createContext({global, require: mid => this.require(mid)});
-  }
+  private global = {Reflect};
 
   read(filename): string {
     return this.fileContents.get(filename);
@@ -39,18 +37,9 @@ export class VirtualMachine implements Disposable {
       throw new VirtualMachineException(`Cannot overwrite existing module '${normalizedModuleId}'`);
     }
 
-    const preamble = {exports: {}, filename, id: normalizedModuleId};
+    const script = new Script(code, {filename, displayErrors: true});
 
-    const wrappedCode = `(function() {
-      const module = ${JSON.stringify(preamble)};
-      const exports = module.exports;
-      ${code};
-      return module.exports;
-    })()`;
-
-    const script = new Script(wrappedCode, {filename, displayErrors: true});
-
-    this.scripts.set(moduleId, script);
+    this.scripts.set(moduleId, [script, filename]);
   }
 
   private requireStack = new Array<string>();
@@ -68,7 +57,10 @@ export class VirtualMachine implements Disposable {
       if (script != null) {
         this.requireStack.push(moduleId);
         try {
-          this.modules.set(normalizedModuleId, this.executeScript(script, moduleId));
+          const [executable, filename] = script;
+          moduleResult = this.executeScript(executable, filename, normalizedModuleId);
+
+          this.modules.set(normalizedModuleId, moduleResult);
         }
         finally {
           this.requireStack.pop();
@@ -76,9 +68,15 @@ export class VirtualMachine implements Disposable {
       }
       else {
         moduleResult = this.conditionalTranspile(normalizedModuleId);
+
         this.modules.set(moduleId, moduleResult);
       }
     }
+
+    if (moduleResult == null) {
+      throw new VirtualMachineException(`Require of ${moduleId} (normalized: ${normalizedModuleId}) returned null`);
+    }
+
     return moduleResult;
   }
 
@@ -99,13 +97,26 @@ export class VirtualMachine implements Disposable {
     this.modules.clear();
   }
 
-  private executeScript(script: Script, moduleId: string) {
+  private executeScript(script: Script, filename: string, moduleId: string) {
     try {
-      return script.runInContext(this.context);
+      const exports = {};
+
+      const context = createContext({
+        require: mid => this.require(mid),
+        exports,
+        global: this.global,
+        module: {exports, filename, id: moduleId},
+        __filename: filename,
+        __dirname: dirname(filename),
+      });
+
+      script.runInContext(context);
+
+      return exports;
     }
     catch (exception) {
       throw new VirtualMachineException(
-        `Exception in ${moduleId} in sandboxed virtual machine: ${exception.stack}`, exception);
+        `Exception in ${moduleId} in sandboxed virtual machine: ${exception.toString()}`, exception);
     }
   }
 
@@ -114,26 +125,23 @@ export class VirtualMachine implements Disposable {
   }
 
   normalizeModuleId(to: string): string {
-    const stack = this.requireStack;
-
     if (/^\./.test(to)) {
-      if (this.requireStack.length > 0) {
+      const stack = this.requireStack;
+      if (stack.length > 0) {
         return join(dirname(stack[stack.length - 1]), to);
       }
-      else {
-        throw new VirtualMachineException(
-          `Cannot determine relative path to ${to} (require stack: ${stack.join(' -> ')})`);
-      }
     }
+
     return to;
   }
 
   private conditionalTranspile(moduleId: string) {
-    if (/^\@angular/.test(moduleId)) {
+    if (/^@angular/.test(moduleId)) {
       const [path, code] = transpile(moduleId);
       this.define(path, moduleId, code);
       return this.require(moduleId);
     }
+
     return require(moduleId);
   }
 }

@@ -1,5 +1,3 @@
-import {NgModuleFactory} from '@angular/core';
-
 import {getApplicationProject} from 'test-fixtures';
 
 import {Compiler} from '../compiler';
@@ -15,7 +13,6 @@ describe('Compiler', () => {
     const module = await compiler.compile();
     expect(module).not.toBeNull();
     expect(typeof module).toBe('object');
-    expect(module instanceof NgModuleFactory).toBe(true);
-    expect((<{name?}>module).name).toBe('BasicInlineApplicationNgFactory');
+    expect(module.constructor.name).toBe('NgModuleFactory');
   });
 });
