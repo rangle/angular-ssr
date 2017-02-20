@@ -24,11 +24,13 @@ export class Exception extends Error {
 export class ApplicationException extends Exception {}
 export class CompilerException extends Exception {}
 export class FilesystemException extends Exception {}
+export class PathException extends FilesystemException {}
 export class ModuleException extends Exception {}
 export class PlatformException extends Exception {}
 export class RendererException extends Exception {}
 export class ResourceException extends Exception {}
 export class RouteException extends Exception {}
 export class SnapshotException extends Exception {}
+export class TranspileException extends Exception {}
 export class MemoryFilesystemException extends Exception {}
 export class VirtualMachineException extends Exception {}

@@ -14,7 +14,7 @@ const {matchFiles} = require('typescript'); // does not exist in definition
 
 import {DelegatingHost} from '@angular/tsc-wrapped/src/compiler_host';
 
-import {TraverseFilesystem, fileContent} from 'filesystem';
+import {fileFromString, pathFromString} from 'filesystem';
 
 import {VirtualMachine} from './vm';
 
@@ -34,7 +34,7 @@ export class CompilerVmHost extends DelegatingHost {
   }
 
   private loadOptions(): ParsedCommandLine {
-    const {config} = readConfigFile(this.project.tsconfig, fileContent);
+    const {config} = readConfigFile(this.project.tsconfig, f => fileFromString(f).content());
 
     const host = {
       useCaseSensitiveFileNames: true,
@@ -43,24 +43,22 @@ export class CompilerVmHost extends DelegatingHost {
       readFile: this.readFile,
     };
 
-    return parseJsonConfigFileContent(config, host, this.project.basePath, {exclude: ['node_modules']});
+    return parseJsonConfigFileContent(config, host, this.project.basePath);
   }
 
   readDirectory = (path: string, extensions: Array<string>, excludes: Array<string | RegExp>, includes: Array<string | RegExp>): Array<string> => {
-    const traverse = (dir: string) => {
-      const traversal = new TraverseFilesystem(dir);
+    const traverse = (targetPath: string) => {
+      const traversal = pathFromString(targetPath);
 
-      const files = traversal.files();
+      const files = new Set([
+        ...Array.from(traversal.files()),
+        ...Array.from(this.vm.filenames(targetPath))
+      ]);
 
-      for (const vmf of Array.from(this.vm.filenames(dir))) {
-        files.add(vmf);
-      }
-
-      const directories = traversal.directories();
-
-      for (const vmdir of Array.from(this.vm.directories(dir))) {
-        directories.add(vmdir);
-      }
+      const directories = new Set<string>([
+        ...Array.from(traversal.directories()),
+        ...Array.from(this.vm.directories(targetPath))
+      ]);
 
       return {files: Array.from(files), directories: Array.from(directories)};
     };
@@ -68,24 +66,19 @@ export class CompilerVmHost extends DelegatingHost {
     return matchFiles(path, extensions, excludes, includes, false, cwd(), traverse);
   };
 
-  // getScriptSnapshot = (filename: string): IScriptSnapshot => {
-  //   let sf = (<{getScriptSnapshot?}>this.host).getScriptSnapshot(filename);
-  //   if (sf == null) {
-  //     sf = ScriptSnapshot.fromString(this.readFile(filename));
-  //   }
-  //   return sf;
-  // };
-
   getSourceFile = (filename: string, languageVersion: ScriptTarget, onError?: (message: string) => void): SourceFile => {
-    const content = this.vm.read(filename);
-    if (content) {
-      return createSourceFile(filename, content, languageVersion, true);
+    let sourceFile = this.host.getSourceFile(filename, languageVersion, onError); // first due to cache
+    if (sourceFile == null) {
+      const content = this.vm.sourceCode(filename);
+      if (content) {
+        return createSourceFile(filename, content, languageVersion, true);
+      }
     }
-    return this.host.getSourceFile(filename, languageVersion, onError);
+    return sourceFile;
   };
 
   readFile = (filename: string): string => {
-    return this.vm.read(filename) || this.delegate.readFile(filename);
+    return this.vm.sourceCode(filename) || this.delegate.readFile(filename);
   };
 
   getDirectories = (path: string): Array<string> => {

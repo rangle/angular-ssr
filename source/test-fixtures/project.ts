@@ -2,14 +2,16 @@ import {dirname} from 'path';
 
 import {Project} from 'application';
 
-import {traverseUp} from './path';
+import {pathFromString} from 'filesystem';
 
 export const getApplicationProject = (moduleId: string, moduleSymbol: string): Project => {
-  const tsconfig = traverseUp(__dirname, 'tsconfig.json');
+  const path = pathFromString(__dirname);
+
+  const tsconfig = path.traverseUpward('tsconfig.json');
 
   return <Project> {
-    basePath: dirname(tsconfig),
-    tsconfig,
+    basePath: dirname(tsconfig.path),
+    tsconfig: tsconfig.path,
     rootModule: {
       source: moduleId,
       symbol: moduleSymbol,
