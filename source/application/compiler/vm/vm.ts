@@ -6,7 +6,7 @@ import {Script, createContext} from 'vm';
 import {dirname, join, normalize} from 'path';
 import {Disposable} from 'disposable';
 import {VirtualMachineException} from 'exception';
-import {debundleAngularModuleId} from 'transpile';
+import {debundleModuleId} from 'transpile';
 
 export class VirtualMachine implements Disposable {
   private scripts = new Map<string, [Script, string]>();
@@ -131,7 +131,7 @@ export class VirtualMachine implements Disposable {
       }
     }
     else if (/@angular/.test(to)) {
-      return debundleAngularModuleId(to);
+      return debundleModuleId(to);
     }
     return to;
   }

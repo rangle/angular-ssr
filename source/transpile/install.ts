@@ -46,11 +46,11 @@ export const importAngularSources = (source: string): string => {
     .replace(/require\(['"]@angular\/([^\/'"]+)['"]\)/g, 'require("@angular/$1/index")');
 };
 
-export const debundleAngularModuleId =
-  (moduleId: string): string => moduleId.replace(/@angular\/([^\/]+)$/, '@angular/$1/index');
+export const debundleModuleId =
+  (moduleId: string) => moduleId.replace(/@angular\/([^\/]+)$/, '@angular/$1/index');
 
 const transpileJavaScript = (moduleId: string, fallback: () => any) => {
-  const resolved = require.resolve(debundleAngularModuleId(moduleId));
+  const resolved = require.resolve(debundleModuleId(moduleId));
   if (resolved == null) {
     throw new TranspileException(`Cannot resolve module: ${moduleId}`);
   }
