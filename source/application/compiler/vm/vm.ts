@@ -34,9 +34,9 @@ export class VirtualMachine implements Disposable {
 
     this.content.set(filename, source);
 
-    const script = new Script(source, {filename, displayErrors: true});
-
-    this.scripts.set(moduleId, [script, filename]);
+    if (/\.js$/.test(filename)) {
+      this.scripts.set(moduleId, [new Script(source, {filename, displayErrors: true}), filename]);
+    }
   }
 
   private requireStack = new Array<string>();

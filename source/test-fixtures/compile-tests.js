@@ -23,14 +23,9 @@ module.exports = {
 };
 
 function compileTypeScript(src, path) {
-  const baseDir = normalize(join(__dirname, '..', '..'));
-
   const diagnostics = [];
 
-  const options = Object.assign({}, tsconfig.compilerOptions, {
-    baseDir,
-    rootDir: join(baseDir, 'source')
-  });
+  const options = Object.assign({}, tsconfig.compilerOptions);
 
   const transformed = importAngularSources(src);
 

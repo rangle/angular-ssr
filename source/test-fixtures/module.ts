@@ -13,16 +13,18 @@ export const moduleFromComponent = (componentType: Type<any>): Type<any> =>
     bootstrap: [componentType],
   })(namedFunction(`${componentType.name}_${randomId()}`, function() {})); // defeat cache
 
-export const moduleFactoryFromComponent = async (componentType: Type<any>): Promise<NgModuleFactory<any>> =>
-  await compileModule(moduleFromComponent(componentType));
+export const moduleFactoryFromComponent = (componentType: Type<any>): Promise<NgModuleFactory<any>> =>
+  compileModule(moduleFromComponent(componentType));
 
-export const renderFixture = async <M>(componentType: Type<M>): Promise<Observable<Snapshot<void>>> => {
-  const module = moduleFromComponent(componentType);
+export const renderComponentFixture = <M>(componentType: Type<M>): Promise<Observable<Snapshot<void>>> => {
+  return renderModuleFixture(moduleFromComponent(componentType));
+};
 
-  const application = new ApplicationFromModule<void, any>(module);
+export const renderModuleFixture = <M>(moduleType: Type<M>): Promise<Observable<Snapshot<void>>> => {
+  const application = new ApplicationFromModule<void, any>(moduleType);
   application.templateDocument(templateDocument);
 
-  return await application.render();
+  return application.render();
 };
 
 const namedFunction = <T>(name: string, f: Function): Type<T> => {

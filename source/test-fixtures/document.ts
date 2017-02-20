@@ -1,7 +1,9 @@
 export const templateDocument = `
   <!doctype html>
   <html>
-    <head></head>
+    <head>
+      <base href="/">
+    </head>
     <body>
       <application></application>
     </body>

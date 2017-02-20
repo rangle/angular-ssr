@@ -13,7 +13,7 @@
     "sourceMap": true,
     "sourceRoot": "source",
     "strictNullChecks": false,
-    "rootDir": "source",
+    "rootDirs": ["source"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "inlineSourceMap": false,

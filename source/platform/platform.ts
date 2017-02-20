@@ -16,8 +16,11 @@ import {
   Type,
 } from '@angular/core';
 
+import {PlatformLocation} from '@angular/common';
+
 import {BrowserModule} from '@angular/platform-browser';
 
+import {LocationImpl} from './location';
 import {PlatformException} from 'exception';
 import {DocumentContainer, TemplateDocument, RequestUri} from './document';
 import {RootRendererImpl} from './render';
@@ -154,6 +157,7 @@ export class PlatformImpl implements PlatformRef {
   private injectorFactory(ngZone: NgZone): Injector {
     const providers = [
       {provide: NgZone, useValue: ngZone},
+      {provide: PlatformLocation, useClass: LocationImpl},
       {provide: DocumentContainer, useClass: DocumentContainer},
       {provide: RootRenderer, useClass: RootRendererImpl},
       {provide: SharedStyles, useClass: SharedStyles},

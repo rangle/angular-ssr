@@ -19,6 +19,8 @@ export const loadProjectOptions = (project: Project): CompileOptions => {
   const {parsed, ngOptions} = tsc.readConfiguration(project.tsconfig, project.basePath);
 
   ngOptions.basePath = project.basePath;
+  ngOptions.rootDirs = parsed.options.rootDirs;
+  ngOptions.generateCodeForLibraries = true;
 
   return {typescriptOptions: parsed, angularOptions: ngOptions};
 };

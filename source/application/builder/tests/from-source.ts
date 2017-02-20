@@ -7,7 +7,7 @@ describe('ApplicationFromSource', () => {
     const application =
       new ApplicationFromSource(
         getApplicationProject(
-          'test-fixtures/application-basic-inline',
+          'source/test-fixtures/application-basic-inline',
           'BasicInlineApplication'));
 
     application.templateDocument(templateDocument);

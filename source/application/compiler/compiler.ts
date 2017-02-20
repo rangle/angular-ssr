@@ -13,15 +13,17 @@ import {
   getPreEmitDiagnostics,
 } from 'typescript';
 
-import {dirname} from 'path';
+import {join, resolve} from 'path';
 
 import {CompileOptions, loadProjectOptions} from './options';
-import {CompilerException} from 'exception';
 import {CompilerVmHost} from './compiler-vm-host';
 import {Project} from '../project';
 import {VirtualMachine} from './vm';
 import {diagnosticsToException} from './diagnostics';
 import {templateCompiler} from './template';
+
+import {CompilerException} from 'exception';
+
 import {flatten} from 'transformation';
 
 export class Compiler {
@@ -78,16 +80,8 @@ export class Compiler {
     const compilerOptions = program.getCompilerOptions();
 
     const writer: WriteFileCallback =
-      (fileName, data, writeByteOrderMark, onError?, sourceFiles?) => {
-        try {
-          vm.define(fileName, this.moduleIdFromFilename(fileName, compilerOptions), data);
-        }
-        catch (exception) {
-          if (onError == null) {
-            throw exception;
-          }
-          onError(exception.stack);
-        }
+      (fileName, data) => {
+        vm.define(fileName, this.moduleIdFromFilename(fileName, compilerOptions), data);
       };
 
     compilerHost.writeFile = writer;
@@ -151,27 +145,27 @@ export class Compiler {
   }
 
   private moduleIdFromFilename(filename: string, compilerOptions: CompilerOptions): string {
-    const projectPath = (path: string): string =>
-      path.toLowerCase().endsWith('.json')
-        ? dirname(path)
-        : path;
+    const toModule = (returnModuleId: string) => returnModuleId.replace(/\.js$/, String())
 
-    const candidates = [
-      compilerOptions.baseUrl,
+    if (/node_modules/.test(filename)) {
+      return toModule(filename.replace(/^(.*)(\/|\\)node_modules(\/|\\)/, String()));
+    }
+
+    const candidates = flatten<string>([
       compilerOptions.outDir,
+      compilerOptions.sourceRoot,
       compilerOptions.rootDir,
-      compilerOptions.project
-        ? projectPath(compilerOptions.project)
-        : null,
-    ].concat(compilerOptions.rootDirs || []).filter(v => v);
+      compilerOptions.rootDirs,
+      this.project.basePath,
+    ]).filter(v => v).map(a => [resolve(join(this.project.basePath, a)), a]);
+
+    const paths = flatten<string>(candidates);
 
     const lowerfile = filename.toLowerCase();
 
-    const matches = candidates.map(v => v.toLowerCase()).filter(p => lowerfile.startsWith(p));
+    const matches = paths.map(v => v.toLowerCase()).filter(p => lowerfile.startsWith(p));
     if (matches.length > 0) {
-      return filename.substring(matches[0].length)
-        .replace(/\.js$/, String())
-        .replace(/^\//, String());
+      return toModule(filename.substring(matches[0].length + 1));
     }
 
     throw new CompilerException(`Cannot determine module ID of file ${filename}`);

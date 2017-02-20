@@ -8,10 +8,6 @@ import {
 } from '@angular/core';
 
 import {
-  PlatformLocation
-} from '@angular/common';
-
-import {
   COMPILER_PROVIDERS,
   ResourceLoader,
   platformCoreDynamic
@@ -19,7 +15,6 @@ import {
 
 import {ErrorHandlerImpl, ExceptionStream} from './exception-stream';
 import {ResourceLoaderImpl} from './resource-loader';
-import {LocationImpl} from './location';
 import {PlatformImpl} from './platform';
 import {SanitizerImpl} from './sanitizer';
 import {CurrentZone} from './zone';
@@ -47,7 +42,6 @@ export const platformNode: PlatformFactory =
     {provide: PlatformRef, useClass: PlatformImpl},
     {provide: Sanitizer, useClass: SanitizerImpl},
     {provide: ErrorHandler, useClass: ErrorHandlerImpl},
-    {provide: PlatformLocation, useClass: LocationImpl},
     {provide: CurrentZone, useClass: CurrentZone},
   ]);
 

@@ -1,26 +1,35 @@
 import 'reflect-metadata';
 
-import {Injectable, OnDestroy} from '@angular/core';
+import {
+  Inject,
+  Injectable,
+  OnDestroy
+} from '@angular/core';
 
 import {
   LocationChangeListener,
   PlatformLocation,
 } from '@angular/common';
 
-import {DocumentContainer} from './document';
+import {DocumentContainer, RequestUri} from './document';
 
 @Injectable()
 export class LocationImpl implements PlatformLocation, OnDestroy {
   private destruction = new Array<() => void>();
 
-  constructor(private documentContainer: DocumentContainer) {}
+  constructor(
+    @Inject(RequestUri) requestUri: string,
+    private documentContainer: DocumentContainer
+  ) {
+    this.documentContainer.document.location.assign(requestUri);
+  }
 
   getBaseHrefFromDOM(): string {
     const element = this.documentContainer.document.querySelector('base');
     if (element == null) {
       return null;
     }
-    return element.getAttribute('href');
+    return element.getAttribute('href') || '/';
   }
 
   onPopState(fn: LocationChangeListener) {

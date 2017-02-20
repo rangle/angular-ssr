@@ -18,6 +18,8 @@ export const templateCompiler = async (options: CompileOptions, program: Program
 
   const ngCompiler = new CompilerHost(program, options.angularOptions, hostContext);
 
+  ngCompiler.calculateEmitPath = (filePath: string) => filePath;
+
   const cli = new NgcCliOptions({
     i18nFormat: null,
     i18nFile: null,

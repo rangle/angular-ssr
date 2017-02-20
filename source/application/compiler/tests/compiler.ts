@@ -7,7 +7,7 @@ describe('Compiler', () => {
     const compiler =
       new Compiler(
         getApplicationProject(
-          'test-fixtures/application-basic-inline',
+          'source/test-fixtures/application-basic-inline',
           'BasicInlineApplication'));
 
     const module = await compiler.compile();

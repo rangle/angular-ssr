@@ -1,4 +1,4 @@
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 
 import {bootstrapModuleFactory, forkZone} from 'platform';
 import {RenderOperation, RenderVariantOperation} from './operation';
@@ -7,20 +7,22 @@ import {routeToUri} from 'route';
 import {fork} from './fork';
 
 export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
-  return Observable.create(publish => {
-    const bind = async (suboperation: RenderVariantOperation<M, V>) => {
-      try {
-        publish.next(await renderVariant(suboperation));
-      }
-      catch (exception) {
-        publish.error(exception);
-      }
-    };
+  const subject = new Subject<Snapshot<V>>();
 
-    const promises = fork(operation).map(async (suboperation) => await bind(suboperation));
+  const bind = async (suboperation: RenderVariantOperation<M, V>) => {
+    try {
+      subject.next(await renderVariant(suboperation));
+    }
+    catch (exception) {
+      subject.error(exception);
+    }
+  };
 
-    Promise.all(promises).then(() => publish.complete());
-  });
+  const promises = fork(operation).map(suboperation => bind(suboperation));
+
+  Promise.all(promises).then(() => subject.complete());
+
+  return subject.asObservable();
 };
 
 const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
@@ -34,9 +36,8 @@ const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Pro
 
   const absoluteUri = routeToUri(route);
 
-  return forkZone(templateDocument, absoluteUri,
-    async () =>
-      await bootstrapModuleFactory<M, Snapshot<V>>(
-        moduleFactory,
-        async (moduleRef) => await takeSnapshot(moduleRef, operation)));
+  return forkZone(templateDocument, absoluteUri, () =>
+    bootstrapModuleFactory<M, Snapshot<V>>(
+      moduleFactory,
+      moduleRef => takeSnapshot(moduleRef, operation)));
 };
