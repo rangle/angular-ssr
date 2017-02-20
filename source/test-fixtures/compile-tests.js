@@ -25,8 +25,6 @@ module.exports = {
 function compileTypeScript(src, path) {
   const baseDir = normalize(join(__dirname, '..', '..'));
 
-  const code = src || readFileSync(path).toString();
-
   const diagnostics = [];
 
   const options = Object.assign({}, tsconfig.compilerOptions, {
