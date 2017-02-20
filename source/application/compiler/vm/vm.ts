@@ -6,7 +6,7 @@ import {Script, createContext} from 'vm';
 import {dirname, join, normalize} from 'path';
 import {Disposable} from 'disposable';
 import {VirtualMachineException} from 'exception';
-import {debundleModuleId} from 'transpile';
+import {debundleModuleId} from 'transpile/debundle';
 
 export class VirtualMachine implements Disposable {
   private scripts = new Map<string, [Script, string]>();
