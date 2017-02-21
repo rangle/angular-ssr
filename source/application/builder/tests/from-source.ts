@@ -6,9 +6,7 @@ describe('ApplicationFromSource', () => {
   it('can compile a project from source and load a NgFactory module', done => {
     const application =
       new ApplicationFromSource(
-        getApplicationProject(
-          'source/test-fixtures/application-basic-inline',
-          'BasicInlineApplication'));
+        getApplicationProject('test-fixtures/application-basic-inline', 'BasicInlineModule'));
 
     application.templateDocument(templateDocument);
 

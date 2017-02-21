@@ -16,4 +16,4 @@ export class BasicInlineComponent {}
   declarations: [BasicInlineComponent],
   bootstrap: [BasicInlineComponent],
 })
-export class BasicInlineApplication {}
+export class BasicInlineModule {}

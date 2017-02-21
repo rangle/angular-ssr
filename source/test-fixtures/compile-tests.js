@@ -1,5 +1,5 @@
 const {readFileSync} = require('fs');
-const {normalize, join} = require('path');
+const {normalize, join, relative} = require('path');
 const {EOL} = require('os');
 
 const {formatDiagnostics, transpile} = require('typescript');
@@ -28,6 +28,8 @@ function compileTypeScript(src, path) {
   const options = Object.assign({}, tsconfig.compilerOptions);
 
   const transformed = importAngularSources(src);
+
+  path = relative(process.cwd(), path);
 
   const result = transpile(transformed, options, path, diagnostics);
 

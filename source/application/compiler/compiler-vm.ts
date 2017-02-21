@@ -10,7 +10,7 @@ import {
   readConfigFile,
 } from 'typescript';
 
-const {matchFiles} = require('typescript'); // does not exist in definition
+const {matchFiles} = require('typescript');
 
 import {DelegatingHost} from '@angular/tsc-wrapped/src/compiler_host';
 
@@ -21,19 +21,15 @@ import {VirtualMachine} from './vm';
 import {Project} from '../project';
 
 export class CompilerVmHost extends DelegatingHost {
-  public parsedCommandLine: ParsedCommandLine;
-
   constructor(
     private project: Project,
     private vm: VirtualMachine,
     private host: CompilerHost
   ) {
     super(host);
-
-    this.parsedCommandLine = this.loadOptions();
   }
 
-  private loadOptions(): ParsedCommandLine {
+  vmoptions(): ParsedCommandLine {
     const {config} = readConfigFile(this.project.tsconfig, f => fileFromString(f).content());
 
     const host = {

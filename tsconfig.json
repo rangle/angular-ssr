@@ -3,7 +3,6 @@
     "target": "es5",
     "lib": ["es2015", "es2016", "dom"],
     "module": "commonjs",
-    "baseUrl": "source",
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "noImplicitReturns": true,
@@ -11,9 +10,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "sourceMap": true,
-    "sourceRoot": "source",
     "strictNullChecks": false,
-    "rootDirs": ["source"],
+    "baseUrl": "source",
+    "rootDir": "source",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "inlineSourceMap": false,
@@ -22,7 +21,7 @@
   },
   "exclude": [
     "build",
-    "node_modules/**",
+    "node_modules",
     "source/**/tests"
   ]
 }

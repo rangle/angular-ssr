@@ -2,14 +2,25 @@ import {getApplicationProject} from 'test-fixtures';
 
 import {Compiler} from '../compiler';
 
-describe('Compiler', () => {
-  it('should be able to build a TypeScript application and produce in-memory artifacts', async () => {
-    const compiler =
-      new Compiler(
-        getApplicationProject(
-          'source/test-fixtures/application-basic-inline',
-          'BasicInlineApplication'));
+describe('in-memory Angular compiler', () => {
+  it('can build application-basic-inline in memory return executable NgModuleFactory', async () => {
+    const compiler = new Compiler(getApplicationProject('test-fixtures/application-basic-inline', 'BasicInlineModule'));
+    const module = await compiler.compile();
+    expect(module).not.toBeNull();
+    expect(typeof module).toBe('object');
+    expect(module.constructor.name).toBe('NgModuleFactory');
+  });
 
+  it('can build application-basic-external in memory return executable NgModuleFactory', async () => {
+    const compiler = new Compiler(getApplicationProject('test-fixtures/application-basic-external', 'BasicExternalModule'));
+    const module = await compiler.compile();
+    expect(module).not.toBeNull();
+    expect(typeof module).toBe('object');
+    expect(module.constructor.name).toBe('NgModuleFactory');
+  });
+
+  it('can build application-routed in memory return executable NgModuleFactory', async () => {
+    const compiler = new Compiler(getApplicationProject('test-fixtures/application-routed', 'BasicRoutedModule'));
     const module = await compiler.compile();
     expect(module).not.toBeNull();
     expect(typeof module).toBe('object');

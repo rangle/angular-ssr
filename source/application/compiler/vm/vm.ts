@@ -30,6 +30,7 @@ export class VirtualMachine implements Disposable {
     }
 
     this.paths.add(normalize(dirname(filename)));
+
     this.files.add(normalize(filename));
 
     this.content.set(filename, source);
@@ -50,29 +51,37 @@ export class VirtualMachine implements Disposable {
 
     let moduleResult = this.readCache(moduleId, normalizedModuleId);
     if (moduleResult === undefined) {
-      const script = this.scripts.get(normalizedModuleId);
-      if (script != null) {
-        this.requireStack.push(moduleId);
-        try {
-          const [executable, filename] = script;
-
-          moduleResult = this.executeScript(executable, filename, normalizedModuleId);
-
-          this.modules.set(normalizedModuleId, moduleResult);
-        }
-        finally {
-          this.requireStack.pop();
-        }
-      }
-      else {
-        moduleResult = require(normalizedModuleId);
-
-        this.modules.set(moduleId, moduleResult);
-      }
+      moduleResult = this.executeWithCache(moduleId, normalizedModuleId);
     }
 
     if (moduleResult == null) {
       throw new VirtualMachineException(`Require of ${moduleId} (normalized: ${normalizedModuleId}) returned null`);
+    }
+
+    return moduleResult;
+  }
+
+  executeWithCache(moduleId: string, normalizedModuleId: string) {
+    let moduleResult;
+
+    const script = this.scripts.get(normalizedModuleId);
+    if (script != null) {
+      this.requireStack.push(moduleId);
+      try {
+        const [executable, filename] = script;
+
+        moduleResult = this.executeScript(executable, filename, normalizedModuleId);
+
+        this.modules.set(normalizedModuleId, moduleResult);
+      }
+      finally {
+        this.requireStack.pop();
+      }
+    }
+    else {
+      moduleResult = require(normalizedModuleId);
+
+      this.modules.set(moduleId, moduleResult);
     }
 
     return moduleResult;
@@ -91,12 +100,9 @@ export class VirtualMachine implements Disposable {
   }
 
   dispose() {
-    this.scripts.clear();
-    this.modules.clear();
-    this.content.clear();
-
-    this.files.clear();
-    this.paths.clear();
+    for (const container of [this.scripts, this.modules, this.content, this.files, this.paths]) {
+      container.clear();
+    }
   }
 
   private executeScript(script: Script, filename: string, moduleId: string) {
