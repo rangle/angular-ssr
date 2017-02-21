@@ -21,12 +21,12 @@ import {PlatformLocation} from '@angular/common';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {LocationImpl} from './location';
-import {PlatformException} from 'exception';
+import {PlatformException} from '../exception';
 import {DocumentContainer, TemplateDocument, RequestUri} from './document';
 import {RootRendererImpl} from './render';
 import {DocumentStyles, SharedStyles} from './styles';
 import {CurrentZone, stableZone} from './zone';
-import {Publisher} from 'publisher';
+import {Publisher} from '../publisher';
 
 @Injectable()
 export class PlatformImpl implements PlatformRef {

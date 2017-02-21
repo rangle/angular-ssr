@@ -16,8 +16,8 @@ import {AnimationPlayerImpl} from './animation-player';
 import {namespaces} from './namespace';
 import {DocumentContainer} from '../document';
 import {DocumentStyles} from '../styles';
-import {RendererException} from 'exception';
-import {flatten} from 'transformation';
+import {RendererException} from '../../exception';
+import {flatten} from '../../transformation';
 
 @Injectable()
 export class RootRendererImpl implements RootRenderer, OnDestroy {

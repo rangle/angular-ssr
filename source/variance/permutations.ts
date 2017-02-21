@@ -1,7 +1,6 @@
 import {Injector, ReflectiveInjector, Type} from '@angular/core';
 
-import {Reflector} from 'platform';
-
+import {Reflector} from '../platform';
 import {Variant, VariantDefinitions} from './variant';
 import {ComposedTransition, StateTransition} from './transition';
 import {TransitionException} from './exception';

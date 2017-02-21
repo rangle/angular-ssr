@@ -5,7 +5,7 @@ import {
   Type,
 } from '@angular/core';
 
-import {SnapshotException} from 'exception';
+import {SnapshotException} from '../exception';
 
 import {Snapshot} from './snapshot';
 
@@ -13,14 +13,14 @@ import {
   StateReaderFunction,
   ApplicationStateReader,
   RenderVariantOperation,
-} from 'application/operation';
+} from '../application/operation';
 
 import {
   DocumentContainer,
   ExceptionStream,
   Reflector,
   stableZone,
-} from 'platform';
+} from '../platform';
 
 export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
   const exceptions: ExceptionStream = moduleRef.injector.get(ExceptionStream);

@@ -2,7 +2,7 @@ import {existsSync, readFileSync} from 'fs';
 
 import {ResourceLoader} from '@angular/compiler';
 
-import {ResourceException} from 'exception';
+import {ResourceException} from '../exception';
 
 export class ResourceLoaderImpl implements ResourceLoader {
   async get(uri: string): Promise<string> {

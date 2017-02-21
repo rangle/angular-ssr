@@ -4,7 +4,7 @@ import {Type} from '@angular/core';
 
 import {privateCoreImplementation} from '../../imports';
 
-import {Clone} from 'transformation';
+import {Clone} from '../../../transformation';
 
 const {reflector} = privateCoreImplementation();
 

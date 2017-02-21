@@ -18,7 +18,7 @@ import {
 
 import {File, fileFromString} from './file';
 
-import {PathException} from 'exception';
+import {PathException} from '../exception';
 
 export const pathFromString = (sourcePath: string): Path => new Path(sourcePath);
 

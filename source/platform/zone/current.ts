@@ -1,4 +1,4 @@
-import {PlatformException} from 'exception';
+import {PlatformException} from '../../exception';
 
 declare const Zone;
 

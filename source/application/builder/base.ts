@@ -2,9 +2,9 @@ import {NgModuleFactory} from '@angular/core';
 
 import {RenderOperation, ApplicationStateReader} from '../operation';
 
-import {Route} from 'route';
+import {Route} from '../../route';
 
-import {VariantDefinitions, permutations} from 'variance';
+import {VariantDefinitions, permutations} from '../../variance';
 
 export abstract class ApplicationBuilderBase<V, M> {
   protected operation: Partial<RenderOperation<M, V>> = {};

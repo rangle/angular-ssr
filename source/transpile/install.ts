@@ -1,8 +1,8 @@
-import {TranspileException} from 'exception';
+import {TranspileException} from '../exception';
 
 import {transpile} from './transpile';
 
-import {fileFromString} from 'filesystem';
+import {fileFromString} from '../filesystem';
 
 import {importAngularSources, debundleModuleId} from './debundle';
 

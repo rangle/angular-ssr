@@ -1,6 +1,6 @@
 import {Injectable, Inject, OnDestroy} from '@angular/core';
 
-import {PlatformException} from 'exception';
+import {PlatformException} from '../../exception';
 
 import {TemplateDocument, RequestUri} from './tokens';
 

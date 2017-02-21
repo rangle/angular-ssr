@@ -1,6 +1,6 @@
 import {Injectable, ErrorHandler, OnDestroy} from '@angular/core';
 
-import {Publisher, Subscription} from 'publisher';
+import {Publisher, Subscription} from '../../publisher';
 
 export type ExceptionHandler = (exception: Error) => void;
 

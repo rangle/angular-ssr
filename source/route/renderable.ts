@@ -11,9 +11,9 @@ import {
 import {
   bootstrapModuleFactory,
   forkZone,
-} from 'platform';
+} from '../platform';
 
-import {RouteException} from 'exception';
+import {RouteException} from '../exception';
 import {Route} from './route';
 
 export const renderableRoutes = async <M>(moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {

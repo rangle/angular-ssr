@@ -14,17 +14,16 @@ const {matchFiles} = require('typescript');
 
 import {DelegatingHost} from '@angular/tsc-wrapped/src/compiler_host';
 
-import {fileFromString, pathFromString} from 'filesystem';
-
-import {VirtualMachine} from './vm';
-
+import {fileFromString, pathFromString} from '../../filesystem';
 import {Project} from '../project';
+import {VirtualMachine} from './vm';
 
 export class CompilerVmHost extends DelegatingHost {
   constructor(
     private project: Project,
     private vm: VirtualMachine,
-    private host: CompilerHost
+    private host: CompilerHost,
+    private generatedModules: Array<string>,
   ) {
     super(host);
   }
@@ -39,7 +38,13 @@ export class CompilerVmHost extends DelegatingHost {
       readFile: this.readFile,
     };
 
-    return parseJsonConfigFileContent(config, host, this.project.basePath);
+    const parsedContent = parseJsonConfigFileContent(config, host, this.project.basePath);
+
+    const generatedCode = this.generatedModules.filter(f => /\.ngfactory\.ts$|\.ngstyle\.ts$/.test(f));
+
+    parsedContent.fileNames.push(...generatedCode);
+
+    return parsedContent;
   }
 
   readDirectory = (path: string, extensions: Array<string>, excludes: Array<string | RegExp>, includes: Array<string | RegExp>): Array<string> => {

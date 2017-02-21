@@ -7,22 +7,14 @@ import {
   createProgram,
 } from 'typescript';
 
-import {
-  CompileOptions,
-  loadProjectOptions,
-  moduleIdFromFilename
-} from './options';
-
-import {
-  assertProgramDiagnostics,
-  conditionalException
-} from './diagnostics';
-
+import {CompileOptions, loadProjectOptions} from './options';
+import {CompilerException} from '../../exception';
 import {CompilerVmHost} from './compiler-vm';
+import {compileTemplates} from './compiler-ng';
+import {CompilationEmit} from './emit';
 import {Project} from '../project';
 import {VirtualMachine} from './vm';
-import {templateCompiler} from './template';
-import {CompilerException} from 'exception';
+import {assertProgram, assertDiagnostics} from './diagnostics';
 
 export class Compiler {
   private options: CompileOptions;
@@ -40,44 +32,43 @@ export class Compiler {
   async compile(): Promise<NgModuleFactory<any>> {
     const vm = new VirtualMachine();
     try {
-      await this.compileToVm(vm);
+      const emit = new CompilationEmit(this.project);
 
-      const {source, symbol} = this.project.rootModule;
+      emit.modules.subscribe(m => vm.defineModule(m.filename, m.moduleId, m.source));
+      emit.sources.subscribe(s => vm.defineSource(s.filename, s.source));
 
-      return this.requireModule(vm, source, symbol);
+      const [module, symbol] = await this.compileToVm(vm, emit);
+
+      return this.requireModule(vm, module, symbol);
     }
     finally {
       vm.dispose();
     }
   }
 
-  private async compileToVm(vm: VirtualMachine): Promise<void> {
+  private async compileToVm(vm: VirtualMachine, emit: CompilationEmit): Promise<[string, string]> {
     const compilerHost = createCompilerHost(this.options.ts, true);
 
     const program = this.createProgram(this.options.rootSources, compilerHost);
 
-    compilerHost.writeFile = (file, data) => this.write(vm, file, data);
+    compilerHost.writeFile = (filename, data, writeByteOrderMark, onError?, sourceFiles?) => {
+      emit.write(filename, data, sourceFiles);
+    };
 
-    const metadataWriter = await templateCompiler(this.options, program, compilerHost);
+    const [metadataWriter, generatedModules] = await compileTemplates(this.options, program, compilerHost);
 
-    const compilerVmHost = new CompilerVmHost(this.project, vm, metadataWriter);
+    const compilerVmHost = new CompilerVmHost(this.project, vm, metadataWriter, generatedModules);
 
     const vmoptions = compilerVmHost.vmoptions();
 
     const templatedProgram = this.createProgram(vmoptions.fileNames, compilerVmHost, program);
 
-    const emitResult = templatedProgram.emit(undefined, (file, data) => this.write(vm, file, data), null, false);
+    const emitResult = templatedProgram.emit(undefined, compilerHost.writeFile, null, false);
     if (emitResult) {
-      conditionalException(emitResult.diagnostics);
+      assertDiagnostics(emitResult.diagnostics);
     }
-  }
 
-  private write(vm: VirtualMachine, fileName: string, data: string) {
-    const {angular} = this.options;
-
-    const moduleId = moduleIdFromFilename(this.project.basePath, fileName, angular);
-
-    vm.define(fileName, moduleId, data);
+    return emit.rootModule(compilerVmHost, this.options.angular.basePath, vmoptions.options);
   }
 
   private createProgram(files: Array<string>, compilerHost: CompilerHost, previousProgram?: Program): Program {
@@ -87,34 +78,18 @@ export class Compiler {
       compilerHost,
       previousProgram);
 
-    assertProgramDiagnostics(program);
+    assertProgram(program);
 
     return program;
   }
 
   private async requireModule(vm: VirtualMachine, source: string, symbol: string) {
-    const requiredModule = vm.require(this.sourceToNgFactory(source));
+    const requiredModule = vm.require(source);
 
-    const definition = this.symbolToNgFactory(symbol);
-
-    if (requiredModule[definition] == null) {
-      throw new CompilerException(`Module ${source} does not export a ${definition} symbol`);
+    if (requiredModule[symbol] == null) {
+      throw new CompilerException(`Module ${source} does not export a ${symbol} symbol`);
     }
 
-    return requiredModule[definition];
-  }
-
-  private sourceToNgFactory(source: string): string {
-    if (/\.ngfactory(\.(ts|js))?$/.test(source) === false) {
-      return `${source}.ngfactory`;
-    }
-    return source;
-  }
-
-  private symbolToNgFactory(symbol: string): string {
-    if (/NgFactory$/.test(symbol) === false) {
-      return `${symbol}NgFactory`;
-    }
-    return symbol;
+    return requiredModule[symbol];
   }
 }

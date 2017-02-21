@@ -9,9 +9,9 @@ import {BrowserModule} from '@angular/platform-browser';
 
 import {Reflector} from './metadata';
 
-import {PlatformException} from 'exception';
+import {PlatformException} from '../../exception';
 
-import {flatten} from 'transformation';
+import {flatten} from '../../transformation';
 
 export const cleanImports = (importedModules: Array<Array<any> | Type<any> | ModuleWithProviders>): Array<any> => {
   const imports = importedModules.slice();

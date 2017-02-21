@@ -2,7 +2,7 @@ import {NgModuleFactory, Type} from '@angular/core';
 
 import {ApplicationBase} from './application';
 
-import {compileModule} from 'platform';
+import {compileModule} from '../../platform';
 
 export class ApplicationFromModule<V, M> extends ApplicationBase<V, M> {
   constructor(private moduleType: Type<M>) {

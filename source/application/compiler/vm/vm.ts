@@ -1,15 +1,21 @@
 import 'reflect-metadata';
 
-import 'transpile/install';
+import '../../../transpile/install';
 
 import {Script, createContext} from 'vm';
-import {dirname, join, normalize} from 'path';
-import {Disposable} from 'disposable';
-import {VirtualMachineException} from 'exception';
-import {debundleModuleId} from 'transpile/debundle';
+
+import {
+  dirname,
+  join,
+  normalize,
+} from 'path';
+
+import {Disposable} from '../../../disposable';
+import {VirtualMachineException} from '../../../exception';
+import {debundleModuleId} from '../../../transpile/debundle';
 
 export class VirtualMachine implements Disposable {
-  private scripts = new Map<string, [Script, string]>();
+  private scripts = new Map<string, Script>();
   private modules = new Map<string, any>();
   private content = new Map<string, string>();
 
@@ -22,22 +28,30 @@ export class VirtualMachine implements Disposable {
     return this.content.get(filename);
   }
 
-  define(filename: string, moduleId: string, source: string) {
+  defineModule(filename: string, moduleId: string, source: string) {
+    this.defineSource(filename, source);
+
     const normalizedModuleId = this.normalizeModuleId(moduleId);
 
-    if (this.scripts.has(moduleId)) {
+    if (this.scripts.has(moduleId) || this.scripts.has(filename)) {
       throw new VirtualMachineException(`Cannot overwrite existing module '${normalizedModuleId}'`);
     }
 
-    this.paths.add(normalize(dirname(filename)));
+    const script = new Script(source, {filename, displayErrors: true});
 
-    this.files.add(normalize(filename));
+    this.scripts.set(moduleId, script);
+    this.scripts.set(normalizedModuleId, script);
+    this.scripts.set(filename, script);
+  }
+
+  defineSource(filename: string, source: string) {
+    filename = normalize(filename);
+
+    this.paths.add(dirname(filename));
+
+    this.files.add(filename);
 
     this.content.set(filename, source);
-
-    if (/\.js$/.test(filename)) {
-      this.scripts.set(moduleId, [new Script(source, {filename, displayErrors: true}), filename]);
-    }
   }
 
   private requireStack = new Array<string>();
@@ -68,9 +82,7 @@ export class VirtualMachine implements Disposable {
     if (script != null) {
       this.requireStack.push(moduleId);
       try {
-        const [executable, filename] = script;
-
-        moduleResult = this.executeScript(executable, filename, normalizedModuleId);
+        moduleResult = this.executeScript(script, normalizedModuleId);
 
         this.modules.set(normalizedModuleId, moduleResult);
       }
@@ -105,7 +117,7 @@ export class VirtualMachine implements Disposable {
     }
   }
 
-  private executeScript(script: Script, filename: string, moduleId: string) {
+  private executeScript(script: Script, moduleId: string) {
     try {
       const exports = {};
 
@@ -113,7 +125,7 @@ export class VirtualMachine implements Disposable {
         require: mid => this.require(mid),
         exports,
         global: this.global, // shared global object across scripts is important
-        module: {exports, filename, id: moduleId},
+        module: {exports, id: moduleId},
       });
 
       script.runInContext(context);
@@ -133,7 +145,7 @@ export class VirtualMachine implements Disposable {
     if (/^\./.test(to)) {
       const stack = this.requireStack;
       if (stack.length > 0) {
-        return join(dirname(stack[stack.length - 1]), to);
+        return normalize(join(dirname(stack[stack.length - 1]), to));
       }
     }
     else if (/@angular/.test(to)) {

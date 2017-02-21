@@ -1,9 +1,9 @@
 import {Observable, Subject} from 'rxjs';
 
-import {bootstrapModuleFactory, forkZone} from 'platform';
+import {bootstrapModuleFactory, forkZone} from '../platform';
 import {RenderOperation, RenderVariantOperation} from './operation';
-import {Snapshot, takeSnapshot} from 'snapshot';
-import {routeToUri} from 'route';
+import {Snapshot, takeSnapshot} from '../snapshot';
+import {routeToUri} from '../route';
 import {fork} from './fork';
 
 export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {

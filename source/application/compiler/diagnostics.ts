@@ -10,9 +10,9 @@ import {
   getPreEmitDiagnostics
 } from 'typescript';
 
-import {CompilerException} from 'exception';
+import {CompilerException} from '../../exception';
 
-import {flatten} from 'transformation';
+import {flatten} from '../../transformation';
 
 export const diagnosticsToException = (diagnostics: Array<Diagnostic>): string => {
   const host: FormatDiagnosticsHost = {
@@ -24,13 +24,13 @@ export const diagnosticsToException = (diagnostics: Array<Diagnostic>): string =
   return formatDiagnostics(diagnostics, host);
 };
 
-export const assertProgramDiagnostics = (program: Program) => {
-  conditionalException(program.getOptionsDiagnostics());
-  conditionalException(program.getGlobalDiagnostics());
-  conditionalException(flatten<Diagnostic>(program.getSourceFiles().map(file => getPreEmitDiagnostics(program, file))));
+export const assertProgram = (program: Program) => {
+  assertDiagnostics(program.getOptionsDiagnostics());
+  assertDiagnostics(program.getGlobalDiagnostics());
+  assertDiagnostics(flatten<Diagnostic>(program.getSourceFiles().map(file => getPreEmitDiagnostics(program, file))));
 };
 
-export const conditionalException = (diagnostics: Array<Diagnostic>) => {
+export const assertDiagnostics = (diagnostics: Array<Diagnostic>) => {
   if (diagnostics == null || diagnostics.length === 0) {
     return;
   }

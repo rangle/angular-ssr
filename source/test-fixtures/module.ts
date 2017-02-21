@@ -2,9 +2,9 @@ import {NgModule, NgModuleFactory, Type} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {ApplicationFromModule} from 'application';
-import {Snapshot} from 'snapshot';
-import {compileModule} from 'platform';
+import {ApplicationFromModule} from '../application';
+import {Snapshot} from '../snapshot';
+import {compileModule} from '../platform';
 import {templateDocument} from './document';
 
 export const moduleFromComponent = (componentType: Type<any>): Type<any> =>

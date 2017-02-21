@@ -2,9 +2,9 @@ import {argv, cwd} from 'process';
 
 import * as minimist from 'minimist';
 
-import {Project} from 'application';
-import {PathException} from 'exception';
-import {Path, pathFromString} from 'filesystem';
+import {Project} from '../application';
+import {PathException} from '../exception';
+import {Path, pathFromString} from '../filesystem';
 
 export interface CommandLineOptions {
   project: Project;

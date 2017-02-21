@@ -2,7 +2,7 @@ import {ScriptTarget} from 'typescript';
 
 import {transform} from 'babel-core';
 
-import {TranspileException} from 'exception';
+import {TranspileException} from '../exception';
 
 export type TranspileResult<R> = {
   load(): R;

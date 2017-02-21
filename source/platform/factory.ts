@@ -19,7 +19,7 @@ import {PlatformImpl} from './platform';
 import {SanitizerImpl} from './sanitizer';
 import {CurrentZone} from './zone';
 
-import {privateCoreImplementation} from 'platform';
+import {privateCoreImplementation} from '../platform';
 
 const {
   APP_ID_RANDOM_PROVIDER,
