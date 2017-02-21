@@ -1,12 +1,15 @@
+import '../dependencies';
+
 import {ApplicationFromSource} from '../application';
 
 import {Snapshot} from '../snapshot';
 
-import {parseCommandLine} from './options';
+import {commandLineToOptions} from './options';
 
-const options = parseCommandLine();
+const options = commandLineToOptions();
 
 const application = new ApplicationFromSource(options.project);
+application.templateDocument(options.templateDocument);
 
 const render = async (): Promise<Array<Snapshot<any>>> => {
   const snapshots = await application.render();
@@ -32,5 +35,5 @@ render()
     console.log('Application rendering complete');
   })
   .catch(exception => {
-    console.error('Failed to render application', exception);
+    console.error(`Failed to render application: ${exception.message}`);
   });

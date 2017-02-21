@@ -1,5 +1,7 @@
 import {ScriptTarget} from 'typescript';
 
+import {Script, createContext} from 'vm';
+
 import {transform} from 'babel-core';
 
 import {TranspileException} from '../exception';
@@ -29,17 +31,17 @@ const cache = {
   }
 };
 
-export const transpile = <R>(moduleId: string, source: string, sourceType = ScriptTarget.ES2015): TranspileResult<R> => {
-  return cache.read(moduleId, () => factory<R>(moduleId, source, sourceType));
+export const transpile = <R>(module: NodeModule, source: string, sourceType = ScriptTarget.ES2015): TranspileResult<R> => {
+  return cache.read(module.id, () => factory<R>(module, source, sourceType));
 };
 
-export const factory = <R>(moduleId: string, source: string, sourceType: ScriptTarget): TranspileResult<R> => {
-  const filename = require.resolve(moduleId);
+export const factory = <R>(module: NodeModule, source: string, sourceType: ScriptTarget): TranspileResult<R> => {
+  const filename = require.resolve(module.id);
 
   try {
-    const {code} = transform(source, {presets: [sourceToPreset(sourceType)], sourceMaps: false, filename});
+    const {code} = transform(source, {presets: [sourceToPreset(sourceType)], sourceMaps: false, compact: true, filename});
     if (code == null) {
-      throw new TranspileException(`Catastrophic transpilation unknownm error: ${moduleId}`);
+      throw new TranspileException(`Catastrophic transpilation error: ${module.id}`);
     }
 
     let executed = undefined;
@@ -47,11 +49,15 @@ export const factory = <R>(moduleId: string, source: string, sourceType: ScriptT
     return <TranspileResult<R>> {
       load: (): R => {
         if (executed === undefined) {
-          const execute = new Function('exports', code);
-          const exports = {};
-          execute(exports);
+          const script = new Script(code, {filename, displayErrors: true});
 
-          cache.write(moduleId, {load: () => exports});
+          const exports = module.exports;
+
+          const context = createContext({require: mid => module.require(mid), global, module, exports});
+
+          script.runInContext(context);
+
+          cache.write(module.id, {load: () => exports});
 
           executed = exports;
         }
@@ -60,7 +66,7 @@ export const factory = <R>(moduleId: string, source: string, sourceType: ScriptT
     };
   }
   catch (exception) {
-    throw new TranspileException(`Transpilation of ${moduleId} failed`, exception);
+    throw new TranspileException(`Transpilation of ${module.id} failed`, exception);
   }
 };
 

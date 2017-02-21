@@ -8,42 +8,40 @@ import {importAngularSources, debundleModuleId} from './debundle';
 
 export type Uninstall = () => void;
 
+type ModuleHandler = (module: NodeModule, filename: string, fallback: () => any) => any;
+
 export const install = (): Uninstall => {
   const installed = [
-    installExtension('js',
-      (moduleId, fallback) => transpileJavaScript(moduleId, fallback))
+    installExtension('js', transpileJavaScript)
   ];
 
   return () => installed.forEach(uninstall => uninstall());
 };
 
-const installExtension = (ext: string, handler: (moduleId: string, fallback: () => any) => any) => {
+const installExtension = (ext: string, handler: ModuleHandler) => {
   const extension = `.${ext}`;
 
   const previous = require.extensions[extension];
 
   require.extensions[extension] =
-    (moduleId: string) => {
-      return handler(moduleId, () => previous(moduleId));
-    };
+    (module: NodeModule, filename: string) =>
+      handler(module, filename, () => previous(module, filename));
 
   return () => {
     require.extensions[extension] = previous;
   };
 };
 
-const transpileJavaScript = (moduleId: string, fallback: () => any) => {
-  const resolved = require.resolve(debundleModuleId(moduleId));
-  if (resolved == null) {
-    throw new TranspileException(`Cannot resolve module: ${moduleId}`);
-  }
+const transpileJavaScript: ModuleHandler = (module, filename, fallback) => {
+  if (/@angular/.test(module.id)) {
+    const resolved = require.resolve(debundleModuleId(module.id));
+    if (resolved == null) {
+      throw new TranspileException(`Cannot resolve module: ${module.id}`);
+    }
 
-  const code = fileFromString(resolved).content();
+    const code = fileFromString(resolved).content();
 
-  if (/^@angular/.test(moduleId)) {
-    const transformedCode = importAngularSources(code);
-
-    return transpile(moduleId, transformedCode).load();
+    return transpile(module, importAngularSources(code)).load();
   }
 
   return fallback();
