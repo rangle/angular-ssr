@@ -1,37 +1,84 @@
-import {readFileSync} from 'fs';
+import {
+  existsSync,
+  readFileSync,
+  realpathSync
+} from 'fs';
 
-import {FilesystemType} from './type';
-import {pathFromString} from './path';
+import {
+  FilesystemType,
+  PathType,
+  fstype
+} from './type';
+
 import {FilesystemException} from '../exception';
 
-export interface File {
-  path: string;
-  content(): string;
-}
+export const fileFromString = (filePath: string): File => new File(filePath);
 
-export const fileFromString = (filePath: string): File => {
-  const path = pathFromString(filePath);
+export class File {
+  constructor(private sourcePath: string) {}
 
-  const deref = path.dereference();
+  private cachedContent: string;
 
-  if (deref.type.is(FilesystemType.File) === false) {
-    throw new FilesystemException(`Cannot read a file of type ${deref.type.description()}`);
+  assertExistence() {
+    if (this.exists() === false) {
+      throw new FilesystemException(`Cannot read a nonexistent file: ${this.sourcePath}`);
+    }
   }
 
-  let cached: string;
+  type(): PathType {
+    return fstype(this.sourcePath);
+  }
 
-  const cacheMiss = () => {
-    try {
-      cached = readFileSync(deref.path).toString();
-      return cached;
+  path(): string {
+    return this.sourcePath;
+  }
+
+  exists(): boolean {
+    const type = this.type();
+    if (type.is(FilesystemType.File) !== true) {
+      throw new FilesystemException(`Expected a file but received a ${type.description()}: ${this.sourcePath}`)
     }
-    catch (exception) {
-      const resolvedFrom = deref !== path ? ` (from symbolic link: ${filePath})` : String();
 
-      throw new FilesystemException(
-        `Failed to read file content: ${deref}${resolvedFrom}`, exception);
+    const dereferencedPath =
+      type.is(FilesystemType.SymbolicLink)
+        ? realpathSync(this.sourcePath)
+        : this.sourcePath;
+
+    return existsSync(dereferencedPath);
+  }
+
+  dereference(): File {
+    this.assertExistence();
+
+    if (this.type().is(FilesystemType.SymbolicLink)) {
+      const realpath = realpathSync(this.sourcePath);
+
+      return new File(realpath);
     }
-  };
 
-  return {path: deref.path, content: () => cached || cacheMiss()};
-};
+    return this;
+  }
+
+  content(): string {
+    if (this.cachedContent == null) {
+      const dereferenced = this.dereference();
+
+      if (dereferenced.type().is(FilesystemType.File) === false) {
+        throw new FilesystemException(`Cannot read a file of type ${this.type().description()}`);
+      }
+      try {
+        this.cachedContent = readFileSync(dereferenced.path()).toString();
+      }
+      catch (exception) {
+        const resolvedFrom =
+          dereferenced !== this
+            ? `from symbolic link: ${this.sourcePath}`
+            : `type: ${this.type().description()}`;
+
+        throw new FilesystemException(`Failed to read file: ${dereferenced.path()} (from: ${resolvedFrom})`, exception);
+      }
+    }
+
+    return this.cachedContent;
+  }
+}

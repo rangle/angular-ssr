@@ -20,68 +20,74 @@ import {File, fileFromString} from './file';
 
 import {PathException} from 'exception';
 
-export interface Path {
-  type: PathType;
-  path: string;
-  directories(): Set<string>;
-  files(): Set<string>;
-  traverseUpward(file: string): File;
-  dereference(): Path;
+export const pathFromString = (sourcePath: string): Path => new Path(sourcePath);
+
+export class Path {
+  constructor(private sourcePath: string) {}
+
+  public string = () => this.sourcePath;
+
+  type(): PathType {
+    return fstype(this.sourcePath);
+  }
+
+  exists(): boolean {
+    return existsSync(this.dereference().string()) === true && this.type().is(FilesystemType.Directory);
+  }
+
+  directories(): Set<Path> {
+    this.assertExistence();
+
+    return new Set<Path>(readdirSync(this.sourcePath)
+      .filter(item => item !== '.')
+      .filter(item => item !== '..')
+      .filter(item => fstype(normalize(join(this.sourcePath, item))).is(FilesystemType.Directory))
+      .map(d => pathFromString(d)));
+  }
+
+  files(): Set<File> {
+    this.assertExistence();
+
+    return new Set<File>(readdirSync(this.sourcePath)
+      .filter(item => item !== '.')
+      .filter(item => item !== '..')
+      .filter(item => fstype(normalize(join(this.sourcePath, item))).is(FilesystemType.File))
+      .map(f => fileFromString(f)));
+  }
+
+  dereference(): Path {
+    if (this.type().is(FilesystemType.SymbolicLink)) {
+      const deref = realpathSync(this.sourcePath);
+      if (deref == null) {
+        throw new PathException(`Failed to dereference symlink: ${this.sourcePath}`);
+      }
+
+      return pathFromString(deref);
+    }
+
+    return this;
+  }
+
+  traverseUpward(file: string): File {
+    this.assertExistence();
+
+    for (let from = this.sourcePath; true; from = join(from, '..')) {
+      const candidate = resolve(normalize(join(from, file)));
+
+      if (existsSync(candidate)) {
+        return fileFromString(candidate);
+      }
+
+      if (resolve(normalize(from)) === resolve(normalize(join(from, '..')))) {
+        throw new PathException(`Cannot locate ${file} between ${this.sourcePath} to ${from}`);
+      }
+    }
+  }
+
+  private assertExistence() {
+    if (this.exists() === false) {
+      throw new PathException(`Cannot traverse a nonexistent path: ${this.sourcePath}`);
+    }
+  }
 }
 
-export const pathFromString = (sourcePath: string): Path => {
-  const type = fstype(sourcePath);
-
-  const absolute = (...paths: Array<string>): string => {
-    return normalize(join(sourcePath, ...paths));
-  };
-
-  const resultingPath = <Path> {
-    type,
-
-    path: sourcePath,
-
-    directories(): Set<string> {
-      return new Set<string>(readdirSync(sourcePath)
-        .filter(item => item !== '.')
-        .filter(item => item !== '..')
-        .filter(item => fstype(absolute(item)).is(FilesystemType.Directory)));
-    },
-
-    files(): Set<string> {
-      return new Set<string>(readdirSync(sourcePath)
-        .filter(item => item !== '.')
-        .filter(item => item !== '..')
-        .filter(item => fstype(absolute(item)).is(FilesystemType.File)));
-    },
-
-    dereference(): Path {
-      if (type.is(FilesystemType.SymbolicLink)) {
-        const deref = realpathSync(sourcePath);
-        if (deref == null) {
-          throw new PathException(`Failed to dereference symlink: ${sourcePath}`);
-        }
-
-        return pathFromString(deref);
-      }
-
-      return resultingPath;
-    },
-
-    traverseUpward(file: string): File {
-      for (let from = sourcePath; true; from = join(from, '..')) {
-        const candidate = resolve(normalize(join(from, file)));
-
-        if (existsSync(candidate)) {
-          return fileFromString(candidate);
-        }
-
-        if (resolve(normalize(from)) === resolve(normalize(join(from, '..')))) {
-          throw new PathException(`Cannot locate ${file} between ${sourcePath} to ${from}`);
-        }
-      }
-    },
-  };
-
-  return resultingPath;
-};

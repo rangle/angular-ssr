@@ -1,14 +1,12 @@
-import {
-  Injectable,
-  Inject,
-  OnDestroy
-} from '@angular/core';
+import {Injectable, Inject, OnDestroy} from '@angular/core';
 
-const domino = require('domino');
+import {PlatformException} from 'exception';
 
 import {TemplateDocument, RequestUri} from './tokens';
 
-import {PlatformException} from 'exception';
+import {mapZoneToContainer, unmapZoneFromContainer} from './map';
+
+const domino = require('domino');
 
 @Injectable()
 export class DocumentContainer implements OnDestroy {
@@ -16,9 +14,11 @@ export class DocumentContainer implements OnDestroy {
 
   constructor(
     @Inject(TemplateDocument) templateDocument: string,
-    @Inject(RequestUri) requestUri: string
+    @Inject(RequestUri) requestUri: string,
   ) {
     this.windowRef = domino.createWindow(templateDocument, requestUri);
+
+    mapZoneToContainer(this);
   }
 
   get window(): Window {
@@ -39,6 +39,8 @@ export class DocumentContainer implements OnDestroy {
   }
 
   ngOnDestroy() {
+    unmapZoneFromContainer(this);
+
     this.complete();
 
     // This may seem pointless but we just want to release all references
