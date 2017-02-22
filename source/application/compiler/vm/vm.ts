@@ -1,7 +1,5 @@
 import 'reflect-metadata';
 
-import '../../../transpile/install';
-
 import {Script, createContext} from 'vm';
 
 import {
@@ -12,7 +10,7 @@ import {
 
 import {Disposable} from '../../../disposable';
 import {VirtualMachineException} from '../../../exception';
-import {debundleModuleId} from '../../../transpile/debundle';
+import {debundleImport} from '../../../transpile';
 
 export class VirtualMachine implements Disposable {
   private scripts = new Map<string, Script>();
@@ -24,7 +22,7 @@ export class VirtualMachine implements Disposable {
 
   private global = {Reflect};
 
-  sourceCode(filename): string {
+  readSource(filename): string {
     return this.content.get(filename);
   }
 
@@ -149,7 +147,7 @@ export class VirtualMachine implements Disposable {
       }
     }
     else if (/@angular/.test(to)) {
-      return debundleModuleId(to);
+      return debundleImport(to);
     }
     return to;
   }

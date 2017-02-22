@@ -1,5 +1,7 @@
 import '../dependencies';
 
+import './transpile';
+
 import {ApplicationFromSource} from '../application';
 
 import {Snapshot} from '../snapshot';
