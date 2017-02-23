@@ -9,12 +9,12 @@ export const getApplicationProject = (moduleId: string, moduleSymbol: string): P
 
   const tsconfig = path.traverseUpward('tsconfig.json');
 
-  const tsconfigPath = tsconfig.path();
+  const tsconfigPath = tsconfig.toString();
 
   return <Project> {
     basePath: dirname(tsconfigPath),
     tsconfig: tsconfigPath,
-    rootModule: {
+    applicationModule: {
       source: moduleId,
       symbol: moduleSymbol,
     }

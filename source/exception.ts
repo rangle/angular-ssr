@@ -3,7 +3,7 @@ export class Exception extends Error {
 
   constructor(msg: string, innerException?: Error) {
     if (innerException) {
-      super(`${msg} -> ${innerException.toString()}`);
+      super(`${msg} -> ${innerException.message}`);
     }
     else {
       super(msg);

@@ -26,9 +26,14 @@ export const loadProjectOptions = (project: Project): CompileOptions => {
   ngOptions.basePath = project.basePath;
   ngOptions.generateCodeForLibraries = true;
 
+  // Test files cannot be included but ng new projects do not exclude them from the
+  // build in tsconfig.json files, so we must manually snip them from the root file
+  // list. This is really super nasty and it would be great if it weren't necessary.
+  const rootSources = parsed.fileNames.filter(file => testHeuristic(file) === false);
+
   return {
     angular: ngOptions,
-    rootSources: parsed.fileNames,
+    rootSources,
     ts: adjustOptions(parsed.options),
   };
 };
@@ -36,9 +41,9 @@ export const loadProjectOptions = (project: Project): CompileOptions => {
 export const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions => {
   return Object.assign({}, baseOptions, {
     declaration: false,
-    sourceMap: false,
-    inlineSourceMap: false,
     module: ModuleKind.CommonJS,
     moduleResolution: ModuleResolutionKind.NodeJs,
   });
 };
+
+const testHeuristic = (filename: string) => /(e2e|\.?(spec|tests?)\.)/.test(filename);

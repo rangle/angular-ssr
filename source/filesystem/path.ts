@@ -25,14 +25,12 @@ export const pathFromString = (sourcePath: string): Path => new Path(sourcePath)
 export class Path {
   constructor(private sourcePath: string) {}
 
-  public string = () => this.sourcePath;
-
   type(): PathType {
     return fstype(this.sourcePath);
   }
 
   exists(): boolean {
-    return existsSync(this.dereference().string()) === true && this.type().is(FilesystemType.Directory);
+    return existsSync(this.dereference().toString()) === true && this.type().is(FilesystemType.Directory);
   }
 
   directories(): Set<Path> {
@@ -41,8 +39,8 @@ export class Path {
     return new Set<Path>(readdirSync(this.sourcePath)
       .filter(item => item !== '.')
       .filter(item => item !== '..')
-      .filter(item => fstype(normalize(join(this.sourcePath, item))).is(FilesystemType.Directory))
-      .map(d => pathFromString(d)));
+      .map(item => pathFromString(normalize(join(this.sourcePath, item))))
+      .filter(file => file.type().is(FilesystemType.Directory)));
   }
 
   files(): Set<File> {
@@ -51,8 +49,8 @@ export class Path {
     return new Set<File>(readdirSync(this.sourcePath)
       .filter(item => item !== '.')
       .filter(item => item !== '..')
-      .filter(item => fstype(normalize(join(this.sourcePath, item))).is(FilesystemType.File))
-      .map(f => fileFromString(f)));
+      .map(item => fileFromString(normalize(join(this.sourcePath, item))))
+      .filter(file => file.type().is(FilesystemType.File)));
   }
 
   dereference(): Path {
@@ -61,10 +59,8 @@ export class Path {
       if (deref == null) {
         throw new PathException(`Failed to dereference symlink: ${this.sourcePath}`);
       }
-
       return pathFromString(deref);
     }
-
     return this;
   }
 
@@ -84,10 +80,13 @@ export class Path {
     }
   }
 
+  toString() {
+    return this.sourcePath;
+  }
+
   private assertExistence() {
     if (this.exists() === false) {
       throw new PathException(`Cannot traverse a nonexistent path: ${this.sourcePath}`);
     }
   }
 }
-

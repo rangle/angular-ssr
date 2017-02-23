@@ -1,11 +1,6 @@
-import '../dependencies';
-
-import './transpile';
+import './runtime';
 
 import {ApplicationFromSource} from '../application';
-
-import {Snapshot} from '../snapshot';
-
 import {commandLineToOptions} from './options';
 
 const options = commandLineToOptions();
@@ -13,27 +8,17 @@ const options = commandLineToOptions();
 const application = new ApplicationFromSource(options.project);
 application.templateDocument(options.templateDocument);
 
-const render = async (): Promise<Array<Snapshot<any>>> => {
-  const snapshots = await application.render();
-
-  const rendered = new Array<Snapshot<any>>();
-
-  return new Promise<Array<Snapshot<any>>>(
-    (resolve, reject) => {
-      snapshots.subscribe(
-        snapshot => {
-          rendered.push(snapshot);
-        },
-        exception => {
-          reject(exception);
-        });
-
-      return rendered;
-    });
-};
-
-render()
-  .then(() => {
+application.render()
+  .then(snapshots => {
+    snapshots.subscribe(
+      snapshot => {
+        console.log('Rendered', snapshot);
+      },
+      exception => {
+        console.error('Critical render exception', exception);
+        process.exit(1);
+      }
+    );
     console.log('Application rendering complete');
   })
   .catch(exception => {

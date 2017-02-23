@@ -1,5 +1,7 @@
 import {
+  CompilerHost,
   CompilerOptions,
+  Program,
   SourceFile,
   resolveModuleName
 } from 'typescript';
@@ -10,10 +12,10 @@ import {
   resolve
 } from 'path';
 
-import {CompilerVmHost} from './compiler-vm';
 import {CompilerException} from '../../exception';
-import {Project} from '../../application';
+import {ApplicationModuleDescriptor, Project} from '../../application';
 import {Publisher} from '../../publisher';
+import {StaticAnalyzer} from '../static';
 
 export type CompiledSource = {filename: string, source: string};
 
@@ -47,20 +49,38 @@ export class CompilationEmit {
     }
   }
 
-  rootModule(compilerHost: CompilerVmHost, basePath: string, options: CompilerOptions): [string, string] {
-    const containingFile = join(basePath, 'index.ts');
+  applicationModule(program: Program): ApplicationModuleDescriptor {
+    const parser = new StaticAnalyzer(program.getSourceFiles());
 
-    const rootModule = sourceToNgFactory(this.project.rootModule.source);
+    return parser.getBootstrapModule();
+  }
+
+  rootModule(program: Program, compilerHost: CompilerHost, options: CompilerOptions): [string, string] {
+    const containingFile = join(this.project.basePath, 'index.ts');
+
+    const applicationModule =
+      this.project.applicationModule
+        ? this.project.applicationModule
+        : this.applicationModule(program);
+
+    if (applicationModule == null ||
+        applicationModule.source == null ||
+        applicationModule.symbol == null) {
+      throw new CompilerException(`Cannot find application root @NgModule, please provide in Project structure`);
+    }
+
+    const rootModule = sourceToNgFactory(applicationModule.source);
 
     const resolved = resolveModuleName(rootModule, containingFile, options, compilerHost);
 
-    if (resolved == null || resolved.resolvedModule == null) {
+    if (resolved == null ||
+        resolved.resolvedModule == null) {
       throw new CompilerException(`Cannot resolve root module: ${rootModule}`);
     }
 
     const moduleFile = this.getModuleFromSourceFile(resolved.resolvedModule.resolvedFileName);
 
-    const symbol = symbolToNgFactory(this.project.rootModule.symbol);
+    const symbol = symbolToNgFactory(applicationModule.symbol);
 
     return [moduleFile, symbol];
   }
@@ -94,7 +114,7 @@ const executable = (filename: string) => /\.js$/.test(filename);
 
 const sourceToNgFactory = (source: string): string => {
   if (/\.ngfactory(\.(ts|js))?$/.test(source) === false) {
-    return `${source}.ngfactory`;
+    return `${source.replace(/\.(js|ts)$/, String())}.ngfactory`;
   }
   return source;
 };

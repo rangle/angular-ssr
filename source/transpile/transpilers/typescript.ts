@@ -9,15 +9,14 @@ import {EOL} from 'os';
 import {relative} from 'path';
 
 import {TranspileException} from '../../exception';
-import {TranspileResult} from '../transpiler';
+import {TranspileResult} from '../transpile';
 import {transpileCache} from '../cache';
-import {runner} from '../runner';
+import {evaluateModule} from '../evaluate';
 
 const tsconfig = require('../../../tsconfig.json');
 
-export const compilets = <R>(module: NodeModule, source: string): TranspileResult<R> => {
-  return transpileCache.read(module.filename, () => factory<R>(module, source, tsconfig));
-};
+export const compilets = <R>(module: NodeModule, source: string): TranspileResult<R> =>
+  transpileCache.read(module.filename, () => factory<R>(module, source, tsconfig));
 
 const factory = <R>(module: NodeModule, source: string, tsconfig): TranspileResult<R> => {
   const diagnostics = new Array<Diagnostic>();
@@ -38,5 +37,5 @@ const factory = <R>(module: NodeModule, source: string, tsconfig): TranspileResu
     throw new TranspileException(`TypeScript transpilation failed: ${formatDiagnostics(diagnostics, host)}`);
   }
 
-  return runner<R>(module, result);
+  return evaluateModule<R>(module, result);
 };

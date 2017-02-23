@@ -4,12 +4,11 @@ import {transform} from 'babel-core';
 
 import {TranspileException} from '../../exception';
 import {transpileCache} from '../cache';
-import {TranspileResult} from '../transpiler';
-import {runner} from '../runner';
+import {TranspileResult} from '../transpile';
+import {evaluateModule} from '../evaluate';
 
-export const compilejs = <R>(module: NodeModule, source: string): TranspileResult<R> => {
-  return transpileCache.read(module.filename, () => factory<R>(module, source));
-};
+export const compilejs = <R>(module: NodeModule, source: string): TranspileResult<R> =>
+  transpileCache.read(module.filename, () => factory<R>(module, source));
 
 const factory = <R>(module: NodeModule, source: string): TranspileResult<R> => {
   const filename = module.filename;
@@ -22,7 +21,7 @@ const factory = <R>(module: NodeModule, source: string): TranspileResult<R> => {
       throw new TranspileException(`Catastrophic transpilation error: ${module.id}`);
     }
 
-    return runner<R>(module, code);
+    return evaluateModule<R>(module, code);
   }
   catch (exception) {
     throw new TranspileException(`Transpilation of ${module.id} failed`, exception);

@@ -46,21 +46,23 @@ export const fstype = (path: string): PathType => {
 }
 
 const pathToType = (path: string): FilesystemType => {
-  const stats = statSync(path);
+  try {
+    const stats = statSync(path);
 
-  if (stats.isDirectory()) {
-    return FilesystemType.Directory;
+    if (stats.isDirectory()) {
+      return FilesystemType.Directory;
+    }
+    else if (stats.isSymbolicLink()) {
+      return FilesystemType.SymbolicLink | fstype(realpathSync(path)).type();
+    }
+    else if (stats.isFile()) {
+      return FilesystemType.File;
+    }
+    else if (stats.isSocket()) {
+      return FilesystemType.Socket;
+    }
   }
-  else if (stats.isSymbolicLink()) {
-    return FilesystemType.SymbolicLink | fstype(realpathSync(path)).type();
-  }
-  else if (stats.isFile()) {
-    return FilesystemType.File;
-  }
-  else if (stats.isSocket()) {
-    return FilesystemType.Socket;
-  }
-  else {
-    return FilesystemType.Unknown;
-  }
+  catch (exception) {}
+
+  return FilesystemType.Unknown;
 };

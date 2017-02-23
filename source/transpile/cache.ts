@@ -1,4 +1,4 @@
-import {TranspileResult} from './transpiler';
+import {TranspileResult} from './transpile';
 
 const transpiled = new Map<string, TranspileResult<any>>();
 

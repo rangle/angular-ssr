@@ -1,22 +1,20 @@
-import {TranspileResult} from './transpiler';
+import {TranspileResult} from './transpile';
 
 import {transpileCache} from './cache';
 
 const Module = require('module');
 
-export const runner = <R>(module: NodeModule, source: string): TranspileResult<R> => {
+export const evaluateModule = <R>(module: NodeModule, source: string): TranspileResult<R> => {
   let executed = false;
 
-  return <TranspileResult<R>> {
-    module,
-    source,
-    run: (): R => {
-      if (executed === false) {
-        compile(module, source);
-      }
-      return module.exports;
+  const run = (): R => {
+    if (executed === false) {
+      compile(module, source);
     }
+    return module.exports;
   };
+
+  return <TranspileResult<R>> {module, source, run};
 };
 
 const compile = (module: NodeModule, source: string): void => {

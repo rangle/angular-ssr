@@ -1,6 +1,6 @@
 import commander = require('commander');
 
-import {join} from 'path';
+import {dirname, join} from 'path';
 
 import {Project} from '../application';
 
@@ -28,16 +28,21 @@ export const commandLineToOptions = (): CommandLineOptions => {
   const tsconfig: string = tsconfigFromRoot(path);
 
   if (path.exists() === false) {
-    throw new PathException(`Project path does not exist: ${path.string()}`);
+    throw new PathException(`Project path does not exist: ${path}`);
   }
 
+  const applicationModule =
+    hasOptions(options, 'module', 'symbol')
+      ? {
+          source: options['module'],
+          symbol: options['symbol'],
+        }
+      : null;
+
   const project: Project = {
-    basePath: path.string(),
+    basePath: dirname(tsconfig),
     tsconfig,
-    rootModule: {
-      source: options['module'],
-      symbol: options['symbol'],
-    }
+    applicationModule,
   };
 
   const template = fileFromString(options['template']);
@@ -48,6 +53,8 @@ export const commandLineToOptions = (): CommandLineOptions => {
 
   return {project, templateDocument: template.content()};
 };
+
+const hasOptions = (options, ...args: Array<string>) => args.every(o => options[o]);
 
 const parseCommandLine = () => {
   return commander
@@ -61,14 +68,24 @@ const parseCommandLine = () => {
 };
 
 const tsconfigFromRoot = (fromRoot: Path): string => {
-  if (fromRoot.type().is(FilesystemType.Directory) === false) {
-    return fromRoot.string();
+  if (fromRoot.exists() === false) {
+    throw new PathException(`Root path does not exist: ${fromRoot}`);
   }
 
-  const candidate = fileFromString(join(fromRoot.string(), 'tsconfig.json'));
-  if (candidate.exists() === false) {
-    throw new PathException(`Cannot find tsconfig.json in ${candidate.path()}`);
+  if (fromRoot.type().is(FilesystemType.File)) {
+    return fromRoot.toString();
   }
 
-  return candidate.path();
+  const tsconfig = 'tsconfig.json';
+
+  const candidates = [
+    fromRoot.toString(),
+    ...Array.from(fromRoot.directories()).map(d => join(d.toString(), tsconfig))
+  ].filter(c => /(e2e|test)/.test(c) === false);
+
+  const matchingFile = candidates.map(fileFromString).find(c => c.exists());
+  if (matchingFile) {
+    return matchingFile.toString();
+  }
+  return null;
 };

@@ -29,14 +29,11 @@ export class File {
     return fstype(this.sourcePath);
   }
 
-  path(): string {
-    return this.sourcePath;
-  }
-
   exists(): boolean {
     const type = this.type();
-    if (type.is(FilesystemType.File) !== true) {
-      throw new FilesystemException(`Expected a file but received a ${type.description()}: ${this.sourcePath}`)
+
+    if (type.is(FilesystemType.File) === false) {
+      return false;
     }
 
     const dereferencedPath =
@@ -67,7 +64,7 @@ export class File {
         throw new FilesystemException(`Cannot read a file of type ${this.type().description()}`);
       }
       try {
-        this.cachedContent = readFileSync(dereferenced.path()).toString();
+        this.cachedContent = readFileSync(dereferenced.toString()).toString();
       }
       catch (exception) {
         const resolvedFrom =
@@ -75,10 +72,14 @@ export class File {
             ? `from symbolic link: ${this.sourcePath}`
             : `type: ${this.type().description()}`;
 
-        throw new FilesystemException(`Failed to read file: ${dereferenced.path()} (from: ${resolvedFrom})`, exception);
+        throw new FilesystemException(`Failed to read file: ${dereferenced} (from: ${resolvedFrom})`, exception);
       }
     }
 
     return this.cachedContent;
+  }
+
+  toString() {
+    return this.sourcePath;
   }
 }

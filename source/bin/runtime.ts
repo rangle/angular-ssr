@@ -1,4 +1,6 @@
-import {install} from '../transpile/install/require';
+import '../dependencies';
+
+import {install} from '../transpile/install';
 
 import {RuntimeException} from '../exception';
 

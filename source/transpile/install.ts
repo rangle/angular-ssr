@@ -1,6 +1,6 @@
-import {transpilers} from '../composed';
-import {transpileCache} from '../cache';
-import {processTranspile} from '../process';
+import {transpilers} from './composed';
+import {transpileCache} from './cache';
+import {transpileMatch} from './process';
 
 export type Uninstall = () => void;
 
@@ -27,7 +27,7 @@ export const installExtension = (extension: string): Uninstall => {
     (module: NodeModule, filename: string) => {
       const fallback = () => previous(module, filename);
 
-      const transpiled = processTranspile(module, filename);
+      const transpiled = transpileMatch(module, filename);
       if (transpiled == null) {
         return fallback();
       }

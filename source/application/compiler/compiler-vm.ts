@@ -52,12 +52,12 @@ export class CompilerVmHost extends DelegatingHost {
       const traversal = pathFromString(targetPath);
 
       const files = new Set([
-        ...Array.from(traversal.files()).map(f => f.path()),
+        ...Array.from(traversal.files()).map(f => f.toString()),
         ...Array.from(this.vm.filenames(targetPath))
       ]);
 
       const directories = new Set<string>([
-        ...Array.from(traversal.directories()).map(d => d.string()),
+        ...Array.from(traversal.directories()).map(d => d.toString()),
         ...Array.from(this.vm.directories(targetPath))
       ]);
 

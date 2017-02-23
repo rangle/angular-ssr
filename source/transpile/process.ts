@@ -1,12 +1,12 @@
 import {extname} from 'path';
 
 import {TranspileException} from '../exception';
-import {TranspileResult} from './transpiler';
+import {TranspileResult} from './transpile';
 import {fileFromString} from '../filesystem';
+import {evaluateModule} from './evaluate';
 import {transpilers} from './composed';
-import {runner} from './runner';
 
-export const processTranspile = <R>(module: NodeModule, filename: string): TranspileResult<R> => {
+export const transpileMatch = <R>(module: NodeModule, filename: string): TranspileResult<R> => {
   for (const transpiler of transpilers) {
     if (transpiler.extension !== extname(filename)) {
       continue;
@@ -43,7 +43,7 @@ export const processTranspile = <R>(module: NodeModule, filename: string): Trans
     const transpiled: TranspileResult<R> =
       transpiler.transpiler
         ? transpiler.transpiler<R>(module, preprocessed)
-        : runner<R>(module, preprocessed);
+        : evaluateModule<R>(module, preprocessed);
 
     return transpiled;
   }
@@ -62,7 +62,7 @@ export const process = (source: string, path: string): string => {
     children: [],
   }
 
-  const result = processTranspile(module, path);
+  const result = transpileMatch(module, path);
   if (result == null) {
     return source;
   }

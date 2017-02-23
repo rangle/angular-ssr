@@ -21,12 +21,6 @@ export class Compiler {
 
   constructor(private project: Project) {
     this.options = loadProjectOptions(project);
-
-    if (project.rootModule == null ||
-        !project.rootModule.source ||
-        !project.rootModule.symbol) {
-      throw new CompilerException('Compilation requires a source and symbol');
-    }
   }
 
   async compile(): Promise<NgModuleFactory<any>> {
@@ -68,7 +62,7 @@ export class Compiler {
       assertDiagnostics(emitResult.diagnostics);
     }
 
-    return emit.rootModule(compilerVmHost, this.options.angular.basePath, vmoptions.options);
+    return emit.rootModule(program, compilerVmHost, vmoptions.options);
   }
 
   private createProgram(files: Array<string>, compilerHost: CompilerHost, previousProgram?: Program): Program {
