@@ -70,7 +70,7 @@ export class CompilerVmHost extends DelegatingHost {
   getSourceFile = (filename: string, languageVersion: ScriptTarget, onError?: (message: string) => void): SourceFile => {
     let sourceFile = this.host.getSourceFile(filename, languageVersion, onError); // first due to cache
     if (sourceFile == null) {
-      const content = this.vm.readSource(filename);
+      const content = this.vm.getSource(filename);
       if (content) {
         return createSourceFile(filename, content, languageVersion, true);
       }
@@ -79,7 +79,7 @@ export class CompilerVmHost extends DelegatingHost {
   };
 
   readFile = (filename: string): string => {
-    return this.vm.readSource(filename) || this.delegate.readFile(filename);
+    return this.vm.getSource(filename) || this.delegate.readFile(filename);
   };
 
   getDirectories = (path: string): Array<string> => {

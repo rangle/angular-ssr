@@ -18,11 +18,10 @@ export class VirtualMachine implements Disposable {
   private content = new Map<string, string>();
 
   private paths = new Set<string>();
-  private files = new Set<string>();
 
   private global = {Reflect};
 
-  readSource(filename): string {
+  getSource(filename): string {
     return this.content.get(filename);
   }
 
@@ -46,8 +45,6 @@ export class VirtualMachine implements Disposable {
     filename = normalize(filename);
 
     this.paths.add(dirname(filename));
-
-    this.files.add(filename);
 
     this.content.set(filename, source);
   }
@@ -104,13 +101,14 @@ export class VirtualMachine implements Disposable {
   };
 
   filenames(from?: string): Set<string> {
+    const files = Array.from(this.content.keys());
     return from
-      ? new Set<string>(Array.from(this.files).filter(d => normalize(dirname(d)) === normalize(from)))
-      : this.files;
+      ? new Set<string>(Array.from(files).filter(d => normalize(dirname(d)) === normalize(from)))
+      : new Set<string>(files);
   }
 
   dispose() {
-    for (const container of [this.scripts, this.modules, this.content, this.files, this.paths]) {
+    for (const container of [this.scripts, this.modules, this.content, this.paths]) {
       container.clear();
     }
   }

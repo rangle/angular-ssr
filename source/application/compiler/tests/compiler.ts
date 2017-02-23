@@ -1,4 +1,4 @@
-import {getApplicationProject} from 'test-fixtures';
+import {getApplicationProject} from '../../../test-fixtures';
 
 import {Compiler} from '../compiler';
 

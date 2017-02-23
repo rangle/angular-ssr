@@ -1,10 +1,10 @@
-import {renderableRoutes} from 'index';
+import {renderableRoutes} from '../../route';
 
 import {
   BasicInlineComponent,
   moduleFactoryFromComponent,
   templateDocument
-} from 'test-fixtures';
+} from '../../test-fixtures';
 
 describe('renderable routes', () => {
   it('should return a single route for an NgModule that does not use Router', async () => {

@@ -18,7 +18,7 @@
     "watch": "tsc --watch",
     "pretest": "npm run lint",
     "lint": "tslint --project tsconfig.json --type-check",
-    "test": "jest",
+    "test": "jest --verbose",
     "test:watch": "jest --watch"
   },
   "repository": {

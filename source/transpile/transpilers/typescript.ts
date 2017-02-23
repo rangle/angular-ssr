@@ -1,7 +1,11 @@
+// NOTE(cbond): The TypeScript transpiler is only used by our unit testing framework,
+// jest. So we can just import our own tsconfig since this transpiler will never be
+// used on application code. It is only for our unit tests.
+
 import {
-  Diagnostic,
+  TranspileOptions,
   formatDiagnostics,
-  transpile
+  transpileModule
 } from 'typescript';
 
 import {EOL} from 'os';
@@ -19,23 +23,26 @@ export const compilets = <R>(module: NodeModule, source: string): TranspileResul
   transpileCache.read(module.filename, () => factory<R>(module, source, tsconfig));
 
 const factory = <R>(module: NodeModule, source: string, tsconfig): TranspileResult<R> => {
-  const diagnostics = new Array<Diagnostic>();
-
-  const options = Object.assign({}, tsconfig.compilerOptions);
-
   const path = relative(process.cwd(), module.filename);
 
-  const result = transpile(source, options, path, diagnostics);
+  const transpileOptions: TranspileOptions = {
+    compilerOptions: tsconfig.compilerOptions,
+    fileName: path,
+    reportDiagnostics: true,
+    moduleName: module.id,
+  }
 
-  if (diagnostics.length > 0) {
+  const result = transpileModule(source, transpileOptions);
+
+  if (result.diagnostics.length > 0) {
     const host = {
       getCurrentDirectory: () => process.cwd(),
       getCanonicalFileName: fileName => fileName,
       getNewLine: () => EOL,
     };
 
-    throw new TranspileException(`TypeScript transpilation failed: ${formatDiagnostics(diagnostics, host)}`);
+    throw new TranspileException(`TypeScript transpilation failed: ${formatDiagnostics(result.diagnostics, host)}`);
   }
 
-  return evaluateModule<R>(module, result);
+  return evaluateModule<R>(module, result.outputText);
 };

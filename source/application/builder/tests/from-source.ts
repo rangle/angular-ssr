@@ -1,6 +1,6 @@
 import {ApplicationFromSource} from '../from-source';
 
-import {templateDocument, getApplicationProject} from 'test-fixtures';
+import {templateDocument, getApplicationProject} from '../../../test-fixtures';
 
 describe('ApplicationFromSource', () => {
   it('can compile a project from source and load a NgFactory module', done => {

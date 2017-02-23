@@ -1,4 +1,4 @@
-import {ApplicationFromModule} from 'application';
+import {ApplicationFromModule} from '../../../application';
 
 import {
   BasicExternalComponent,
@@ -9,7 +9,7 @@ import {
   renderModuleFixture,
   moduleFromComponent,
   trimDocument,
-} from 'test-fixtures';
+} from '../../../test-fixtures';
 
 describe('ApplicationFromModule', () => {
   it('should require a template document in order to render', done => {
