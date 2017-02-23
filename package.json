@@ -54,7 +54,7 @@
     "rxjs": "^5.1.0",
     "scoped-logger": "0.0.15",
     "source-map-support": "^0.4.11",
-    "typescript": "^2.2.0"
+    "typescript": "2.2.0"
   },
   "devDependencies": {
     "@angular/common": "^2.4.6",
