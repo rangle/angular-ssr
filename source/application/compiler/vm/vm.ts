@@ -86,7 +86,7 @@ export class VirtualMachine implements Disposable {
       }
     }
     else {
-      moduleResult = require(normalizedModuleId);
+      moduleResult = require.main.require(normalizedModuleId);
 
       this.modules.set(moduleId, moduleResult);
     }

@@ -46,7 +46,7 @@ export class Compiler {
     const program = this.createProgram(this.options.rootSources, compilerHost);
 
     compilerHost.writeFile = (filename, data, writeByteOrderMark, onError?, sourceFiles?) => {
-      emit.write(filename, data, sourceFiles);
+      emit.write(filename, data, (sourceFiles || []).filter(sf => sf != null));
     };
 
     const [metadataWriter, generatedModules] = await compileTemplates(this.options, program, compilerHost);

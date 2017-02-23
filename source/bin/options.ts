@@ -62,6 +62,8 @@ const parseCommandLine = () => {
     .description('Prerender Angular applications')
     .option('-p, --project <path>', 'Path to tsconfig.json file or project root (if tsconfig.json lives in the root)', process.cwd())
     .option('-t, --template <path>', 'HTML template document', 'dist/index.html')
+    .option('-m, --module <path>', 'Path to root application module TypeScript file')
+    .option('-s, --symbol <identifier>', 'Class name of application root module')
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', null)
     .option('-i, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
     .parse(process.argv);

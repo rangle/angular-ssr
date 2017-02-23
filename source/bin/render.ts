@@ -22,5 +22,5 @@ application.render()
     console.log('Application rendering complete');
   })
   .catch(exception => {
-    console.error(`Failed to render application: ${exception.message}`);
+    console.error(`Failed to render application: ${exception.stack}`);
   });
