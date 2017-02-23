@@ -5,7 +5,8 @@
   "main": "build/index.js",
   "typings": "build/index.d.ts",
   "engines": {
-    "node": ">=6.3.1"
+    "node": ">=6.3.1",
+    "npm": ">=3.10"
   },
   "bin": {
     "ng-render": "build/bin/render.js"
