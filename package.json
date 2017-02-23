@@ -4,6 +4,9 @@
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
+  "engines": {
+    "node": ">=6.3.1"
+  },
   "bin": {
     "ng-render": "build/bin/render.js"
   },
@@ -52,7 +55,7 @@
     "reflect-metadata": "0.1.9",
     "rimraf": "2.5.4",
     "rxjs": "5.1.0",
-    "scoped-logger": "0.0.15",
+    "scoped-logger": "^0.0.15",
     "source-map-support": "0.4.11",
     "typescript": "2.2.0"
   },
