@@ -4,3 +4,4 @@ export * from './compiler-ng';
 export * from './compiler-vm';
 export * from './diagnostics';
 export * from './options';
+export * from './pipeline';

@@ -27,7 +27,7 @@ export const installExtension = (extension: string): Uninstall => {
     (module: NodeModule, filename: string) => {
       const fallback = () => previous(module, filename);
 
-      const transpiled = transpileMatch(module, filename);
+      const transpiled = transpileMatch(module, filename, process.cwd());
       if (transpiled == null) {
         return fallback();
       }

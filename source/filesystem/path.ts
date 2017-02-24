@@ -90,3 +90,9 @@ export class Path {
     }
   }
 }
+
+export const absolutePath = (basePath: string, filename: string) => {
+  return /^\.\.(\\|\/)/.test(filename)
+    ? resolve(normalize(join(basePath, filename)))
+    : filename;
+};

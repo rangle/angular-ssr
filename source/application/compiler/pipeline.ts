@@ -6,22 +6,19 @@ import {
   resolveModuleName
 } from 'typescript';
 
-import {
-  join,
-  normalize,
-  resolve
-} from 'path';
+import {join} from 'path';
 
 import {CompilerException} from '../../exception';
 import {ApplicationModuleDescriptor, Project} from '../../application';
 import {Publisher} from '../../publisher';
-import {StaticAnalyzer} from '../static';
+import {absolutePath} from '../../filesystem';
+import {Refactor} from '../refactor';
 
 export type CompiledSource = {filename: string, source: string};
 
 export type CompiledModule = CompiledSource & {moduleId: string};
 
-export class CompilationEmit {
+export class CompilerPipeline {
   constructor(private project: Project) {}
 
   modules = new Publisher<(module: CompiledModule) => void>();
@@ -31,10 +28,14 @@ export class CompilationEmit {
   private emitted = new Map<string, Array<string>>();
 
   write(filename: string, source: string, sourceFiles?: Array<SourceFile>) {
-    filename = this.absoluteProjectPath(filename);
+    filename = absolutePath(this.project.basePath, filename);
 
     for (const sourceFile of sourceFiles || []) {
-      this.map(sourceFile, filename);
+      let array = this.emitted.get(sourceFile.fileName);
+      if (array == null) {
+        this.emitted.set(sourceFile.fileName, array = []);
+      }
+      array.push(filename);
     }
 
     if (executable(filename)) {
@@ -49,10 +50,12 @@ export class CompilationEmit {
     }
   }
 
-  applicationModule(program: Program): ApplicationModuleDescriptor {
-    const parser = new StaticAnalyzer(program.getSourceFiles());
+  refactor(program: Program) {
+    // Change deep imports in NgFactory files into shallow requires of UMD bundles
+    Refactor.importSourceToImportBundle(program);
 
-    return parser.getBootstrapModule();
+    // Remove BrowserModule and add ApplicationModule and CommonModule to NgModule definitions
+    Refactor.adjustModuleImports(program);
   }
 
   rootModule(program: Program, compilerHost: CompilerHost, options: CompilerOptions): [string, string] {
@@ -85,14 +88,17 @@ export class CompilationEmit {
     return [moduleFile, symbol];
   }
 
-  private map(sourceFile: SourceFile, outputFile: string) {
-    let array = this.emitted.get(sourceFile.fileName);
-    if (array == null) {
-      this.emitted.set(sourceFile.fileName, [outputFile]);
-    }
-    else {
-      array.push(outputFile);
-    }
+  importSources(program: Program) {
+    // TODO(cbond): Use the syntax tree to transform imports to use UMD bundles, then remove transpilation code
+  }
+
+  applicationModule(program: Program): ApplicationModuleDescriptor {
+    // TODO(cbond): Use syntax tree to find application root module
+    return null;
+  }
+
+  adjusModuleImports() {
+    // TODO(cbond): Remove BrowserModule from NgModule imports and add ApplicationModule and CommonModule
   }
 
   private getModuleFromSourceFile(filename: string): string {
@@ -101,12 +107,6 @@ export class CompilationEmit {
       return null;
     }
     return modules.find(m => /\.js$/.test(m));
-  }
-
-  private absoluteProjectPath(filename: string): string {
-    return /^\.\.(\\|\/)/.test(filename)
-      ? resolve(normalize(join(this.project.basePath, filename)))
-      : filename;
   }
 }
 

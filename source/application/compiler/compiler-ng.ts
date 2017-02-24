@@ -35,7 +35,6 @@ export const compileTemplates = async (options: CompileOptions, program: Program
   const generatedModules = await generateAngularCode(program, ngCompiler, compilerHost, cli);
 
   const metadataWriter = new MetadataWriterHost(compilerHost, options.angular);
-
   metadataWriter.writeFile = compilerHost.writeFile;
 
   return [metadataWriter, generatedModules];
@@ -68,7 +67,9 @@ const compilerFactory = (program: Program, options: AngularCompilerOptions, cont
     options.rootDirs &&
     options.rootDirs.length > 0;
 
-  return usePathMapping
+  const compiler = usePathMapping
     ? new PathMappedCompilerHost(program, options, context)
     : new CompilerHost(program, options, context);
+
+  return compiler;
 };

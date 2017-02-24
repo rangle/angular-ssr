@@ -1,6 +1,6 @@
 import {ScriptTarget} from 'typescript';
 
-import {transform} from 'babel-core';
+import {TransformOptions, transform} from 'babel-core';
 
 import {TranspileException} from '../../exception';
 import {transpileCache} from '../cache';
@@ -16,7 +16,14 @@ const factory = <R>(module: NodeModule, source: string): TranspileResult<R> => {
   const sourceType = ScriptTarget.ES2015;
 
   try {
-    const {code} = transform(source, {presets: [sourceToPreset(sourceType)], sourceMaps: 'inline', compact: true, filename});
+    const transformOptions: TransformOptions = {
+      presets: [sourceToPreset(sourceType)].map(require.resolve),
+      sourceMaps: 'inline',
+      compact: true,
+      filename,
+    };
+
+    const {code} = transform(source, transformOptions);
     if (code == null) {
       throw new TranspileException(`Catastrophic transpilation error: ${module.id}`);
     }
@@ -31,7 +38,7 @@ const factory = <R>(module: NodeModule, source: string): TranspileResult<R> => {
 const sourceToPreset = (sourceType: ScriptTarget): string => {
   switch (sourceType) {
     case ScriptTarget.ES2015:
-      return 'es2015';
+      return 'babel-preset-es2015';
     default:
       throw new TranspileException(`${ScriptTarget[sourceType]} not supported by installed Babel plugins`);
   }

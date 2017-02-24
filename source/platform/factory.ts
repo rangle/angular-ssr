@@ -44,4 +44,3 @@ export const platformNode: PlatformFactory =
     {provide: ErrorHandler, useClass: ErrorHandlerImpl},
     {provide: CurrentZone, useClass: CurrentZone},
   ]);
-

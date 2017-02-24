@@ -10,7 +10,7 @@ import {
 
 import {Disposable} from '../../../disposable';
 import {VirtualMachineException} from '../../../exception';
-import {debundleImport} from '../../../transpile';
+import {resolveFrom} from '../../../transpile';
 
 export class VirtualMachine implements Disposable {
   private scripts = new Map<string, Script>();
@@ -21,7 +21,9 @@ export class VirtualMachine implements Disposable {
 
   private global = {Reflect};
 
-  getSource(filename): string {
+  constructor(private basePath?: string) {}
+
+  getSource(filename: string): string {
     return this.content.get(filename);
   }
 
@@ -73,20 +75,26 @@ export class VirtualMachine implements Disposable {
   executeWithCache(moduleId: string, normalizedModuleId: string) {
     let moduleResult;
 
-    const script = this.scripts.get(normalizedModuleId);
-    if (script != null) {
-      this.requireStack.push(moduleId);
-      try {
-        moduleResult = this.executeScript(script, normalizedModuleId);
+    const script =
+      this.scripts.get(moduleId) ||
+      this.scripts.get(normalizedModuleId);
 
-        this.modules.set(normalizedModuleId, moduleResult);
-      }
-      finally {
-        this.requireStack.pop();
-      }
+    if (script != null) {
+      moduleResult = this.executeScript(script, normalizedModuleId);
+
+      this.modules.set(normalizedModuleId, moduleResult);
     }
     else {
-      moduleResult = require.main.require(normalizedModuleId);
+      let resolved =
+        this.basePath
+          ? resolveFrom(moduleId, this.basePath)
+          : require.resolve(moduleId);
+
+      if (resolved == null) {
+        resolved = moduleId;
+      }
+
+      moduleResult = require(resolved);
 
       this.modules.set(moduleId, moduleResult);
     }
@@ -114,6 +122,8 @@ export class VirtualMachine implements Disposable {
   }
 
   private executeScript(script: Script, moduleId: string) {
+    this.requireStack.push(moduleId);
+
     try {
       const exports = {};
 
@@ -129,7 +139,10 @@ export class VirtualMachine implements Disposable {
       return exports;
     }
     catch (exception) {
-      throw new VirtualMachineException(`Exception in ${moduleId} in sandboxed virtual machine`, exception);
+      throw new VirtualMachineException(`Exception in ${moduleId} in sandboxed virtual machine: ${exception.message}`, exception);
+    }
+    finally {
+      this.requireStack.pop();
     }
   }
 
@@ -143,9 +156,6 @@ export class VirtualMachine implements Disposable {
       if (stack.length > 0) {
         return normalize(join(dirname(stack[stack.length - 1]), to));
       }
-    }
-    else if (/@angular/.test(to)) {
-      return debundleImport(to);
     }
     return to;
   }

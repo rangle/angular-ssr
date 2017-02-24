@@ -99,6 +99,8 @@ export class PlatformImpl implements PlatformRef {
         return moduleRef;
       }
       catch (exception) {
+        console.error('Critical application runtime exception:', exception);
+
         moduleRef.destroy();
 
         throw exception;
@@ -157,6 +159,7 @@ export class PlatformImpl implements PlatformRef {
   private injectorFactory(ngZone: NgZone): Injector {
     const providers = [
       {provide: NgZone, useValue: ngZone},
+      {provide: BrowserModule, useValue: null},
       {provide: PlatformLocation, useClass: LocationImpl},
       {provide: DocumentContainer, useClass: DocumentContainer},
       {provide: RootRenderer, useClass: RootRendererImpl},

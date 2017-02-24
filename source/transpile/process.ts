@@ -1,3 +1,5 @@
+import {cwd} from 'process';
+
 import {extname} from 'path';
 
 import {TranspileException} from '../exception';
@@ -5,8 +7,9 @@ import {TranspileResult} from './transpile';
 import {fileFromString} from '../filesystem';
 import {evaluateModule} from './evaluate';
 import {transpilers} from './composed';
+import {resolveFrom} from './resolve';
 
-export const transpileMatch = <R>(module: NodeModule, filename: string): TranspileResult<R> => {
+export const transpileMatch = <R>(module: NodeModule, filename: string, basePath?: string): TranspileResult<R> => {
   for (const transpiler of transpilers) {
     if (transpiler.extension !== extname(filename)) {
       continue;
@@ -24,7 +27,7 @@ export const transpileMatch = <R>(module: NodeModule, filename: string): Transpi
 
     module.id = moduleId;
 
-    const resolved = require.resolve(moduleId);
+    const resolved = resolveFrom(moduleId, basePath || cwd());
     if (resolved == null) {
       throw new TranspileException(`Cannot resolve module: ${module.id}`);
     }

@@ -27,6 +27,10 @@ export const transpilers = new Array<TranspilationHandler>(
     transpiler: compilets,
   });
 
+// FIXME(cbond): This is going to be replaced with a real refactorer that uses the
+// TypeSript compiler to do static analysis of the application source and transform
+// that code
+
 // We want to avoid using the Angular UMD bundles, because when we generate NgFactory
 // files in memory they do deep imports into various @angular libraries, which causes
 // the application code and the rendered-application code will cause two copies of all
@@ -37,11 +41,11 @@ export const transpilers = new Array<TranspilationHandler>(
 // we ensure that we are always bypassing the bundle UMD files in both our library code
 // and the and rendered application. Otherwise, providers and opaque tokens will compare
 // as unequal during the rendering process.
-function transformRequires(source: string): string {
+export function transformRequires(source: string): string {
   return source.replace(/require\(['"]@angular\/([^\/'"]+)['"]\)/g, 'require("@angular/$1/index")');
 }
 
-function transformImports(source: string): string {
+export function transformImports(source: string): string {
   return source.replace(/from ['"]@angular\/([^\/'"]+)['"]/g, 'from "@angular/$1/index"');
 }
 
