@@ -2,29 +2,25 @@ import 'reflect-metadata';
 
 import {Script, createContext} from 'vm';
 
-import {
-  dirname,
-  join,
-  normalize,
-} from 'path';
+import {dirname, join, normalize} from 'path';
 
 import {Disposable} from '../../../disposable';
 import {VirtualMachineException} from '../../../exception';
 import {resolveFrom} from '../../../transpile';
 
 export class VirtualMachine implements Disposable {
+  private requireStack = new Array<string>();
+
   private scripts = new Map<string, Script>();
   private modules = new Map<string, any>();
   private content = new Map<string, string>();
 
   private paths = new Set<string>();
 
-  private global = {Reflect};
+  private sharedContext;
 
-  constructor(private basePath?: string) {}
-
-  getSource(filename: string): string {
-    return this.content.get(filename);
+  constructor(private basePath?: string) {
+    this.sharedContext = {Reflect};
   }
 
   defineModule(filename: string, moduleId: string, source: string) {
@@ -51,8 +47,6 @@ export class VirtualMachine implements Disposable {
     this.content.set(filename, source);
   }
 
-  private requireStack = new Array<string>();
-
   require(moduleId: string, from?: string) {
     if (from) {
       this.requireStack.push(from);
@@ -62,7 +56,7 @@ export class VirtualMachine implements Disposable {
 
     let moduleResult = this.readCache(moduleId, normalizedModuleId);
     if (moduleResult === undefined) {
-      moduleResult = this.executeWithCache(moduleId, normalizedModuleId);
+      moduleResult = this.readCacheOrExecute(moduleId, normalizedModuleId);
     }
 
     if (moduleResult == null) {
@@ -72,34 +66,8 @@ export class VirtualMachine implements Disposable {
     return moduleResult;
   }
 
-  executeWithCache(moduleId: string, normalizedModuleId: string) {
-    let moduleResult;
-
-    const script =
-      this.scripts.get(moduleId) ||
-      this.scripts.get(normalizedModuleId);
-
-    if (script != null) {
-      moduleResult = this.executeScript(script, normalizedModuleId);
-
-      this.modules.set(normalizedModuleId, moduleResult);
-    }
-    else {
-      let resolved =
-        this.basePath
-          ? resolveFrom(moduleId, this.basePath)
-          : require.resolve(moduleId);
-
-      if (resolved == null) {
-        resolved = moduleId;
-      }
-
-      moduleResult = require(resolved);
-
-      this.modules.set(moduleId, moduleResult);
-    }
-
-    return moduleResult;
+  getSource(filename: string): string {
+    return this.content.get(filename);
   }
 
   directories(from?: string): Set<string> {
@@ -121,6 +89,39 @@ export class VirtualMachine implements Disposable {
     }
   }
 
+  private readCacheOrExecute(moduleId: string, normalizedModuleId: string) {
+    let moduleResult;
+
+    const [mid, script] = this.script(moduleId, normalizedModuleId);
+    if (script) {
+      moduleResult = this.executeScript(script, mid);
+    }
+    else {
+      moduleResult = require(mid);
+    }
+
+    this.modules.set(moduleId, moduleResult);
+
+    return moduleResult;
+  }
+
+  private script(...candidates: Array<string>): [string, Script] {
+    for (const candidate of candidates) {
+      const script = this.scripts.get(candidate);
+      if (script) {
+        return [candidate, script];
+      }
+    }
+    const match = candidates.find(c => resolveFrom(c, this.basePath) != null);
+    if (match) {
+      return [match, null];
+    }
+
+    const description = JSON.stringify(candidates);
+
+    throw new VirtualMachineException(`No script or file can be resolved (candidates: ${description})`);
+  }
+
   private executeScript(script: Script, moduleId: string) {
     this.requireStack.push(moduleId);
 
@@ -130,16 +131,13 @@ export class VirtualMachine implements Disposable {
       const context = createContext({
         require: mid => this.require(mid),
         exports,
-        global: this.global, // shared global object across scripts is important
+        global: this.sharedContext,
         module: {exports, id: moduleId},
       });
 
       script.runInContext(context);
 
       return exports;
-    }
-    catch (exception) {
-      throw new VirtualMachineException(`Exception in ${moduleId} in sandboxed virtual machine: ${exception.message}`, exception);
     }
     finally {
       this.requireStack.pop();
@@ -150,13 +148,11 @@ export class VirtualMachine implements Disposable {
     return this.modules.get(normalizedModuleId) || this.modules.get(moduleId);
   }
 
-  normalizeModuleId(to: string): string {
-    if (/^\./.test(to)) {
-      const stack = this.requireStack;
-      if (stack.length > 0) {
-        return normalize(join(dirname(stack[stack.length - 1]), to));
-      }
-    }
-    return to;
+  private normalizeModuleId(to: string): string {
+    const stack = this.requireStack;
+
+    return stack.length > 0 && /^\./.test(to)
+      ? normalize(join(dirname(stack[stack.length - 1]), to))
+      : to;
   }
 }
