@@ -1,98 +1,100 @@
-import {
-  existsSync,
-  readdirSync,
-  realpathSync
-} from 'fs';
+import {existsSync, readdirSync, realpathSync} from 'fs';
 
-import {
-  normalize,
-  resolve,
-  join
-} from 'path';
+import {dirname, normalize, resolve, join} from 'path';
 
-import {
-  FilesystemType,
-  PathType,
-  fstype
-} from './type';
+import {FileReference, PathReference} from './contracts';
+import {FileImpl} from './file';
+import {FilesystemException} from '../exception';
+import {FilesystemType, FileType} from './type';
+import {FilesystemBaseImpl} from './base';
+import {Predicate} from '../predicate';
 
-import {File, fileFromString} from './file';
-
-import {PathException} from '../exception';
-
-export const pathFromString = (sourcePath: string): Path => new Path(sourcePath);
-
-export class Path {
-  constructor(private sourcePath: string) {}
-
-  type(): PathType {
-    return fstype(this.sourcePath);
-  }
-
+export class PathImpl extends FilesystemBaseImpl implements PathReference {
   exists(): boolean {
-    return existsSync(this.dereference().toString()) === true && this.type().is(FilesystemType.Directory);
+    const dereferenced = this.dereference().toString();
+    if (existsSync(dereferenced)) {
+      return this.type().is(FileType.Directory);
+    }
+    return false;
   }
 
-  directories(): Set<Path> {
-    this.assertExistence();
+  directories(predicate?: RegExp | Predicate<PathReference>): Set<PathReference> {
+    this.assert();
 
-    return new Set<Path>(readdirSync(this.sourcePath)
-      .filter(item => item !== '.')
-      .filter(item => item !== '..')
-      .map(item => pathFromString(normalize(join(this.sourcePath, item))))
-      .filter(file => file.type().is(FilesystemType.Directory)));
+    const expr = predicate instanceof RegExp ? predicate : null;
+
+    return new Set<PathReference>(readdirSync(this.sourcePath)
+      .filter(path => path !== '.')
+      .filter(path => path !== '..')
+      .filter(path => expr == null || expr.test(path))
+      .filter(path => FilesystemType.evaluateType(path) & FileType.Directory)
+      .map(path => new PathImpl(normalize(join(this.sourcePath, path))) as PathReference)
+      .filter(path => typeof predicate === 'function' ? (<Predicate<PathReference>> predicate)(path) : true));
   }
 
-  files(): Set<File> {
-    this.assertExistence();
+  files(predicate?: RegExp | Predicate<FileReference>): Set<FileReference> {
+    this.assert();
 
-    return new Set<File>(readdirSync(this.sourcePath)
-      .filter(item => item !== '.')
-      .filter(item => item !== '..')
-      .map(item => fileFromString(normalize(join(this.sourcePath, item))))
-      .filter(file => file.type().is(FilesystemType.File)));
+    const expr = predicate instanceof RegExp ? predicate : null;
+
+    const owner = this as PathReference;
+
+    return new Set<FileReference>(readdirSync(this.sourcePath)
+      .filter(file => FilesystemType.evaluateType(file) & FileType.File)
+      .filter(file => expr == null || expr.test(file))
+      .map(item => new FileImpl(owner, normalize(join(this.sourcePath, item))) as FileReference)
+      .filter(file => typeof predicate === 'function' ? (<Predicate<FileReference>> predicate)(file) : true));
   }
 
-  dereference(): Path {
-    if (this.type().is(FilesystemType.SymbolicLink)) {
+  dereference(): PathReference {
+    if (this.type().is(FileType.SymbolicLink)) {
       const deref = realpathSync(this.sourcePath);
       if (deref == null) {
-        throw new PathException(`Failed to dereference symlink: ${this.sourcePath}`);
+        throw new FilesystemException(`Failed to dereference symlink: ${this.sourcePath}`);
       }
-      return pathFromString(deref);
+      return new PathImpl(deref) as PathReference;
     }
-    return this;
+    return this as PathReference;
   }
 
-  traverseUpward(file: string): File {
-    this.assertExistence();
+  parent(): PathReference {
+    return new PathImpl(dirname(this.sourcePath)) as PathReference;
+  }
 
-    for (let from = this.sourcePath; true; from = join(from, '..')) {
-      const candidate = resolve(normalize(join(from, file)));
+  findInAncestor(file: string): FileReference {
+    this.assert();
+
+    let iterator: string = this.sourcePath;
+
+    while (normalize(iterator) !== normalize(join(iterator, '..'))) { // root
+      const candidate = resolve(normalize(join(iterator, file)));
 
       if (existsSync(candidate)) {
-        return fileFromString(candidate);
+        return new FileImpl(new PathImpl(iterator) as PathReference, candidate);
       }
 
-      if (resolve(normalize(from)) === resolve(normalize(join(from, '..')))) {
-        throw new PathException(`Cannot locate ${file} between ${this.sourcePath} to ${from}`);
-      }
+      iterator = join(iterator, '..');
     }
+
+    throw new FilesystemException(`Cannot locate ${file} between ${this.sourcePath} to ${iterator}`);
+  }
+
+  findInChildren(file: string): FileReference {
+    const traverse = (node: PathImpl, predicate: Predicate<FileReference>): FileReference => {
+      return (
+        Array.from(node.files(predicate)).find(v => true) ||
+        Array.from(node.directories()).map(v => traverse(v as PathImpl, predicate)).find(v => true));
+    }
+    return traverse(this, path => path.name() === file);
   }
 
   toString() {
     return this.sourcePath;
   }
 
-  private assertExistence() {
+  private assert() {
     if (this.exists() === false) {
-      throw new PathException(`Cannot traverse a nonexistent path: ${this.sourcePath}`);
+      throw new FilesystemException(`Assertion failed because path does not exist or is not readable: ${this.sourcePath}`);
     }
   }
 }
-
-export const absolutePath = (basePath: string, filename: string) => {
-  return /^\.\.(\\|\/)/.test(filename)
-    ? resolve(normalize(join(basePath, filename)))
-    : filename;
-};

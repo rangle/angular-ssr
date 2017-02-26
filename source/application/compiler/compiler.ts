@@ -1,4 +1,4 @@
-import {NgModuleFactory} from '@angular/core';
+import {NgModuleFactory} from '@angular/core/index';
 
 import {
   CompilerHost,
@@ -24,7 +24,7 @@ export class Compiler {
   }
 
   async compile(): Promise<NgModuleFactory<any>> {
-    const vm = new VirtualMachine(this.project.basePath);
+    const vm = new VirtualMachine();
     try {
       const app = new CompilerPipeline(this.project);
 

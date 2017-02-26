@@ -1,4 +1,4 @@
-import {AnimationPlayer} from '@angular/core';
+import {AnimationPlayer} from '@angular/core/index';
 
 export type AnimationHandler = () => void;
 

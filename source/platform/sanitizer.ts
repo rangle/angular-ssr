@@ -2,7 +2,7 @@ import {
   Injectable,
   Sanitizer,
   SecurityContext,
-} from '@angular/core';
+} from '@angular/core/index';
 
 @Injectable()
 export class SanitizerImpl implements Sanitizer {

@@ -1,4 +1,4 @@
-import {NgModuleFactory} from '@angular/core';
+import {NgModuleFactory} from '@angular/core/index';
 
 import {RenderOperation, ApplicationStateReader} from '../operation';
 

@@ -2,9 +2,9 @@ import {
   OpaqueToken,
   NgModule,
   Provider,
-} from '@angular/core';
+} from '@angular/core/index';
 
-import {BrowserModule} from '@angular/platform-browser';
+import {BrowserModule} from '@angular/platform-browser/index';
 
 import {Reflector} from '../reflector';
 

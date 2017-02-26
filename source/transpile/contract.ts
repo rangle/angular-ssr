@@ -1,10 +1,4 @@
-export type Transpiler = <R>(module: NodeModule, source: string) => TranspileResult<R>;
-
-export interface TranspileResult<R> {
-  source: string;
-  module: NodeModule;
-  run(): R;
-}
+export type Transpiler = (module: NodeModule, source: string) => string;
 
 export type Preprocessor = (source: string) => string;
 

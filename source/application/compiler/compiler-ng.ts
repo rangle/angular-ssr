@@ -5,7 +5,7 @@ import {
 
 import {PathMappedCompilerHost} from '@angular/compiler-cli/src/path_mapped_compiler_host';
 
-import {createAotCompiler} from '@angular/compiler';
+import {createAotCompiler} from '@angular/compiler/index';
 
 import {
   AngularCompilerOptions,

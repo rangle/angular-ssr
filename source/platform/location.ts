@@ -4,12 +4,12 @@ import {
   Inject,
   Injectable,
   OnDestroy
-} from '@angular/core';
+} from '@angular/core/index';
 
 import {
   LocationChangeListener,
   PlatformLocation,
-} from '@angular/common';
+} from '@angular/common/index';
 
 import {DocumentContainer, RequestUri} from './document';
 

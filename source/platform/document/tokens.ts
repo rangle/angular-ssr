@@ -1,4 +1,4 @@
-import {OpaqueToken} from '@angular/core';
+import {OpaqueToken} from '@angular/core/index';
 
 export const TemplateDocument = new OpaqueToken('TemplateDocument');
 

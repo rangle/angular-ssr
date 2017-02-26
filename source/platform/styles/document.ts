@@ -1,4 +1,4 @@
-import {Injectable, OnDestroy} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core/index';
 
 import {DocumentContainer} from '../document';
 

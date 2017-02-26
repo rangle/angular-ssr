@@ -1,8 +1,8 @@
-import {ApplicationModule, Component, NgModule} from '@angular/core';
+import {ApplicationModule, Component, NgModule} from '@angular/core/index';
 
-import {CommonModule} from '@angular/common';
+import {CommonModule} from '@angular/common/index';
 
-import {RouterModule} from '@angular/router';
+import {RouterModule} from '@angular/router/index';
 
 @Component({
   moduleId: module.id,

@@ -2,15 +2,14 @@ import {cwd} from 'process';
 
 import {extname} from 'path';
 
+import {Cache} from '../cache';
+import {Module} from './module';
 import {TranspileException} from '../exception';
-import {TranspileResult} from './transpile';
 import {fileFromString} from '../filesystem';
-import {evaluateModule} from './evaluate';
 import {transpilers} from './composed';
-import {resolveFrom} from './resolve';
 
-export const transpileMatch = <R>(module: NodeModule, filename: string, basePath?: string): TranspileResult<R> => {
-  for (const transpiler of transpilers) {
+export const transpileMatch = (testing: boolean, module: NodeModule, filename: string, basePath?: string): string => {
+  for (const transpiler of transpilers(testing)) {
     if (transpiler.extension !== extname(filename)) {
       continue;
     }
@@ -27,7 +26,7 @@ export const transpileMatch = <R>(module: NodeModule, filename: string, basePath
 
     module.id = moduleId;
 
-    const resolved = resolveFrom(moduleId, basePath || cwd());
+    const resolved = Module.relativeResolve(basePath || cwd(), moduleId);
     if (resolved == null) {
       throw new TranspileException(`Cannot resolve module: ${module.id}`);
     }
@@ -43,10 +42,10 @@ export const transpileMatch = <R>(module: NodeModule, filename: string, basePath
         ? transpiler.preprocessor(content)
         : content;
 
-    const transpiled: TranspileResult<R> =
+    const transpiled: string =
       transpiler.transpiler
-        ? transpiler.transpiler<R>(module, preprocessed)
-        : evaluateModule<R>(module, preprocessed);
+        ? transpiler.transpiler(module, preprocessed)
+        : preprocessed;
 
     return transpiled;
   }
@@ -54,20 +53,15 @@ export const transpileMatch = <R>(module: NodeModule, filename: string, basePath
   return null;
 };
 
-export const process = (source: string, path: string): string => {
-  const module: NodeModule = {
-    exports: {},
-    require,
-    id: path.replace(/\.js$/, String()),
-    filename: path,
-    loaded: false,
-    parent: null,
-    children: [],
-  }
+const transpilationCache = new Cache<string, string>();
 
-  const result = transpileMatch(module, path);
-  if (result == null) {
-    return source;
-  }
-  return result.source;
+export const process = (source: string, path: string): string => {
+  return transpilationCache.query(path,
+    () => {
+      const moduleId = path.replace(/\.js$/, String());
+
+      const module = Module.nodeModule(require, moduleId, {});
+
+      return transpileMatch(true, module, path);
+    });
 }

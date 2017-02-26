@@ -1,4 +1,4 @@
-import {Injectable, ErrorHandler, OnDestroy} from '@angular/core';
+import {Injectable, ErrorHandler, OnDestroy} from '@angular/core/index';
 
 import {Publisher, Subscription} from '../../publisher';
 

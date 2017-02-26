@@ -5,13 +5,13 @@ import {
   PlatformRef,
   Provider,
   createPlatformFactory,
-} from '@angular/core';
+} from '@angular/core/index';
 
 import {
   COMPILER_PROVIDERS,
   ResourceLoader,
   platformCoreDynamic
-} from '@angular/compiler';
+} from '@angular/compiler/index';
 
 import {ErrorHandlerImpl, ExceptionStream} from './exception-stream';
 import {ResourceLoaderImpl} from './resource-loader';

@@ -6,7 +6,7 @@ import {
   resolveModuleName
 } from 'typescript';
 
-import {join} from 'path';
+import {extname, join} from 'path';
 
 import {CompilerException} from '../../exception';
 import {ApplicationModuleDescriptor, Project} from '../../application';
@@ -28,7 +28,7 @@ export class CompilerPipeline {
   private emitted = new Map<string, Array<string>>();
 
   write(filename: string, source: string, sourceFiles?: Array<SourceFile>) {
-    filename = absolutePath(this.project.basePath, filename);
+    filename = absolutePath(this.project.basePath, filename).toString();
 
     for (const sourceFile of sourceFiles || []) {
       let array = this.emitted.get(sourceFile.fileName);
@@ -89,7 +89,7 @@ export class CompilerPipeline {
   }
 
   importSources(program: Program) {
-    // TODO(cbond): Use the syntax tree to transform imports to use UMD bundles, then remove transpilation code
+    // TODO(cbond): Use the syntax tree to transform imports to use UMD bundles
   }
 
   applicationModule(program: Program): ApplicationModuleDescriptor {
@@ -98,7 +98,7 @@ export class CompilerPipeline {
   }
 
   adjusModuleImports() {
-    // TODO(cbond): Remove BrowserModule from NgModule imports and add ApplicationModule and CommonModule
+    // TODO(cbond): Use syntax tree to remove BrowserModule from NgModule imports and add ApplicationModule and CommonModule
   }
 
   private getModuleFromSourceFile(filename: string): string {
@@ -110,7 +110,7 @@ export class CompilerPipeline {
   }
 }
 
-const executable = (filename: string) => /\.js$/.test(filename);
+const executable = (filename: string) => extname(filename) === '.js';
 
 const sourceToNgFactory = (source: string): string => {
   if (/\.ngfactory(\.(ts|js))?$/.test(source) === false) {

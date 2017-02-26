@@ -1,4 +1,4 @@
-import {Injector, NgModuleFactory, Type} from '@angular/core';
+import {Injector, NgModuleFactory, Type} from '@angular/core/index';
 
 import {ComposedTransition} from '../variance';
 

@@ -14,11 +14,11 @@ import {
   RootRenderer,
   PlatformRef,
   Type,
-} from '@angular/core';
+} from '@angular/core/index';
 
-import {PlatformLocation} from '@angular/common';
+import {PlatformLocation} from '@angular/common/index';
 
-import {BrowserModule} from '@angular/platform-browser';
+import {BrowserModule} from '@angular/platform-browser/index';
 
 import {LocationImpl} from './location';
 import {PlatformException} from '../exception';

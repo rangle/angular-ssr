@@ -1,4 +1,4 @@
-import {NgModuleRef, NgZone} from '@angular/core';
+import {NgModuleRef, NgZone} from '@angular/core/index';
 
 // What we are waiting for is both the micro and macro task queues to become empty.
 // What this means is that all change detection routines have finished, all micro

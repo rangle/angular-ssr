@@ -7,7 +7,7 @@ import {pathFromString} from '../filesystem';
 export const getApplicationProject = (moduleId: string, moduleSymbol: string): Project => {
   const path = pathFromString(__dirname);
 
-  const tsconfig = path.traverseUpward('tsconfig.json');
+  const tsconfig = path.findInAncestor('tsconfig.json');
 
   const tsconfigPath = tsconfig.toString();
 

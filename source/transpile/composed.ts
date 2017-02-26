@@ -1,31 +1,30 @@
-import {compilejs, compilets} from './transpilers';
+import {compilejs} from './transpilers';
 
-import {TranspilationHandler, composePreprocesors} from './transpile';
+import {TranspilationHandler, composePreprocesors} from './contract';
 
 const importSources = (source: string) =>
   composePreprocesors(transformRequires, transformImports)(source);
 
-export const transpilers = new Array<TranspilationHandler>(
-  {
+export const transpilers = (testing: boolean) => {
+  const result = new Array<TranspilationHandler>({
     extension: '.js',
-    expression: /@angular/,
+    expression: /(\\|\/)node_modules(\\|\/)\@angular(\\|\/)/,
     preprocessor: importSources,
     transpiler: compilejs,
     moduleTranslator: debundleImport,
-  },
-  {
-    extension: '.js',
-    expression: /^(?!.*\/node_modules(?=\/))/,
-    preprocessor: importSources,
-    transpiler: null,
-    moduleTranslator: debundleImport,
-  },
-  {
-    extension: '.ts',
-    expression: /\.ts$/,
-    preprocessor: importSources,
-    transpiler: compilets,
   });
+
+  if (testing === false) { // use jest module mapper instead
+    result.push({
+      extension: '.js',
+      expression: /^(?!.*\/node_modules(?=\/))/,
+      preprocessor: importSources,
+      transpiler: null,
+    });
+  }
+
+  return result;
+}
 
 // FIXME(cbond): This is going to be replaced with a real refactorer that uses the
 // TypeSript compiler to do static analysis of the application source and transform

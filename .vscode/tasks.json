@@ -1,0 +1,31 @@
+{
+  "version": "0.1.0",
+  "command": "npm",
+  "isShellCommand": true,
+  "showOutput": "always",
+  "suppressTaskName": true,
+  "tasks": [
+    {
+      "taskName": "build",
+      "isBuildCommand": true,
+      "args": ["run", "build"]
+    },
+    {
+      "taskName": "lint",
+      "args": ["run", "lint"]
+    },
+    {
+      "taskName": "install",
+      "args": ["install"]
+    },
+    {
+      "taskName": "update",
+      "args": ["update"]
+    },
+    {
+      "taskName": "test",
+      "isTestCommand": true,
+      "args": ["run", "test"]
+    }
+  ]
+}

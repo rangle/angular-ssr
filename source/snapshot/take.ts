@@ -3,7 +3,7 @@ import {
   NgModuleRef,
   ReflectiveInjector,
   Type,
-} from '@angular/core';
+} from '@angular/core/index';
 
 import {SnapshotException} from '../exception';
 

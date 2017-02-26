@@ -5,7 +5,7 @@
   "main": "build/index.js",
   "typings": "build/index.d.ts",
   "engines": {
-    "node": ">=6.3.1",
+    "node": ">=6.0",
     "npm": ">=3.10"
   },
   "bin": {
@@ -25,7 +25,17 @@
     "type": "git",
     "url": "git+https://github.com/clbond/angular-ssr.git"
   },
-  "author": "rangle.io",
+  "contributors": [
+    {
+      "name": "Christopher Bond",
+      "email": "cb@clbond.org",
+      "url": "https://clbond.org/"
+    },
+    {
+      "name": "rangle.io",
+      "url": "https://rangle.io/"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/clbond/angular-ssr/issues"
@@ -49,7 +59,7 @@
     "@types/codependency": "0.1.1",
     "@types/jasmine": "2.5.41",
     "babel-core": "6.23.1",
-    "babel-preset-es2015": "6.22.0",
+    "babel-plugin-module-resolver": "^2.5.0",
     "codependency": "0.1.4",
     "commander": "2.9.0",
     "domino": "1.0.28",
@@ -68,10 +78,12 @@
     "@angular/router": "^3.4.6",
     "@ngrx/store": "^2.2.1",
     "babel-core": "6.23.1",
-    "babel-preset-es2015": "6.22.0",
+    "babel-plugin-module-resolver": "^2.5.0",
+    "babel-plugin-transform-inline-imports-commonjs": "^1.2.0",
     "jasmine-core": "2.5.2",
     "jasmine-promises": "0.4.1",
     "jest": "18.1.0",
+    "ts-jest": "^19.0.0",
     "tslint": "4.4.2",
     "zone.js": "0.7.6"
   },
@@ -85,7 +97,11 @@
       "bundles(\\|/)"
     ],
     "transform": {
-      "\\.(js|ts)$": "<rootDir>/build/transpile/process.js"
+      "@angular/(.*)\\.js$": "<rootDir>/build/transpile/process.js",
+      "\\.ts$": "ts-jest/dist/preprocessor.js"
+    },
+    "moduleNameMapper": {
+      "@angular\/([^\/]+)$": "@angular/$1/index"
     },
     "transformIgnorePatterns": [],
     "testRegex": "source/.*/tests/.*\\.ts$",

@@ -1,42 +1,63 @@
-import 'reflect-metadata';
-
-import {Script, createContext} from 'vm';
-
 import {dirname, join, normalize} from 'path';
 
 import {Disposable} from '../../../disposable';
-import {VirtualMachineException} from '../../../exception';
-import {resolveFrom} from '../../../transpile';
+
+import {
+  Module,
+  ModuleExports,
+  compile
+} from '../../../transpile';
+
+const modules = new Map<string, ModuleExports>();
 
 export class VirtualMachine implements Disposable {
-  private requireStack = new Array<string>();
+  constructor(private basePath?: string) {}
 
-  private scripts = new Map<string, Script>();
-  private modules = new Map<string, any>();
+  private executionStack = new Array<string>();
+  private scripts = new Map<string, string>();
   private content = new Map<string, string>();
-
   private paths = new Set<string>();
 
-  private sharedContext;
+  require(moduleId: string, from?: string): ModuleExports {
+    this.executionStack.push(moduleId);
 
-  constructor(private basePath?: string) {
-    this.sharedContext = {Reflect};
+    try {
+      let moduleResult = modules.get(moduleId);
+      if (moduleResult) {
+        return moduleResult;
+      }
+
+      const candidates = this.moduleCandidates(from, moduleId);
+
+      const [mid, script] = this.script(moduleId, candidates);
+      if (script) {
+        const module = Module.nodeModule(m => this.require(m, mid), moduleId, {});
+
+        compile(module, script);
+
+        moduleResult = module.exports;
+      }
+      else {
+        moduleResult = require(mid);
+      }
+
+      modules.set(moduleId, moduleResult);
+
+      return moduleResult;
+    }
+    finally {
+      this.executionStack.pop();
+    }
   }
 
   defineModule(filename: string, moduleId: string, source: string) {
     this.defineSource(filename, source);
 
-    const normalizedModuleId = this.normalizeModuleId(moduleId);
+    const candidates = [filename, ...this.moduleCandidates(null, moduleId)];
 
-    if (this.scripts.has(moduleId) || this.scripts.has(filename)) {
-      throw new VirtualMachineException(`Cannot overwrite existing module '${normalizedModuleId}'`);
+    for (const key of candidates) {
+      this.scripts.set(key, source);
     }
-
-    const script = new Script(source, {filename, displayErrors: true});
-
-    this.scripts.set(moduleId, script);
-    this.scripts.set(normalizedModuleId, script);
-    this.scripts.set(filename, script);
   }
 
   defineSource(filename: string, source: string) {
@@ -45,25 +66,6 @@ export class VirtualMachine implements Disposable {
     this.paths.add(dirname(filename));
 
     this.content.set(filename, source);
-  }
-
-  require(moduleId: string, from?: string) {
-    if (from) {
-      this.requireStack.push(from);
-    }
-
-    const normalizedModuleId = this.normalizeModuleId(moduleId);
-
-    let moduleResult = this.readCache(moduleId, normalizedModuleId);
-    if (moduleResult === undefined) {
-      moduleResult = this.readCacheOrExecute(moduleId, normalizedModuleId);
-    }
-
-    if (moduleResult == null) {
-      throw new VirtualMachineException(`Require of ${moduleId} (normalized: ${normalizedModuleId}) returned null`);
-    }
-
-    return moduleResult;
   }
 
   getSource(filename: string): string {
@@ -84,75 +86,45 @@ export class VirtualMachine implements Disposable {
   }
 
   dispose() {
-    for (const container of [this.scripts, this.modules, this.content, this.paths]) {
+    for (const container of [this.scripts, this.content, this.paths]) {
       container.clear();
     }
   }
 
-  private readCacheOrExecute(moduleId: string, normalizedModuleId: string) {
-    let moduleResult;
-
-    const [mid, script] = this.script(moduleId, normalizedModuleId);
-    if (script) {
-      moduleResult = this.executeScript(script, mid);
-    }
-    else {
-      moduleResult = require(mid);
-    }
-
-    this.modules.set(moduleId, moduleResult);
-
-    return moduleResult;
-  }
-
-  private script(...candidates: Array<string>): [string, Script] {
-    for (const candidate of candidates) {
-      const script = this.scripts.get(candidate);
+  private script(moduleId: string, candidates: Array<string>): [string, string] {
+    for (const c of candidates) {
+      let script = this.scripts.get(c);
       if (script) {
-        return [candidate, script];
+        return [c, script];
       }
     }
-    const match = candidates.find(c => resolveFrom(c, this.basePath) != null);
-    if (match) {
-      return [match, null];
+
+    const module = Module.relativeResolve(this.basePath, moduleId);
+    if (module) {
+      return [module, null];
     }
 
-    const description = JSON.stringify(candidates);
-
-    throw new VirtualMachineException(`No script or file can be resolved (candidates: ${description})`);
+    return [moduleId, null]
   }
 
-  private executeScript(script: Script, moduleId: string) {
-    this.requireStack.push(moduleId);
+  private moduleCandidates(from: string, to: string): Array<string> {
+    const candidates = new Array<string>(to, normalize(to));
 
-    try {
-      const exports = {};
+    const stack = this.executionStack;
 
-      const context = createContext({
-        require: mid => this.require(mid),
-        exports,
-        global: this.sharedContext,
-        module: {exports, id: moduleId},
-      });
-
-      script.runInContext(context);
-
-      return exports;
+    if (/^\./.test(to)) {
+      if (from) {
+        candidates.push(normalize(join(from, to)));
+        candidates.push(normalize(join(dirname(from), to)));
+      }
+      if (this.basePath) {
+        candidates.push(normalize(join(this.basePath, to)));
+      }
+      if (stack.length > 0) {
+        candidates.push(normalize(join(dirname(stack[stack.length - 1]), to)));
+      }
     }
-    finally {
-      this.requireStack.pop();
-    }
-  }
 
-  private readCache(moduleId: string, normalizedModuleId: string) {
-    return this.modules.get(normalizedModuleId) || this.modules.get(moduleId);
-  }
-
-  private normalizeModuleId(to: string): string {
-    const stack = this.requireStack;
-
-    return stack.length > 0 && /^\./.test(to)
-      ? normalize(join(dirname(stack[stack.length - 1]), to))
-      : to;
+    return candidates;
   }
 }

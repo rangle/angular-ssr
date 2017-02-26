@@ -10,7 +10,7 @@ import {
   OnDestroy,
   RootRenderer,
   ViewEncapsulation,
-} from '@angular/core';
+} from '@angular/core/index';
 
 import {AnimationPlayerImpl} from './animation-player';
 import {namespaces} from './namespace';

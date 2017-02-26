@@ -4,11 +4,11 @@ import {dirname, join} from 'path';
 
 import {Project} from '../application';
 
-import {PathException} from '../exception';
+import {FilesystemException} from '../exception';
 
 import {
-  FilesystemType,
-  Path,
+  FileType,
+  PathReference,
   fileFromString,
   pathFromString,
 } from '../filesystem';
@@ -28,7 +28,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
   const tsconfig: string = tsconfigFromRoot(path);
 
   if (path.exists() === false) {
-    throw new PathException(`Project path does not exist: ${path}`);
+    throw new FilesystemException(`Project path does not exist: ${path}`);
   }
 
   const applicationModule =
@@ -48,7 +48,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
   const template = fileFromString(options['template']);
 
   if (template.exists() === false) {
-    throw new PathException(`HTML template document does not exist: ${options['template']}`);
+    throw new FilesystemException(`HTML template document does not exist: ${options['template']}`);
   }
 
   return {project, templateDocument: template.content()};
@@ -69,25 +69,25 @@ const parseCommandLine = () => {
     .parse(process.argv);
 };
 
-const tsconfigFromRoot = (fromRoot: Path): string => {
+const tsconfigFromRoot = (fromRoot: PathReference): string => {
   if (fromRoot.exists() === false) {
-    throw new PathException(`Root path does not exist: ${fromRoot}`);
+    throw new FilesystemException(`Root path does not exist: ${fromRoot}`);
   }
 
-  if (fromRoot.type().is(FilesystemType.File)) {
+  if (fromRoot.type().is(FileType.File)) {
     return fromRoot.toString();
   }
 
   const tsconfig = 'tsconfig.json';
 
-  const candidates = [
-    fromRoot.toString(),
-    ...Array.from(fromRoot.directories()).map(d => join(d.toString(), tsconfig))
-  ].filter(c => /(e2e|test)/.test(c) === false);
+  const candidates = [fromRoot, ...Array.from(fromRoot.directories())]
+    .map(d => join(d.toString(), tsconfig))
+    .filter(c => /(e2e|test)/.test(c) === false);
 
   const matchingFile = candidates.map(fileFromString).find(c => c.exists());
   if (matchingFile) {
     return matchingFile.toString();
   }
-  return null;
+
+  throw new FilesystemException(`Cannot find tsconfig in ${fromRoot}`);
 };
