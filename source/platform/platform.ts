@@ -85,27 +85,27 @@ export class PlatformImpl implements PlatformRef {
   async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>> {
     const zone = new NgZone({enableLongStackTrace: true});
 
-    return await zone.run(async () => {
-      const moduleRef = moduleFactory.create(this.injectorFactory(zone));
-      try {
+    let moduleRef: NgModuleRef<M>;
+
+    try {
+      return await zone.run(() => {
+        moduleRef = moduleFactory.create(this.injectorFactory(zone));
+
         if (moduleRef.injector.get(BrowserModule, null) != null) {
           throw new PlatformException('You cannot use an NgModuleFactory that has been compiled with a BrowserModule import');
         }
 
         moduleRef.onDestroy(() => this.live.delete(moduleRef));
 
-        await this.completeBootstrap(zone, moduleRef);
-
-        return moduleRef;
-      }
-      catch (exception) {
-        console.error('Critical application runtime exception:', exception);
-
+        return this.completeBootstrap(zone, moduleRef).then(() => moduleRef);
+      });
+    }
+    catch (exception) {
+      if (moduleRef) {
         moduleRef.destroy();
-
-        throw exception;
       }
-    });
+      throw exception;
+    }
   }
 
   private getCompiler(compilerOptions: CompilerOptions | Array<CompilerOptions>): Compiler {
@@ -126,34 +126,44 @@ export class PlatformImpl implements PlatformRef {
     }
   }
 
-  private async completeBootstrap<M>(zone: NgZone, moduleRef: NgModuleRef<M>) {
-    const exceptionHandler: ErrorHandler = moduleRef.injector.get(ErrorHandler);
+  private completeBootstrap<M>(zone: NgZone, moduleRef: NgModuleRef<M>): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const exceptionHandler: ErrorHandler = moduleRef.injector.get(ErrorHandler);
 
-    zone.onError.subscribe(exception => exceptionHandler.handleError(exception));
+      zone.onError.subscribe(exception => {
+        exceptionHandler.handleError(exception);
+        reject(exception);
+      });
 
-    const applicationInit = moduleRef.injector.get(ApplicationInitStatus, null);
-    if (applicationInit == null) {
-      throw new PlatformException('Your application module does not import ApplicationModule, but it must');
-    }
-
-    await applicationInit.donePromise;
-
-    const applicationRef = moduleRef.injector.get(ApplicationRef);
-
-    const {bootstrapFactories, instance: {ngDoBootstrap}} = <any> moduleRef;
-    if (bootstrapFactories.length > 0) {
-      for (const component of bootstrapFactories) {
-        applicationRef.bootstrap(component);
+      const applicationInit = moduleRef.injector.get(ApplicationInitStatus, null);
+      if (applicationInit == null) {
+        throw new PlatformException('Your application module does not import ApplicationModule, but it must');
       }
-    }
-    else if (typeof ngDoBootstrap === 'function') {
-      ngDoBootstrap.bind(moduleRef.instance)(applicationRef);
-    }
-    else {
-      throw new PlatformException(`Module declares neither bootstrap nor ngDoBootstrap`);
-    }
 
-    this.live.add(moduleRef);
+      applicationInit.donePromise.then(() => {
+        const applicationRef = moduleRef.injector.get(ApplicationRef);
+
+        const {bootstrapFactories, instance: {ngDoBootstrap}} = <any> moduleRef;
+        if (bootstrapFactories.length > 0) {
+          for (const component of bootstrapFactories) {
+            applicationRef.bootstrap(component);
+          }
+        }
+        else if (typeof ngDoBootstrap === 'function') {
+          ngDoBootstrap.bind(moduleRef.instance)(applicationRef);
+        }
+        else {
+          throw new PlatformException(`Module declares neither bootstrap nor ngDoBootstrap`);
+        }
+
+        this.live.add(moduleRef);
+
+        resolve();
+      })
+      .catch(exception => {
+        reject(exception);
+      });
+    });
   }
 
   private injectorFactory(ngZone: NgZone): Injector {

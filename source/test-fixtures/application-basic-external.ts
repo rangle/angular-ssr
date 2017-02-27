@@ -1,6 +1,6 @@
-import {ApplicationModule, Component, NgModule} from '@angular/core/index';
+import {Component, NgModule} from '@angular/core/index';
 
-import {CommonModule} from '@angular/common/index';
+import {BrowserModule} from '@angular/platform-browser/index';
 
 @Component({
   moduleId: module.id,
@@ -10,7 +10,7 @@ import {CommonModule} from '@angular/common/index';
 export class BasicExternalComponent {}
 
 @NgModule({
-  imports: [ApplicationModule, CommonModule],
+  imports: [BrowserModule],
   declarations: [BasicExternalComponent],
   bootstrap: [BasicExternalComponent]
 })

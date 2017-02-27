@@ -1,3 +1,5 @@
+import {existsSync} from 'fs';
+
 import {AngularCompilerOptions} from '@angular/tsc-wrapped';
 
 import {Tsc} from '@angular/tsc-wrapped/src/tsc';
@@ -9,6 +11,8 @@ import {
 } from 'typescript';
 
 import {Project} from '../project';
+
+import {makeAbsolute} from '../../filesystem';
 
 export interface CompileOptions {
   angular: AngularCompilerOptions;
@@ -44,6 +48,12 @@ export const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions =>
     module: ModuleKind.CommonJS,
     moduleResolution: ModuleResolutionKind.NodeJs,
   });
+};
+
+export const rootDirectories = (basePath: string, options: CompilerOptions): Array<string> => {
+  const candidates = [options.rootDir].concat(options.rootDirs || []);
+
+  return candidates.filter(v => v).map(c => makeAbsolute(basePath, c)).filter(c => existsSync(c));
 };
 
 const testHeuristic = (filename: string) => /(e2e|\.?(spec|tests?)\.)/.test(filename);

@@ -1,6 +1,7 @@
 import {
   CompilerHost,
   NodeCompilerHostContext,
+  StaticReflector
 } from '@angular/compiler-cli';
 
 import {PathMappedCompilerHost} from '@angular/compiler-cli/src/path_mapped_compiler_host';
@@ -10,7 +11,7 @@ import {createAotCompiler} from '@angular/compiler/index';
 import {
   AngularCompilerOptions,
   MetadataWriterHost,
-  NgcCliOptions
+  NgcCliOptions,
 } from '@angular/tsc-wrapped';
 
 import {
@@ -18,7 +19,7 @@ import {
   Program
 } from 'typescript';
 
-import {CompileOptions} from './options';
+import {CompileOptions, rootDirectories} from './options';
 
 export const compileTemplates = async (options: CompileOptions, program: Program, compilerHost: TsCompilerHost): Promise<[TsCompilerHost, Array<string>]> => {
   const hostContext = new NodeCompilerHostContext();
@@ -41,12 +42,14 @@ export const compileTemplates = async (options: CompileOptions, program: Program
 };
 
 const generateAngularCode = async (program: Program, host: CompilerHost, compilerHost: TsCompilerHost, options: NgcCliOptions): Promise<Array<string>> => {
-  const {compiler} = createAotCompiler(host, {
+  const {compiler, reflector} = createAotCompiler(host, {
     debug: false,
     translations: null, // FIXME(cbond): Load from translation file
     i18nFormat: options.i18nFormat,
     locale: options.locale
   });
+
+  patchReflectorToRemoveBrowserModule(reflector);
 
   const filenames = program.getSourceFiles().map(sf => host.getCanonicalFileName(sf.fileName));
 
@@ -62,14 +65,52 @@ const generateAngularCode = async (program: Program, host: CompilerHost, compile
 };
 
 const compilerFactory = (program: Program, options: AngularCompilerOptions, context: NodeCompilerHostContext): CompilerHost => {
-  var usePathMapping =
-    options.rootDir ||
-    options.rootDirs &&
-    options.rootDirs.length > 0;
-
-  const compiler = usePathMapping
+  const compiler = rootDirectories(options.basePath, options).length > 0
     ? new PathMappedCompilerHost(program, options, context)
     : new CompilerHost(program, options, context);
 
   return compiler;
+};
+
+const patchReflectorToRemoveBrowserModule = (reflector: StaticReflector) => {
+  const originalAnnotations = reflector.annotations.bind(reflector);
+
+  reflector.annotations = type => {
+    const original = originalAnnotations(type);
+
+    for (const decorator of original) {
+      if (decorator.toString() !== '@NgModule' ||
+          decorator.imports == null ||
+          decorator.imports.length === 0) {
+        continue;
+      }
+
+      const browserIndex = decorator.imports.findIndex(s => s.name === 'BrowserModule');
+      if (browserIndex < 0) {
+        continue;
+      }
+
+      decorator.imports.splice(browserIndex, 1);
+
+      if (decorator.imports.find(i => i.name === 'ApplicationModule') == null) {
+        const symbol = reflector.getStaticSymbol(
+          require.resolve('@angular/core/src/application_module').replace(/\.js$/, '.d.ts'),
+          'ApplicationModule',
+          []);
+
+        decorator.imports.push(symbol);
+      }
+
+      if (decorator.imports.find(i => i.name === 'CommonModule') == null) {
+        const symbol = reflector.getStaticSymbol(
+          require.resolve('@angular/common/src/common_module').replace(/\.js$/, '.d.ts'),
+          'CommonModule',
+          []);
+
+        decorator.imports.push(symbol);
+      }
+    }
+
+    return original;
+  };
 };

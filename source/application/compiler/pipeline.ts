@@ -11,8 +11,7 @@ import {extname, join} from 'path';
 import {CompilerException} from '../../exception';
 import {ApplicationModuleDescriptor, Project} from '../../application';
 import {Publisher} from '../../publisher';
-import {absolutePath} from '../../filesystem';
-import {Refactor} from '../refactor';
+import {absoluteFile} from '../../filesystem';
 
 export type CompiledSource = {filename: string, source: string};
 
@@ -28,7 +27,7 @@ export class CompilerPipeline {
   private emitted = new Map<string, Array<string>>();
 
   write(filename: string, source: string, sourceFiles?: Array<SourceFile>) {
-    filename = absolutePath(this.project.basePath, filename).toString();
+    filename = absoluteFile(this.project.basePath, filename).toString();
 
     for (const sourceFile of sourceFiles || []) {
       let array = this.emitted.get(sourceFile.fileName);
@@ -48,14 +47,6 @@ export class CompilerPipeline {
     else {
       this.sources.publish({filename, source});
     }
-  }
-
-  refactor(program: Program) {
-    // Change deep imports in NgFactory files into shallow requires of UMD bundles
-    Refactor.importSourceToImportBundle(program);
-
-    // Remove BrowserModule and add ApplicationModule and CommonModule to NgModule definitions
-    Refactor.adjustModuleImports(program);
   }
 
   rootModule(program: Program, compilerHost: CompilerHost, options: CompilerOptions): [string, string] {
