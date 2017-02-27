@@ -93,21 +93,13 @@ const patchReflectorToRemoveBrowserModule = (reflector: StaticReflector) => {
       decorator.imports.splice(browserIndex, 1);
 
       if (decorator.imports.find(i => i.name === 'ApplicationModule') == null) {
-        const symbol = reflector.getStaticSymbol(
-          require.resolve('@angular/core/src/application_module').replace(/\.js$/, '.d.ts'),
-          'ApplicationModule',
-          []);
-
-        decorator.imports.push(symbol);
+        const identifier = reflector.resolveIdentifier('ApplicationModule', '@angular/core/src/application_module');
+        decorator.imports.push(identifier);
       }
 
       if (decorator.imports.find(i => i.name === 'CommonModule') == null) {
-        const symbol = reflector.getStaticSymbol(
-          require.resolve('@angular/common/src/common_module').replace(/\.js$/, '.d.ts'),
-          'CommonModule',
-          []);
-
-        decorator.imports.push(symbol);
+        const identifier = reflector.resolveIdentifier('CommonModule', '@angular/common/src/common_module');
+        decorator.imports.push(identifier);
       }
     }
 

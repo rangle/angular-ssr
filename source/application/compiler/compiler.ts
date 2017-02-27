@@ -24,7 +24,7 @@ export class Compiler {
   }
 
   async compile(): Promise<NgModuleFactory<any>> {
-    const vm = new VirtualMachine();
+    const vm = new VirtualMachine(this.options.angular.basePath);
     try {
       const app = new CompilerPipeline(this.project);
 
