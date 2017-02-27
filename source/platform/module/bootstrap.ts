@@ -35,12 +35,9 @@ export const compileModule = async <M>(moduleType: Type<M>): Promise<NgModuleFac
 export const bootstrapModuleFactory = async <M, R>(moduleFactory: NgModuleFactory<M>, execute: ModuleExecute<M, R>): Promise<R> => {
   const moduleRef = await platform.bootstrapModuleFactory<M>(moduleFactory);
   try {
-    const result = await Promise.resolve(execute(moduleRef));
-    moduleRef.destroy();
-    return result;
+    return await Promise.resolve(execute(moduleRef));
   }
-  catch (exception) {
+  finally {
     moduleRef.destroy();
-    throw exception;
   }
 };
