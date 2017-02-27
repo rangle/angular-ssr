@@ -10,48 +10,19 @@ import {
 
 const modules = new Map<string, ModuleExports>();
 
-export class VirtualMachine implements Disposable {
+export class ExecutionContext implements Disposable {
   constructor(private basePath?: string) {}
 
   private executionStack = new Array<string>();
+
   private scripts = new Map<string, string>();
+
   private content = new Map<string, string>();
+
   private paths = new Set<string>();
 
-  require(moduleId: string, from?: string): ModuleExports {
-    this.executionStack.push(moduleId);
-
-    try {
-      let moduleResult = modules.get(moduleId);
-      if (moduleResult) {
-        return moduleResult;
-      }
-
-      const candidates = this.moduleCandidates(from, moduleId);
-
-      const [mid, script] = this.script(moduleId, candidates);
-      if (script) {
-        const module = Module.nodeModule(m => this.require(m, mid), moduleId, {});
-
-        compile(module, script);
-
-        moduleResult = module.exports;
-      }
-      else {
-        moduleResult = require(mid || moduleId);
-      }
-
-      modules.set(moduleId, moduleResult);
-
-      return moduleResult;
-    }
-    finally {
-      this.executionStack.pop();
-    }
-  }
-
-  defineModule(filename: string, moduleId: string, source: string) {
-    this.defineSource(filename, source);
+  module(filename: string, moduleId: string, source: string) {
+    this.source(filename, source);
 
     const candidates = [filename, ...this.moduleCandidates(null, moduleId)];
 
@@ -60,16 +31,18 @@ export class VirtualMachine implements Disposable {
     }
   }
 
-  defineSource(filename: string, source: string) {
+  source(filename: string, source?: string) {
     filename = normalize(filename);
+    if (source != null) {
+      this.paths.add(dirname(filename));
 
-    this.paths.add(dirname(filename));
+      this.content.set(filename, source);
 
-    this.content.set(filename, source);
-  }
-
-  getSource(filename: string): string {
-    return this.content.get(filename);
+      return source;
+    }
+    else {
+      return this.content.get(filename);
+    }
   }
 
   directories(from?: string): Set<string> {
@@ -85,10 +58,48 @@ export class VirtualMachine implements Disposable {
       : new Set<string>(files);
   }
 
-  dispose() {
+  require(moduleId: string, from?: string): ModuleExports {
+    const candidates = this.moduleCandidates(from, moduleId);
+
+    const [mid, script] = this.script(moduleId, candidates);
+
+    let moduleResult = modules.get(mid);
+    if (moduleResult) {
+      return moduleResult;
+    }
+
+    this.executionStack.push(moduleId);
+    try {
+      if (script) {
+        const syntheticModule = Module.nodeModule(m => this.require(m, mid), mid, {});
+
+        modules.set(mid, syntheticModule.exports);
+
+        compile(syntheticModule, script);
+
+        moduleResult = syntheticModule.exports;
+      }
+      else {
+        moduleResult = require(mid);
+
+        modules.set(mid, moduleResult);
+      }
+
+      return moduleResult;
+    }
+    finally {
+      this.executionStack.pop();
+    }
+  }
+
+  reset() {
     for (const container of [this.scripts, this.content, this.paths]) {
       container.clear();
     }
+  }
+
+  dispose() {
+    this.reset();
   }
 
   private script(moduleId: string, candidates: Array<string>): [string, string] {

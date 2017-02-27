@@ -58,7 +58,8 @@ export class PlatformImpl implements PlatformRef {
       // necessary to optimize with caching.
       const compiler = this.getCompiler(compilerOptions);
       try {
-        return await compiler.compileModuleAsync(moduleType);
+        const {ngModuleFactory} = await compiler.compileModuleAndAllComponentsAsync(moduleType);
+        return ngModuleFactory;
       }
       finally {
         compiler.clearCache();
@@ -85,27 +86,16 @@ export class PlatformImpl implements PlatformRef {
   async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>> {
     const zone = new NgZone({enableLongStackTrace: true});
 
-    let moduleRef: NgModuleRef<M>;
-
-    try {
-      return await zone.run(() => {
-        moduleRef = moduleFactory.create(this.injectorFactory(zone));
-
-        if (moduleRef.injector.get(BrowserModule, null) != null) {
-          throw new PlatformException('You cannot use an NgModuleFactory that has been compiled with a BrowserModule import');
-        }
-
-        moduleRef.onDestroy(() => this.live.delete(moduleRef));
-
-        return this.completeBootstrap(zone, moduleRef).then(() => moduleRef);
-      });
+    const moduleRef = moduleFactory.create(this.injectorFactory(zone));
+    if (moduleRef.injector.get(BrowserModule, null) != null) {
+      throw new PlatformException('You cannot use an NgModuleFactory that has been compiled with a BrowserModule import');
     }
-    catch (exception) {
-      if (moduleRef) {
-        moduleRef.destroy();
-      }
-      throw exception;
-    }
+
+    moduleRef.onDestroy(() => this.live.delete(moduleRef));
+
+    await this.completeBootstrap(zone, moduleRef);
+
+    return moduleRef;
   }
 
   private getCompiler(compilerOptions: CompilerOptions | Array<CompilerOptions>): Compiler {

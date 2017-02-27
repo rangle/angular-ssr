@@ -9,11 +9,11 @@ import {
 
 import {CompileOptions, loadProjectOptions} from './options';
 import {CompilerException} from '../../exception';
-import {CompilerVmHost} from './compiler-vm';
-import {compileTemplates} from './compiler-ng';
+import {CompilerContext} from './compiler-context';
 import {CompilerPipeline} from './pipeline';
+import {ExecutionContext} from './context';
 import {Project} from '../project';
-import {VirtualMachine} from './vm';
+import {compileTemplates} from './compiler-ng';
 import {assertProgram, assertDiagnostics} from './diagnostics';
 
 export class Compiler {
@@ -24,23 +24,23 @@ export class Compiler {
   }
 
   async compile(): Promise<NgModuleFactory<any>> {
-    const vm = new VirtualMachine(this.options.angular.basePath);
+    const app = new CompilerPipeline(this.project);
+
+    const context = new ExecutionContext(this.project.basePath);
     try {
-      const app = new CompilerPipeline(this.project);
+      app.modules.subscribe(m => context.module(m.filename, m.moduleId, m.source));
+      app.sources.subscribe(s => context.source(s.filename, s.source));
 
-      app.modules.subscribe(m => vm.defineModule(m.filename, m.moduleId, m.source));
-      app.sources.subscribe(s => vm.defineSource(s.filename, s.source));
+      const [module, symbol] = await this.compileInExecutionContext(context, app);
 
-      const [module, symbol] = await this.compileToVm(vm, app);
-
-      return this.requireModule(vm, module, symbol);
+      return this.requireModule(context, module, symbol);
     }
     finally {
-      vm.dispose();
+      context.dispose();
     }
   }
 
-  private async compileToVm(vm: VirtualMachine, pipeline: CompilerPipeline): Promise<[string, string]> {
+  private async compileInExecutionContext(context: ExecutionContext, pipeline: CompilerPipeline): Promise<[string, string]> {
     const compilerHost = createCompilerHost(this.options.ts, true);
 
     const program = this.createProgram(this.options.rootSources, compilerHost);
@@ -51,18 +51,18 @@ export class Compiler {
 
     const [metadataWriter, generatedModules] = await compileTemplates(this.options, program, compilerHost);
 
-    const compilerVmHost = new CompilerVmHost(this.project, vm, metadataWriter, generatedModules);
+    const compilerContext = new CompilerContext(this.project, context, metadataWriter, generatedModules);
 
-    const vmoptions = compilerVmHost.vmoptions();
+    const options = compilerContext.options();
 
-    const templatedProgram = this.createProgram(vmoptions.fileNames, compilerVmHost, program);
+    const templatedProgram = this.createProgram(options.fileNames, compilerContext, program);
 
     const emitResult = templatedProgram.emit(undefined, compilerHost.writeFile, null, false);
     if (emitResult) {
       assertDiagnostics(emitResult.diagnostics);
     }
 
-    return pipeline.rootModule(program, compilerVmHost, vmoptions.options);
+    return pipeline.rootModule(program, compilerContext, options.options);
   }
 
   private createProgram(files: Array<string>, compilerHost: CompilerHost, previousProgram?: Program): Program {
@@ -72,8 +72,8 @@ export class Compiler {
     return program;
   }
 
-  private async requireModule(vm: VirtualMachine, source: string, symbol: string) {
-    const requiredModule = vm.require(source);
+  private async requireModule(context: ExecutionContext, source: string, symbol: string) {
+    const requiredModule = context.require(source);
 
     if (requiredModule[symbol] == null) {
       throw new CompilerException(`Module ${source} does not export a ${symbol} symbol`);

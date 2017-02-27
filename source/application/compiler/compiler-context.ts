@@ -14,21 +14,23 @@ const {matchFiles} = require('typescript');
 
 import {DelegatingHost} from '@angular/tsc-wrapped/src/compiler_host';
 
-import {fileFromString, pathFromString} from '../../filesystem';
 import {Project} from '../project';
-import {VirtualMachine} from './vm';
 
-export class CompilerVmHost extends DelegatingHost {
+import {ExecutionContext} from './context';
+
+import {fileFromString, pathFromString} from '../../filesystem';
+
+export class CompilerContext extends DelegatingHost {
   constructor(
     private project: Project,
-    private vm: VirtualMachine,
+    private vm: ExecutionContext,
     private host: CompilerHost,
     private generatedModules: Array<string>,
   ) {
     super(host);
   }
 
-  vmoptions(): ParsedCommandLine {
+  options(): ParsedCommandLine {
     const {config} = readConfigFile(this.project.tsconfig, f => fileFromString(f).content());
 
     const host = {
@@ -70,7 +72,7 @@ export class CompilerVmHost extends DelegatingHost {
   getSourceFile = (filename: string, languageVersion: ScriptTarget, onError?: (message: string) => void): SourceFile => {
     let sourceFile = this.host.getSourceFile(filename, languageVersion, onError); // first due to cache
     if (sourceFile == null) {
-      const content = this.vm.getSource(filename);
+      const content = this.vm.source(filename);
       if (content) {
         return createSourceFile(filename, content, languageVersion, true);
       }
@@ -79,7 +81,7 @@ export class CompilerVmHost extends DelegatingHost {
   };
 
   readFile = (filename: string): string => {
-    return this.vm.getSource(filename) || this.delegate.readFile(filename);
+    return this.vm.source(filename) || this.delegate.readFile(filename);
   };
 
   getDirectories = (path: string): Array<string> => {
