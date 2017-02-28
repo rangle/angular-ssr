@@ -26,10 +26,6 @@ export const transpilers = (testing: boolean) => {
   return result;
 }
 
-// FIXME(cbond): This is going to be replaced with a real refactorer that uses the
-// TypeSript compiler to do static analysis of the application source and transform
-// that code
-
 // We want to avoid using the Angular UMD bundles, because when we generate NgFactory
 // files in memory they do deep imports into various @angular libraries, which causes
 // the application code and the rendered-application code will cause two copies of all

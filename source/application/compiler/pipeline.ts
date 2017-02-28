@@ -9,9 +9,10 @@ import {
 import {extname, join} from 'path';
 
 import {CompilerException} from '../../exception';
-import {ApplicationModuleDescriptor, Project} from '../../application';
+import {Project} from '../../application';
 import {Publisher} from '../../publisher';
-import {absoluteFile} from '../../filesystem';
+import {makeAbsolute} from '../../filesystem';
+import {discoverApplicationModule} from '../ast';
 
 export type CompiledSource = {filename: string, source: string};
 
@@ -27,7 +28,7 @@ export class CompilerPipeline {
   private emitted = new Map<string, Array<string>>();
 
   write(filename: string, source: string, sourceFiles?: Array<SourceFile>) {
-    filename = absoluteFile(this.project.basePath, filename).toString();
+    filename = makeAbsolute(this.project.basePath, filename);
 
     for (const sourceFile of sourceFiles || []) {
       let array = this.emitted.get(sourceFile.fileName);
@@ -55,7 +56,7 @@ export class CompilerPipeline {
     const applicationModule =
       this.project.applicationModule
         ? this.project.applicationModule
-        : this.applicationModule(program);
+        : discoverApplicationModule(program);
 
     if (applicationModule == null ||
         applicationModule.source == null ||
@@ -77,19 +78,6 @@ export class CompilerPipeline {
     const symbol = symbolToNgFactory(applicationModule.symbol);
 
     return [moduleFile, symbol];
-  }
-
-  importSources(program: Program) {
-    // TODO(cbond): Use the syntax tree to transform imports to use UMD bundles
-  }
-
-  applicationModule(program: Program): ApplicationModuleDescriptor {
-    // TODO(cbond): Use syntax tree to find application root module
-    return null;
-  }
-
-  adjusModuleImports() {
-    // TODO(cbond): Use syntax tree to remove BrowserModule from NgModule imports and add ApplicationModule and CommonModule
   }
 
   private getModuleFromSourceFile(filename: string): string {
