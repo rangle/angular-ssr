@@ -8,6 +8,8 @@ import {BrowserModule} from '@angular/platform-browser/index';
 
 import {Reflector} from '../reflector';
 
+import {ngModuleDecorator} from './../../../../identifiers/decorators';
+
 @NgModule({
   imports: [
     BrowserModule,
@@ -31,7 +33,7 @@ describe('reflector', () => {
     const annotations = Reflector.annotations(newClass);
 
     expect(annotations.length).toBe(1);
-    expect(annotations[0].toString()).toBe('@NgModule');
+    expect(annotations[0].toString()).toBe(`@${ngModuleDecorator}`);
   });
 
   it('can clone a class and mutate a specific decorator without touching the original', () => {

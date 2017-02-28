@@ -19,6 +19,8 @@ import {
   Program
 } from 'typescript';
 
+import {ngModuleDecorator} from '../../identifiers';
+
 import {CompileOptions, rootDirectories} from './options';
 
 export const compileTemplates = async (options: CompileOptions, program: Program, compilerHost: TsCompilerHost): Promise<[TsCompilerHost, Array<string>]> => {
@@ -79,7 +81,7 @@ const patchReflectorToRemoveBrowserModule = (reflector: StaticReflector) => {
     const original = originalAnnotations(type);
 
     for (const decorator of original) {
-      if (decorator.toString() !== '@NgModule' ||
+      if (decorator.toString() !== `@${ngModuleDecorator}` ||
           decorator.imports == null ||
           decorator.imports.length === 0) {
         continue;

@@ -19,6 +19,6 @@ export const compile = (module: NodeModule, source: string): ModuleWithExports =
     };
   }
   catch (exception) {
-    throw new CompilerException(`Failed to compile: ${module.id}: ${source}: ${exception.stack}`);
+    throw new CompilerException(`Failed to compile: ${module.id}: ${exception.stack}`);
   }
 };

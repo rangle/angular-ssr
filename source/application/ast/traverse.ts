@@ -1,15 +1,12 @@
-import {Node, forEachChild} from 'typescript';
+import {Node, SyntaxKind, forEachChild} from 'typescript';
 
-type NodeVisitorMap = {
-  [kind: number]: (node: Node) => any
-};
+export type NodeVisitor<T extends Node> = (node: T) => boolean;
 
-export const traverse = <T>(fromRoot: Node, map: NodeVisitorMap): T => {
-  if (map[fromRoot.kind]) {
-    const r = map[fromRoot.kind](fromRoot);
-    if (r) {
-      return r as T;
+export const traverse = <T extends Node>(root: Node, kind: SyntaxKind, visitor: NodeVisitor<T>): boolean => {
+  if (kind === root.kind) {
+    if (visitor(<T> root)) {
+      return true;
     }
   }
-  return forEachChild(fromRoot, node => traverse<T>(node, map));
+  return forEachChild(root, node => traverse<T>(node, kind, visitor));
 };
