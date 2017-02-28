@@ -66,7 +66,7 @@
     "reflect-metadata": "0.1.9",
     "rimraf": "2.5.4",
     "rxjs": "5.1.0",
-    "scoped-logger": "^0.0.16",
+    "scoped-logger": "^0.0.18",
     "source-map-support": "0.4.11",
     "typescript": "2.2.0"
   },
@@ -82,7 +82,7 @@
     "babel-plugin-transform-inline-imports-commonjs": "^1.2.0",
     "jasmine-core": "2.5.2",
     "jasmine-promises": "0.4.1",
-    "jest": "18.1.0",
+    "jest": "19.0.2",
     "ts-jest": "^19.0.0",
     "tslint": "4.4.2",
     "zone.js": "0.7.6"
@@ -92,7 +92,7 @@
     "modulePaths": [
       "<rootDir>/source"
     ],
-    "setupTestFrameworkScriptFile": "<rootDir>/source/test-fixtures/dependencies.js",
+    "setupTestFrameworkScriptFile": "<rootDir>/source/test/fixtures/dependencies.js",
     "modulePathIgnorePatterns": [
       "bundles(\\|/)"
     ],

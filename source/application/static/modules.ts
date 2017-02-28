@@ -100,10 +100,13 @@ const importClause = (sourceFile: SourceFile, identifier: string): ApplicationMo
       continue;
     }
     for (const clause of statement.parent.importClause.namedBindings.elements || []) {
+      if (clause.name == null) {
+        continue;
+      }
       if (defactory(clause.name.text) === identifier) {
         return {
           source: relativeImportPath(sourceFile.fileName, statement.text),
-          symbol: clause.propertyName.text
+          symbol: identifier,
         };
       }
     }

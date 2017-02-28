@@ -1,8 +1,8 @@
 import {dirname} from 'path';
 
-import {Project} from '../application';
+import {Project} from '../../application';
 
-import {pathFromString} from '../filesystem';
+import {pathFromString} from '../../filesystem';
 
 export const getApplicationProject = (moduleId: string, moduleSymbol: string): Project => {
   const path = pathFromString(__dirname);

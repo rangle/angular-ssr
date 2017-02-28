@@ -1,7 +1,8 @@
 import {
   existsSync,
   readFileSync,
-  realpathSync
+  realpathSync,
+  writeFileSync,
 } from 'fs';
 
 import {FileType, FilesystemType} from './type';
@@ -51,6 +52,12 @@ export class FileImpl extends FilesystemBaseImpl implements FileReference {
 
   parent(): PathReference {
     return this.owner;
+  }
+
+  create(content: string) {
+    writeFileSync(this.toString(), content, {flag: 'w'});
+
+    this.cachedContent = content;
   }
 
   private cachedContent: string;

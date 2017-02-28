@@ -19,6 +19,9 @@ export interface FilesystemBase {
 export interface FileReference extends FilesystemBase {
   dereference(): FileReference;
 
+  // Create or overwrite the file with this content
+  create(content: string): void;
+
   // Read the content of this file as a UTF8 string
   content(): string;
 }
@@ -34,4 +37,7 @@ export interface PathReference extends FilesystemBase {
 
   // Traverse upward looking for a particular file (throws if not found)
   findInAncestor(file: string): FileReference;
+
+  // Recursive create of each component of the path (if nonexistent)
+  mkdir(): void;
 }

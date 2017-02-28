@@ -1,26 +1,33 @@
 import './runtime';
 
 import {ApplicationFromSource} from '../application';
+import {HtmlOutput} from '../output';
 import {commandLineToOptions} from './options';
+import {logger} from './logger';
 
 const options = commandLineToOptions();
 
+logger.info('Starting application render process');
+
 const application = new ApplicationFromSource(options.project);
 application.templateDocument(options.templateDocument);
+
+const author = new HtmlOutput(logger, options.output);
+
+author.initialize();
 
 application.render()
   .then(snapshots => {
     snapshots.subscribe(
       snapshot => {
-        console.log('Rendered', snapshot);
+        author.write(snapshot);
       },
       exception => {
-        console.error('Critical render exception', exception);
-        process.exit(1);
+        logger.error(`Fatal render exception: ${exception}`);
       }
     );
-    console.log('Application rendering complete');
+    logger.info('Application rendering complete');
   })
   .catch(exception => {
-    console.error(`Failed to render application: ${exception.stack}`);
+    logger.error(`Failed to render application: ${exception.stack}`);
   });

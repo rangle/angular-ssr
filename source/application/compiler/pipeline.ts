@@ -12,7 +12,7 @@ import {CompilerException} from '../../exception';
 import {Project} from '../../application';
 import {Publisher} from '../../publisher';
 import {makeAbsolute} from '../../filesystem';
-import {discoverApplicationModule} from '../ast';
+import {discoverApplicationModule} from '../static';
 
 export type CompiledSource = {filename: string, source: string};
 
@@ -53,15 +53,17 @@ export class CompilerPipeline {
   rootModule(program: Program, compilerHost: CompilerHost, options: CompilerOptions): [string, string] {
     const containingFile = join(this.project.basePath, 'index.ts');
 
-    const applicationModule =
-      this.project.applicationModule
-        ? this.project.applicationModule
-        : discoverApplicationModule(program);
+    const invalid = () =>
+      applicationModule == null ||
+      applicationModule.source == null ||
+      applicationModule.symbol == null;
 
-    if (applicationModule == null ||
-        applicationModule.source == null ||
-        applicationModule.symbol == null) {
-      throw new CompilerException(`Cannot find application root @NgModule, please provide in Project structure`);
+    var applicationModule = this.project.applicationModule;
+    if (invalid()) {
+      applicationModule = discoverApplicationModule(program);
+    }
+    if (invalid()) {
+      throw new CompilerException(`Cannot locate root @NgModule with static analysis (please name them explicitly)`);
     }
 
     const rootModule = sourceToNgFactory(applicationModule.source);
@@ -91,16 +93,12 @@ export class CompilerPipeline {
 
 const executable = (filename: string) => extname(filename) === '.js';
 
-const sourceToNgFactory = (source: string): string => {
-  if (/\.ngfactory(\.(ts|js))?$/.test(source) === false) {
-    return `${source.replace(/\.(js|ts)$/, String())}.ngfactory`;
-  }
-  return source;
-};
+const sourceToNgFactory = (source: string): string =>
+  /\.ngfactory(\.(ts|js))?$/.test(source) === false
+    ? `${source.replace(/\.(js|ts)$/, String())}.ngfactory`
+    : source;
 
-const symbolToNgFactory = (symbol: string): string => {
-  if (/NgFactory$/.test(symbol) === false) {
-    return `${symbol}NgFactory`;
-  }
-  return symbol;
-};
+const symbolToNgFactory = (symbol: string): string =>
+  /NgFactory$/.test(symbol) === false
+    ? `${symbol}NgFactory`
+    : symbol;

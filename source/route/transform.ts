@@ -2,7 +2,7 @@ import {Route} from './route';
 
 import {RouteException} from '../exception';
 
-export const routeToUri = (route: Route): string => {
+export const routeToPath = (route: Route): string => {
   const split = route.path.reduce((p, c) => p.concat(c.split('/')), []);
 
   const mapped = split.map(component => {
@@ -19,5 +19,7 @@ export const routeToUri = (route: Route): string => {
     return component;
   });
 
-  return `http://localhost/${mapped.filter(v => v).join('/')}`;
+  return mapped.filter(v => v).join('/');
 };
+
+export const routeToUri = (route: Route): string => `http://localhost/${routeToPath(route)}`;

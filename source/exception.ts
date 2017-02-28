@@ -1,3 +1,5 @@
+import {EOL} from 'os';
+
 export class Exception extends Error {
   private innerException: Error;
 
@@ -12,7 +14,7 @@ export class Exception extends Error {
     this.innerException = innerException;
  }
 
-  public get stack(): string {
+  get stack(): string {
     if (this.innerException) {
       return `${super.stack} -> ${this.innerException.stack}`;
     }
@@ -21,11 +23,27 @@ export class Exception extends Error {
   }
 }
 
+export class AggregateException extends Exception {
+  constructor(public exceptions: Array<Exception | Error>) {
+    super(`Multiple exceptions occurred (${exceptions.length})`);
+  }
+
+  get stack(): string {
+    return this.exceptions.map(e => e.stack).join(EOL);
+  }
+
+  toString() {
+    return this.exceptions.map(e => e.toString()).join(EOL);
+  }
+}
+
 export class ApplicationException extends Exception {}
 export class CompilerException extends Exception {}
+export class ConfigurationException extends Exception {}
 export class DiscoveryException extends Exception {}
 export class FilesystemException extends Exception {}
 export class ModuleException extends Exception {}
+export class OutputException extends Exception {}
 export class PlatformException extends Exception {}
 export class RendererException extends Exception {}
 export class ResourceException extends Exception {}

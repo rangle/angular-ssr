@@ -1,6 +1,6 @@
-import {existsSync, readdirSync, realpathSync} from 'fs';
+import {existsSync, mkdirSync, readdirSync, realpathSync} from 'fs';
 
-import {dirname, normalize, resolve, join} from 'path';
+import {dirname, normalize, resolve, join, sep} from 'path';
 
 import {FileReference, PathReference} from './contracts';
 import {FileImpl} from './file';
@@ -55,6 +55,26 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
       return new PathImpl(deref) as PathReference;
     }
     return this as PathReference;
+  }
+
+  mkdir() {
+    const aggregator = new Array<string>();
+
+    for (const component of this.toString().split(/[\\\/]/g).filter(v => v)) {
+      aggregator.push(component);
+
+      const current = aggregator.join(sep);
+
+      if (existsSync(current) === false) {
+        mkdirSync(current);
+      }
+      else {
+        const fstype = new FilesystemType(current);
+        if (fstype.is(FileType.Directory) === false) {
+          throw new FilesystemException(`Path is not a directory: ${current}`);
+        }
+      }
+    }
   }
 
   parent(): PathReference {
