@@ -8,16 +8,14 @@ import {
   compile
 } from '../../../transpile';
 
-const modules = new Map<string, ModuleExports>();
-
 export class ExecutionContext implements Disposable {
   constructor(private basePath?: string) {}
 
   private executionStack = new Array<string>();
 
   private scripts = new Map<string, string>();
-
   private content = new Map<string, string>();
+  private modules = new Map<string, () => ModuleExports>();
 
   private paths = new Set<string>();
 
@@ -63,9 +61,8 @@ export class ExecutionContext implements Disposable {
 
     const [mid, script] = this.script(moduleId, candidates);
 
-    let moduleResult = modules.get(mid);
-    if (moduleResult) {
-      return moduleResult;
+    if (this.modules.has(mid)) {
+      return this.modules.get(mid)();
     }
 
     this.executionStack.push(moduleId);
@@ -73,17 +70,16 @@ export class ExecutionContext implements Disposable {
       if (script) {
         const syntheticModule = Module.nodeModule(m => this.require(m, mid), mid, {});
 
-        modules.set(mid, syntheticModule.exports);
+        this.modules.set(mid, () => syntheticModule.exports);
 
         compile(syntheticModule, script);
 
-        moduleResult = syntheticModule.exports;
+        return syntheticModule.exports;
       }
-      else {
-        moduleResult = require(mid);
 
-        modules.set(mid, moduleResult);
-      }
+      const moduleResult = require(mid);
+
+      this.modules.set(mid, () => moduleResult);
 
       return moduleResult;
     }
