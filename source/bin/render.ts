@@ -1,4 +1,4 @@
-import './runtime';
+import '../dependencies';
 
 import {ApplicationRenderer, ApplicationFromSource} from '../application';
 import {HtmlOutput} from '../output';
