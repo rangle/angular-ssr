@@ -1,19 +1,23 @@
+import {NgModuleFactory} from '@angular/core/index';
+
 import {Observable} from 'rxjs';
 
 import {ApplicationException} from '../../exception';
 import {ApplicationBuilderBase} from './base';
 import {Snapshot} from '../../snapshot';
-import {RenderOperation} from '../operation';
-import {renderableRoutes} from '../../route';
-import {renderToStream} from '../render';
+import {RenderOperation, RenderVariantOperation} from '../operation';
+import {Route, renderableRoutes} from '../../route';
+import {renderToStream, renderVariant} from '../render';
 
 export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M> {
-  async render(): Promise<Observable<Snapshot<V>>> {
+  private moduleFactory: NgModuleFactory<M>;
+
+  async prerender(): Promise<Observable<Snapshot<V>>> {
     this.validate();
 
     const operation = this.operation;
 
-    operation.moduleFactory = await this.getModuleFactory();
+    operation.moduleFactory = await this.getCachedFactory();
 
     if (operation.routes == null || operation.routes.length === 0) {
       operation.routes = await renderableRoutes(operation.moduleFactory, this.operation.templateDocument);
@@ -24,6 +28,22 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
     }
 
     return renderToStream(<RenderOperation<M, V>> this.operation);
+  }
+
+  async renderRoute(route: Route, variant?: V): Promise<Snapshot<V>> {
+    this.validate();
+
+    const operation = <RenderOperation<M, V>> this.operation;
+
+    operation.moduleFactory = await this.getCachedFactory();
+
+    const vop: RenderVariantOperation<M, V> = {
+      scope: operation,
+      route,
+      variant,
+    };
+
+    return await renderVariant(vop);
   }
 
   validate() {
@@ -39,5 +59,12 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
     if (markup.toLowerCase().indexOf('<!doctype html>') < 0) {
       throw new ApplicationException('Template is missing <!doctype html>');
     }
+  }
+
+  private async getCachedFactory(): Promise<NgModuleFactory<M>> {
+    if (this.moduleFactory == null) {
+      this.moduleFactory = await this.getModuleFactory();
+    }
+    return this.moduleFactory;
   }
 }

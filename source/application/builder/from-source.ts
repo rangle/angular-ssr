@@ -5,8 +5,6 @@ import {Compiler} from '../compiler';
 import {Project} from '../project';
 
 export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
-  private moduleFactory: NgModuleFactory<any>;
-
   private compiler: Compiler;
 
   constructor(public project: Project) {
@@ -16,9 +14,6 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
   }
 
   protected async getModuleFactory(): Promise<NgModuleFactory<any>> {
-    if (this.moduleFactory == null) {
-      this.moduleFactory = await this.compiler.compile();
-    }
-    return this.moduleFactory;
+    return await this.compiler.compile();
   }
 }

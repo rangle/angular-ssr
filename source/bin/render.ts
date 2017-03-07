@@ -16,7 +16,7 @@ const author = new HtmlOutput(logger, options.output);
 
 author.initialize();
 
-application.render()
+application.prerender()
   .then(snapshots => {
     snapshots.subscribe(
       snapshot => {

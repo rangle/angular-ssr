@@ -24,7 +24,7 @@ export const renderModuleFixture = <M>(moduleType: Type<M>): Promise<Observable<
   const application = new ApplicationFromModule<void, any>(moduleType);
   application.templateDocument(templateDocument);
 
-  return application.render();
+  return application.prerender();
 };
 
 const namedFunction = <T>(name: string, f: Function): Type<T> => {

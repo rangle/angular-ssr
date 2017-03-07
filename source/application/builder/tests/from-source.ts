@@ -10,7 +10,7 @@ describe('ApplicationFromSource', () => {
 
     application.templateDocument(templateDocument);
 
-    application.render()
+    application.prerender()
       .then(snapshot => {
         snapshot.subscribe(
           r => {

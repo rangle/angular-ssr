@@ -14,7 +14,7 @@ import {
 describe('ApplicationFromModule', () => {
   it('should require a template document in order to render', done => {
     const application = new ApplicationFromModule(moduleFromComponent(BasicInlineComponent));
-    application.render()
+    application.prerender()
       .then(() => {
         done.fail(new Error('render should fail due to missing template document'));
       })

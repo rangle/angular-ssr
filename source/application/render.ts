@@ -25,7 +25,7 @@ export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observab
   return subject.asObservable();
 };
 
-const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
+export const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
   const {
     route,
     scope: {
