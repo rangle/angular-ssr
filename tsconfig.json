@@ -7,7 +7,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
+    "noImplicitThis": false,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "baseUrl": "./source",

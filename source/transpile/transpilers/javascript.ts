@@ -1,3 +1,5 @@
+import {join} from 'path';
+
 import {TransformOptions, transform} from 'babel-core';
 
 import {TranspileException} from '../../exception';
@@ -39,6 +41,6 @@ const pluginConfiguration = (): Array<Array<string> | any> => {
         '@angular/router': '@angular/router/'
       }
     }],
-    [require.resolve('babel-plugin-transform-inline-imports-commonjs')]
+    [join(__dirname, '..', 'contrib', 'transform-imports.js')]
   ];
 };
