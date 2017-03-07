@@ -18,5 +18,5 @@ const applicationRenderer = new ApplicationRenderer(application);
 
 applicationRenderer.renderTo(output)
   .catch(exception => {
-    console.error('Failed to render application', exception);
+    logger.error(`Failed to render application: ${exception.stack}`);
   });

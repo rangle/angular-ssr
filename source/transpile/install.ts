@@ -8,6 +8,10 @@ import {Cache} from '../cache';
 export type Uninstall = () => void;
 
 export const install = (): Uninstall => {
+  if (require.extensions == null) {
+    return () => {};
+  }
+
   const installed = new Array<Uninstall>();
 
   const extensions = new Set<string>(transpilers(false).map(t => t.extension));

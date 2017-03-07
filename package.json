@@ -64,6 +64,7 @@
     "codependency": "0.1.4",
     "commander": "2.9.0",
     "domino": "git://github.com/clbond/domino.git#0c16ed953edf3a9a741b435e7359f6acfe2363bb",
+    "mock-local-storage": "^1.0.2",
     "reflect-metadata": "0.1.9",
     "rimraf": "2.5.4",
     "rxjs": "5.1.0",
