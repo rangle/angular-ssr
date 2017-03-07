@@ -2,7 +2,7 @@ import {dirname, join} from 'path';
 
 import {ModuleException} from '../exception';
 
-import {debundleImport} from '../transpile';
+import {debundleImport} from './composed';
 
 import {
   FileReference,
