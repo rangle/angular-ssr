@@ -3,3 +3,5 @@ machine:
     version: 6.3.1
   post:
     - npm install -g npm@3.10.10
+    - npm run build
+    - npm test

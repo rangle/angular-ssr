@@ -1,1 +1,3 @@
-require('angular-ssr/build/bin/render');
+#!/usr/bin/env node
+
+require('../build/bin/render');
