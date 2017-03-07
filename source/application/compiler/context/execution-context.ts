@@ -108,6 +108,11 @@ export class ExecutionContext implements Disposable {
       if (script) {
         return [c, script];
       }
+
+      const module = Module.relativeResolve(c, moduleId);
+      if (module) {
+        return [module, null];
+      }
     }
 
     const module = Module.relativeResolve(this.basePath, moduleId);

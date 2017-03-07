@@ -47,6 +47,7 @@ export const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions =>
     declaration: false,
     module: ModuleKind.CommonJS,
     moduleResolution: ModuleResolutionKind.NodeJs,
+    noEmitHelpers: false,
   });
 };
 
