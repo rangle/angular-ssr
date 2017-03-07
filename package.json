@@ -60,6 +60,7 @@
     "@types/jasmine": "2.5.41",
     "babel-core": "6.23.1",
     "babel-plugin-module-resolver": "^2.5.0",
+    "babel-plugin-transform-strict-mode": "^6.22.0",
     "codependency": "0.1.4",
     "commander": "2.9.0",
     "domino": "git://github.com/clbond/domino.git#master",
@@ -100,7 +101,7 @@
       "\\.ts$": "ts-jest/dist/preprocessor.js"
     },
     "moduleNameMapper": {
-      "@angular\/([^\/]+)$": "@angular/$1/index"
+      "@angular/([^/]+)$": "@angular/$1/index"
     },
     "transformIgnorePatterns": [],
     "testRegex": "source/.*/tests/.*\\.ts$",
