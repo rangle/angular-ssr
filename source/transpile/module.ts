@@ -22,6 +22,8 @@ export abstract class Module {
     const result = new Set<string>();
 
     for (const path of fromPaths.map(element => elementToDirectory(element))) {
+      result.add(path);
+
       for (const p of ModuleImpl._nodeModulePaths(path)) {
         result.add(p);
       }
@@ -77,10 +79,6 @@ const resolveFromRoot = (moduleId: string): string => {
 };
 
 export type ModuleExports = {[index: string]: any};
-
-export interface ModuleFunction {
-  (exports, require: NodeRequireFunction, module: NodeModule, __filename: string, __dirname: string,): void;
-}
 
 const elementToDirectory = (element: string | PathReference | FileReference): string => {
   if (typeof element === 'string') {
