@@ -62,7 +62,7 @@
     "babel-plugin-module-resolver": "^2.5.0",
     "codependency": "0.1.4",
     "commander": "2.9.0",
-    "domino": "1.0.28",
+    "domino": "git://github.com/clbond/domino.git#master",
     "reflect-metadata": "0.1.9",
     "rimraf": "2.5.4",
     "rxjs": "5.1.0",
