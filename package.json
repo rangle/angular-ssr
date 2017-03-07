@@ -9,10 +9,9 @@
     "npm": ">=3.10"
   },
   "bin": {
-    "ng-render": "build/bin/render.js"
+    "ng-render": "bin/render.js"
   },
   "scripts": {
-    "postinstall": "npm run build && npm test",
     "prebuild": "rimraf build",
     "build": "tsc",
     "watch": "tsc --watch",
@@ -41,13 +40,13 @@
     "url": "https://github.com/clbond/angular-ssr/issues"
   },
   "peerDependencies": {
-    "@angular/common": "^2.4.6",
-    "@angular/compiler": "^2.4.6",
-    "@angular/compiler-cli": "^2.4.6",
-    "@angular/core": "^2.4.6",
-    "@angular/router": "^3.4.6",
-    "reflect-metadata": "0.1",
-    "zone.js": "0.7.6"
+    "@angular/common": "^2.4",
+    "@angular/compiler": "^2.4",
+    "@angular/compiler-cli": "^2.4",
+    "@angular/core": "^2.4",
+    "@angular/router": "^3.4",
+    "reflect-metadata": "^0.1",
+    "zone.js": "^0.7"
   },
   "optionalPeerDependencies": {
     "@ngrx/store": "^2.2.1"
@@ -63,11 +62,11 @@
     "babel-plugin-transform-strict-mode": "^6.22.0",
     "codependency": "0.1.4",
     "commander": "2.9.0",
-    "domino": "git://github.com/clbond/domino.git#master",
+    "domino": "git://github.com/clbond/domino.git#0c16ed953edf3a9a741b435e7359f6acfe2363bb",
     "reflect-metadata": "0.1.9",
     "rimraf": "2.5.4",
     "rxjs": "5.1.0",
-    "scoped-logger": "^0.0.18",
+    "scoped-logger": "^0.0.19",
     "source-map-support": "0.4.11",
     "typescript": "2.2.0"
   },
@@ -78,8 +77,6 @@
     "@angular/platform-browser": "^2.4.7",
     "@angular/router": "^3.4.6",
     "@ngrx/store": "^2.2.1",
-    "babel-core": "6.23.1",
-    "babel-plugin-module-resolver": "^2.5.0",
     "jasmine-core": "2.5.2",
     "jasmine-promises": "0.4.1",
     "jest": "19.0.2",
@@ -110,5 +107,13 @@
       "js",
       "json"
     ]
-  }
+  },
+  "files": [
+    "bin",
+    "build",
+    "package.json",
+    "source",
+    "tsconfig.json",
+    "tslint.json"
+  ]
 }
