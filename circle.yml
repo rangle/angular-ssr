@@ -5,5 +5,5 @@ machine:
     - npm install -g npm@3.10.10
 
 checkout:
-  pre:
+  post:
     - npm run build
