@@ -44,6 +44,7 @@ export class Compiler {
     const compilerHost = createCompilerHost(this.options.ts, true);
 
     const program = this.createProgram(this.options.rootSources, compilerHost);
+    assertProgram(program);
 
     compilerHost.writeFile = (filename, data, writeByteOrderMark, onError?, sourceFiles?) => {
       pipeline.write(filename, data, (sourceFiles || []).filter(sf => sf != null));
@@ -66,10 +67,7 @@ export class Compiler {
   }
 
   private createProgram(files: Array<string>, compilerHost: CompilerHost, previousProgram?: Program): Program {
-    const program = createProgram(files, this.options.ts, compilerHost, previousProgram);
-    assertProgram(program);
-
-    return program;
+    return createProgram(files, this.options.ts, compilerHost, previousProgram);
   }
 
   private async requireModule(context: ExecutionContext, source: string, symbol: string) {

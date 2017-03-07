@@ -47,15 +47,6 @@ export const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions =>
     declaration: false,
     module: ModuleKind.CommonJS,
     moduleResolution: ModuleResolutionKind.NodeJs,
-    noUnusedLocals: false,
-    noUnusedParameters: false,
-    strictNullChecks: false,
-    noEmitHelpers: false,
-    noImplicitAny: false,
-    noImplicitReturns: false,
-    noImplicitThis: false,
-    noImplicitUseStrict: true,
-    noFallthroughCasesInSwitch: false,
   });
 };
 
