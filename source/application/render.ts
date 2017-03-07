@@ -1,43 +1,33 @@
-import {Observable, Subject} from 'rxjs';
+import {ApplicationBase} from '../application';
+import {Route} from '../route';
+import {Output} from '../output';
+import {Snapshot} from '../snapshot';
 
-import {bootstrapModuleFactory, forkZone} from '../platform';
-import {RenderOperation, RenderVariantOperation} from './operation';
-import {Snapshot, takeSnapshot} from '../snapshot';
-import {routeToUri} from '../route';
-import {fork} from './fork';
+export class ApplicationRenderer {
+  constructor(private application: ApplicationBase<any, any>) {}
 
-export const renderToStream = <M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> => {
-  const subject = new Subject<Snapshot<V>>();
+  renderTo(output: Output): Promise<void> {
+    output.initialize();
 
-  const bind = async (suboperation: RenderVariantOperation<M, V>) => {
-    try {
-      subject.next(await renderVariant(suboperation));
-    }
-    catch (exception) {
-      subject.error(exception);
-    }
-  };
+    return new Promise<void>((resolve, reject) => {
+      this.application.prerender()
+        .then(snapshots => {
+          snapshots.subscribe(
+            snapshot => {
+              output.write(snapshot);
+            },
+            exception => {
+              reject(new Error(`Fatal render exception: ${exception.stack}`));
+            },
+            () => resolve());
+        })
+        .catch(exception => {
+          reject(new Error(`Failed to render application: ${exception.stack}`));
+        });
+    });
+  }
 
-  const promises = fork(operation).map(suboperation => bind(suboperation));
-
-  Promise.all(promises).then(() => subject.complete());
-
-  return subject.asObservable();
-};
-
-export const renderVariant = async <M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
-  const {
-    route,
-    scope: {
-      templateDocument,
-      moduleFactory,
-    }
-  } = operation;
-
-  const absoluteUri = routeToUri(route);
-
-  return forkZone(templateDocument, absoluteUri, () =>
-    bootstrapModuleFactory<M, Snapshot<V>>(
-      moduleFactory,
-      moduleRef => takeSnapshot(moduleRef, operation)));
-};
+  renderRoute<V>(route: Route, variant?: V): Promise<Snapshot<V>> {
+    return this.application.renderRoute(route, variant);
+  }
+}

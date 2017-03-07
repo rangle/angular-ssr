@@ -7,7 +7,7 @@ import {ApplicationBuilderBase} from './base';
 import {Snapshot} from '../../snapshot';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Route, renderableRoutes} from '../../route';
-import {renderToStream, renderVariant} from '../render';
+import {renderToStream, renderVariant} from './render';
 
 export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M> {
   private moduleFactory: NgModuleFactory<M>;

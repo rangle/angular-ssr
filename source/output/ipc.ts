@@ -1,7 +1,8 @@
-import {Author} from './author';
+import {Output} from './output';
+
 import {Snapshot} from '../snapshot';
 
-export class IpcOutput extends Author {
+export class IpcOutput extends Output {
   initialize(): Promise<void> {
     throw new Error('Not implemented');
   }

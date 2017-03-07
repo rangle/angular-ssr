@@ -2,14 +2,14 @@ import {join} from 'path';
 
 import {Logger} from 'scoped-logger';
 
-import {Author} from './author';
+import {Output} from './output';
 import {OutputException} from '../exception';
 import {PathReference, fileFromString, pathFromString} from '../filesystem';
 import {Snapshot} from '../snapshot';
 import {Route, routeToPath} from '../route';
 import {htmlRoot} from '../identifiers';
 
-export class HtmlOutput extends Author {
+export class HtmlOutput extends Output {
   constructor(private logger: Logger, public path: PathReference) {
     super();
   }

@@ -2,7 +2,7 @@ import {Snapshot} from '../snapshot';
 
 import {AggregateException, OutputException} from '../exception';
 
-export abstract class Author {
+export abstract class Output {
   abstract initialize(): Promise<void>;
 
   abstract async write<V>(snapshot: Snapshot<V>): Promise<void>;

@@ -46,7 +46,8 @@
     "@angular/core": "^2.4",
     "@angular/router": "^3.4",
     "reflect-metadata": "^0.1",
-    "zone.js": "^0.7"
+    "zone.js": "^0.7",
+    "typescript": "^2.2.0"
   },
   "optionalPeerDependencies": {
     "@ngrx/store": "^2.2.1"
