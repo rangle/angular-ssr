@@ -43,10 +43,19 @@ export const loadProjectOptions = (project: Project): CompileOptions => {
 };
 
 export const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions => {
-  return Object.assign({}, baseOptions, {
+  return Object.assign({}, baseOptions, { // lenient due to nasty ngfactory files
     declaration: false,
     module: ModuleKind.CommonJS,
     moduleResolution: ModuleResolutionKind.NodeJs,
+    noUnusedLocals: false,
+    noUnusedParameters: false,
+    strictNullChecks: false,
+    noEmitHelpers: false,
+    noImplicitAny: false,
+    noImplicitReturns: false,
+    noImplicitThis: false,
+    noImplicitUseStrict: true,
+    noFallthroughCasesInSwitch: false,
   });
 };
 
