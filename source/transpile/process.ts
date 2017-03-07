@@ -26,7 +26,9 @@ export const transpileMatch = (testing: boolean, module: NodeModule, filename: s
 
     module.id = moduleId;
 
-    const resolved = Module.relativeResolve(basePath || cwd(), moduleId);
+    const fromPath = basePath || cwd();
+
+    const resolved = Module.relativeResolve(fromPath, fromPath, moduleId);
     if (resolved == null) {
       throw new TranspileException(`Cannot resolve module: ${module.id}`);
     }

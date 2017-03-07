@@ -93,10 +93,16 @@ export class CompilerPipeline {
 
 const executable = (filename: string) => extname(filename) === '.js';
 
-const sourceToNgFactory = (source: string): string =>
-  /\.ngfactory(\.(ts|js))?$/.test(source) === false
-    ? `${source.replace(/\.(js|ts)$/, String())}.ngfactory`
-    : source;
+const sourceToNgFactory = (source: string): string => {
+  if (/\.ngfactory(\.(ts|js))?$/.test(source) === false) {
+    source = source.replace(/\.(js|ts)$/, String());
+    if (/(\\|\/)$/.test(source)) {
+      source += 'index';
+    }
+    return `${source}.ngfactory`;
+  }
+  return source;
+};
 
 const symbolToNgFactory = (symbol: string): string =>
   /NgFactory$/.test(symbol) === false

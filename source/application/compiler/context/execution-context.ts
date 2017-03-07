@@ -105,13 +105,13 @@ export class ExecutionContext implements Disposable {
         return [c, script];
       }
 
-      const module = Module.relativeResolve(c, moduleId);
+      const module = Module.relativeResolve(this.basePath, c, moduleId);
       if (module) {
         return [module, null];
       }
     }
 
-    const module = Module.relativeResolve(this.basePath, moduleId);
+    const module = Module.relativeResolve(this.basePath, this.basePath, moduleId);
     if (module) {
       return [module, null];
     }
@@ -135,6 +135,7 @@ export class ExecutionContext implements Disposable {
       if (stack.length > 0) {
         candidates.push(normalize(join(dirname(stack[stack.length - 1]), to)));
       }
+      candidates.push(...candidates.map(c => `${c}/index`));
     }
 
     return candidates;

@@ -18,11 +18,12 @@ export abstract class Module {
     ModuleImpl.prototype._compile.call(module, source, module.filename);
   }
 
-  static externalModuleRoots(...fromPaths: Array<string | FileReference | PathReference>): Array<string> {
+  static resolutionCandidates(basePath: string, ...fromPaths: Array<string | FileReference | PathReference>): Array<string> {
     const result = new Set<string>();
 
     for (const path of fromPaths.map(element => elementToDirectory(element))) {
       result.add(path);
+      result.add(dirname(path));
 
       for (const p of ModuleImpl._nodeModulePaths(path)) {
         result.add(p);
@@ -32,7 +33,7 @@ export abstract class Module {
     return Array.from(result);
   }
 
-  static relativeResolve(fromPath: string, moduleId: string): string {
+  static relativeResolve(basePath: string, fromPath: string, moduleId: string): string {
     moduleId = debundleImport(moduleId);
 
     let resolved = resolveFromRoot(moduleId);
@@ -43,7 +44,7 @@ export abstract class Module {
     try {
       const path = pathFromString(fromPath || dirname(moduleId));
 
-      const paths = Module.externalModuleRoots(path, moduleId);
+      const paths = Module.resolutionCandidates(basePath, path, dirname(moduleId));
 
       const filename = join(path.toString(), 'placeholder.js');
 
