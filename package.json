@@ -55,7 +55,6 @@
   },
   "dependencies": {
     "@angular/compiler-cli": "^2.4.7",
-    "@angular/http": "^2.4.9",
     "@angular/tsc-wrapped": "^0.5.2",
     "@types/babel-core": "6.7.14",
     "@types/codependency": "0.1.1",
@@ -80,6 +79,7 @@
     "@angular/common": "^2.4.6",
     "@angular/compiler": "^2.4.6",
     "@angular/core": "^2.4.6",
+    "@angular/http": "^2.4.6",
     "@angular/platform-browser": "^2.4.7",
     "@angular/router": "^3.4.6",
     "@ngrx/store": "^2.2.1",
