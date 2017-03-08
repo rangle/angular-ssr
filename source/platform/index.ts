@@ -1,5 +1,6 @@
 export * from './document';
 export * from './exception-stream';
+export * from './http';
 export * from './imports';
 export * from './location';
 export * from './module';

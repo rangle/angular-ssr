@@ -16,39 +16,37 @@ import {
   Type,
 } from '@angular/core/index';
 
+import {
+  BaseResponseOptions,
+  BaseRequestOptions,
+  ConnectionBackend,
+  ResponseOptions,
+  RequestOptions,
+} from '@angular/http/index';
+
 import {PlatformLocation} from '@angular/common/index';
 
 import {BrowserModule} from '@angular/platform-browser/index';
 
+import {HttpBackend} from './http';
 import {LocationImpl} from './location';
 import {PlatformException} from '../exception';
 import {DocumentContainer, TemplateDocument, RequestUri} from './document';
 import {RootRendererImpl} from './render';
 import {DocumentStyles, SharedStyles} from './styles';
 import {CurrentZone, stableZone} from './zone';
-import {Publisher} from '../publisher';
 
 @Injectable()
 export class PlatformImpl implements PlatformRef {
-  private disposal = new Publisher<() => void>();
-
   private compiler: Compiler;
 
   private compiledModules = new Map<string, NgModuleFactory<any>>();
 
-  private live = new Set<NgModuleRef<any>>();
+  private references = new Set<NgModuleRef<any>>();
 
-  private disposed: boolean = false;
+  public destroyed = false;
 
-  constructor(private rootInjector: Injector) {}
-
-  get injector(): Injector {
-    return this.rootInjector;
-  }
-
-  get destroyed(): boolean {
-    return this.disposed;
-  }
+  constructor(public injector: Injector) {}
 
   async compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions>) {
     if (nonstandardOptions(compilerOptions)) {
@@ -91,7 +89,7 @@ export class PlatformImpl implements PlatformRef {
       throw new PlatformException('You cannot use an NgModuleFactory that has been compiled with a BrowserModule import');
     }
 
-    moduleRef.onDestroy(() => this.live.delete(moduleRef));
+    moduleRef.onDestroy(() => this.references.delete(moduleRef));
 
     await this.completeBootstrap(zone, moduleRef);
 
@@ -146,7 +144,7 @@ export class PlatformImpl implements PlatformRef {
           throw new PlatformException(`Module declares neither bootstrap nor ngDoBootstrap`);
         }
 
-        this.live.add(moduleRef);
+        this.references.add(moduleRef);
 
         resolve();
       })
@@ -165,6 +163,9 @@ export class PlatformImpl implements PlatformRef {
       {provide: RootRenderer, useClass: RootRendererImpl},
       {provide: SharedStyles, useClass: SharedStyles},
       {provide: DocumentStyles, useClass: DocumentStyles},
+      {provide: ConnectionBackend, useClass: HttpBackend},
+      {provide: RequestOptions, useClass: BaseRequestOptions},
+      {provide: ResponseOptions, useClass: BaseResponseOptions},
       {
         provide: TemplateDocument,
         useFactory: (currentZone: CurrentZone) => {
@@ -185,32 +186,26 @@ export class PlatformImpl implements PlatformRef {
   }
 
   onDestroy(callback: () => void) {
-    this.disposal.subscribe(callback);
+    throw new PlatformException('Not implemented');
   }
 
   async destroy() {
-    if (this.disposed === true) {
-      throw new PlatformException('Attempting to dispose of the same PlatformImpl twice');
-    }
+    this.destroyed = true;
 
-    this.disposal.publish();
-
-    for (const module of Array.from(this.live)) {
+    for (const module of Array.from(this.references)) {
       // We want to avoid destroying a module that is in the middle of some asynchronous
       // operations, because the handlers for those operations are likely to blow up in
       // spectacular ways if their entire execution context has been ripped out from under
       // them. So we wait for the zone associated with the module to become stable before
       // we attempt to dispose of it.
-      stableZone(module).then(() => {
-        module.destroy();
+      await stableZone(module);
 
-        this.live.delete(module);
-      });
+      module.destroy();
+
+      this.references.delete(module);
     }
 
     this.compiledModules.clear();
-
-    this.disposed = true;
   }
 }
 
