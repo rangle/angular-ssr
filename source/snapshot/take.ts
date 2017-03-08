@@ -19,7 +19,7 @@ import {
   DocumentContainer,
   ExceptionStream,
   Reflector,
-  stableZone,
+  waitForZoneToBecomeStable,
 } from '../platform';
 
 export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
@@ -43,7 +43,7 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
       transition(moduleRef.injector);
     }
 
-    await stableZone(moduleRef);
+    await waitForZoneToBecomeStable(moduleRef);
 
     const renderedDocument = container.document.outerHTML;
 

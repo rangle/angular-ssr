@@ -34,7 +34,12 @@ import {PlatformException} from '../exception';
 import {DocumentContainer, TemplateDocument, RequestUri} from './document';
 import {RootRendererImpl} from './render';
 import {DocumentStyles, SharedStyles} from './styles';
-import {CurrentZone, stableZone} from './zone';
+
+import {
+  CurrentZone,
+  mapZoneToInjector,
+  waitForZoneToBecomeStable,
+} from './zone';
 
 @Injectable()
 export class PlatformImpl implements PlatformRef {
@@ -85,11 +90,18 @@ export class PlatformImpl implements PlatformRef {
     const zone = new NgZone({enableLongStackTrace: true});
 
     const moduleRef = moduleFactory.create(this.injectorFactory(zone));
+
     if (moduleRef.injector.get(BrowserModule, null) != null) {
       throw new PlatformException('You cannot use an NgModuleFactory that has been compiled with a BrowserModule import');
     }
 
-    moduleRef.onDestroy(() => this.references.delete(moduleRef));
+    const unmap = mapZoneToInjector(moduleRef.injector);
+
+    moduleRef.onDestroy(() => {
+      unmap();
+
+      this.references.delete(moduleRef);
+    });
 
     await this.completeBootstrap(zone, moduleRef);
 
@@ -198,7 +210,7 @@ export class PlatformImpl implements PlatformRef {
       // spectacular ways if their entire execution context has been ripped out from under
       // them. So we wait for the zone associated with the module to become stable before
       // we attempt to dispose of it.
-      await stableZone(module);
+      await waitForZoneToBecomeStable(module);
 
       module.destroy();
 

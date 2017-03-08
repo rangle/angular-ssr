@@ -4,8 +4,6 @@ import {PlatformException} from '../../exception';
 
 import {TemplateDocument, RequestUri} from './tokens';
 
-import {mapZoneToContainer, unmapZoneFromContainer} from './map';
-
 const domino = require('domino');
 
 @Injectable()
@@ -17,8 +15,6 @@ export class DocumentContainer implements OnDestroy {
     @Inject(RequestUri) requestUri: string,
   ) {
     this.windowRef = domino.createWindow(templateDocument, requestUri);
-
-    mapZoneToContainer(this);
   }
 
   get window(): Window {
@@ -39,19 +35,7 @@ export class DocumentContainer implements OnDestroy {
   }
 
   ngOnDestroy() {
-    unmapZoneFromContainer(this);
-
     this.complete();
-
-    // This may seem pointless but we just want to release all references
-    // to the node elements in this document so that they can be garbage
-    // collected.
-    if (this.document) {
-      const child = () => this.document.body.firstChild;
-      while (child()) {
-        this.document.removeChild(child());
-      }
-    }
 
     this.windowRef = null;
   }
