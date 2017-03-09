@@ -14,6 +14,8 @@ import {
 
 import {ApplicationFromModule} from '../../../application';
 
+import {ConsoleType} from '../../../snapshot';
+
 import {extractRoutesFromRouter} from '../../../route';
 
 describe('ApplicationFromModule', () => {
@@ -120,6 +122,25 @@ describe('ApplicationFromModule', () => {
             expect(Array.isArray(snapshot.applicationState)).toBeTruthy();
             const expr = /<script type="text\/javascript">window.bootstrapApplicationState = \[\[\],\["one"\]\];<\/script>/;
             expect(expr.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
+            done();
+          });
+      })
+      .catch(exception => done.fail(exception));
+  });
+
+  it('can collect console log statements that happen during application execution', done => {
+    const module = loadApplicationFixtureFromModule(BasicRoutedModule);
+
+    module.prerender()
+      .then(snapshots => {
+        snapshots.subscribe(
+          snapshot => {
+            expect(snapshot.console).not.toBeNull();
+            expect(Array.isArray(snapshot.console)).toBeTruthy();
+            expect(snapshot.console.length).toBe(1);
+            expect(snapshot.console[0].type).toBe(ConsoleType.Log);
+            expect(snapshot.console[0].args.length).toBe(1);
+            expect(/enableProdMode/.test(snapshot.console[0].args[0])).toBeTruthy();
             done();
           });
       })

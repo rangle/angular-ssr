@@ -1,9 +1,8 @@
 import {Injector} from '@angular/core/index';
 
-import {PlatformException} from '../../exception';
-
+import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
-
+import {PlatformException} from '../../exception';
 import {RuntimeModuleLoader} from '../runtime-loader';
 
 declare const Zone;
@@ -32,7 +31,14 @@ const getFromMap = <T>(token): T => {
   return injector.get(token);
 };
 
+export const baseConsole = console;
+
 Object.defineProperties(environment, {
+  console: {
+    get: () => {
+      return getFromMap<ConsoleCollector>(ConsoleCollector) || baseConsole;
+    }
+  },
   window: {
     get: () => {
       const container = getFromMap<DocumentContainer>(DocumentContainer);

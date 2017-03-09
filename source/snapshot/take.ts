@@ -5,6 +5,8 @@ import {
   Type,
 } from '@angular/core/index';
 
+import {Subscription} from 'rxjs';
+
 import {SnapshotException} from '../exception';
 
 import {Snapshot} from './snapshot';
@@ -16,28 +18,29 @@ import {
 } from '../application/operation';
 
 import {
+  ConsoleCollector,
   DocumentContainer,
-  ExceptionStream,
+  ExceptionCollector,
   Reflector,
   waitForZoneToBecomeStable,
 } from '../platform';
 
 export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
-  const exceptions: ExceptionStream = moduleRef.injector.get(ExceptionStream);
+  const {variant, route, transition, scope: {bootstrap}} = vop;
 
-  const {variant, route, transition} = vop;
+  const snapshot: Partial<Snapshot<V>> = {variant, route, exceptions: [], console: []};
 
-  const snapshot: Partial<Snapshot<V>> = {variant, route, exceptions: new Array<Error>()};
+  const contextSubscription = subscribeToContext(moduleRef, <Snapshot<any>> snapshot);
 
-  // The exception stream is a replay subject so even if exceptions were thrown prior to this
-  // statement, we will still receive them through this subscription. It's important to be able
-  // to tell the consumer about all exceptions that occurred while running the application.
-  const subscription = exceptions.stream.subscribe(exception => snapshot.exceptions.push(exception));
   try {
     const container = moduleRef.injector.get(DocumentContainer);
 
     // Mark the DOM as loaded and invoke remaining initialization tasks
     container.complete();
+
+    for (const fn of bootstrap || []) {
+      fn(moduleRef.injector);
+    }
 
     if (transition != null) {
       transition(moduleRef.injector);
@@ -58,9 +61,29 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }
   finally {
-    subscription.unsubscribe();
+    contextSubscription.unsubscribe();
   }
 }
+
+const subscribeToContext = <M>(moduleRef: NgModuleRef<M>, snapshot: Snapshot<any>): {unsubscribe: () => void} => {
+  const exceptions: ExceptionCollector = moduleRef.injector.get(ExceptionCollector);
+
+  const log: ConsoleCollector = moduleRef.injector.get(ConsoleCollector);
+
+  const subscriptions = new Array<Subscription>();
+
+  subscriptions.push(exceptions.observable().subscribe(exception => snapshot.exceptions.push(exception)));
+
+  subscriptions.push(log.observable().subscribe(consolelog => snapshot.console.push(consolelog)));
+
+  return {
+    unsubscribe: () => {
+      for (const subscription of subscriptions) {
+        subscription.unsubscribe();
+      }
+    }
+  }
+};
 
 // An application state reader can be either an injectable class or a function
 const conditionalInstantiate = (reader: ApplicationStateReader): StateReaderFunction => {

@@ -18,6 +18,7 @@ export interface RenderOperation<M, V> {
   routes: Array<Route>;
   variants: Map<V, ComposedTransition>;
   stateReader?: ApplicationStateReader;
+  bootstrap: Array<(injector: Injector) => void>;
 }
 
 export interface RenderVariantOperation<M, V> {

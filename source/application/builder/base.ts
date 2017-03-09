@@ -1,4 +1,4 @@
-import {NgModuleFactory} from '@angular/core/index';
+import {Injector, NgModuleFactory} from '@angular/core/index';
 
 import {Disposable} from '../../disposable';
 import {RenderOperation, ApplicationStateReader} from '../operation';
@@ -15,6 +15,13 @@ export abstract class ApplicationBuilderBase<V, M> implements Disposable {
   templateDocument(template: string) {
     this.operation.templateDocument = template;
     return this;
+  }
+
+  bootstrap(fn: (injector: Injector) => void) {
+    if (this.operation.bootstrap == null) {
+      this.operation.bootstrap = [];
+    }
+    this.operation.bootstrap.push(fn);
   }
 
   variants(definitions: VariantDefinitions) {

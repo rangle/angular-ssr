@@ -1,6 +1,5 @@
 import {
   COMPILER_OPTIONS,
-  ErrorHandler,
   Sanitizer,
   PlatformRef,
   Provider,
@@ -9,12 +8,11 @@ import {
 
 import {
   COMPILER_PROVIDERS,
-  ResourceLoader,
   platformCoreDynamic
 } from '@angular/compiler/index';
 
-import {ErrorHandlerImpl, ExceptionStream} from './exception-stream';
-import {ResourceLoaderImpl} from './resource-loader';
+import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
+import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';
 import {PlatformImpl} from './platform';
 import {SanitizerImpl} from './sanitizer';
 import {CurrentZone} from './zone';
@@ -32,14 +30,13 @@ export const createServerPlatform =
       {
         provide: COMPILER_OPTIONS,
         useValue: {providers: [
-          {provide: ResourceLoader, useClass: ResourceLoaderImpl}
+          ...PLATFORM_RESOURCE_LOADER_PROVIDERS,
         ]},
         multi: true,
       },
       APP_ID_RANDOM_PROVIDER,
-      {provide: ExceptionStream, useClass: ExceptionStream},
+      ...PLATFORM_COLLECTOR_PROVIDERS,
       {provide: PlatformRef, useClass: PlatformImpl},
       {provide: Sanitizer, useClass: SanitizerImpl},
-      {provide: ErrorHandler, useClass: ErrorHandlerImpl},
-      {provide: CurrentZone, useClass: CurrentZone}
+      {provide: CurrentZone, useClass: CurrentZone},
     ));

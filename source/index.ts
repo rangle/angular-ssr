@@ -5,7 +5,6 @@ export * from './filesystem';
 export * from './platform';
 export * from './route';
 export * from './snapshot';
-export * from './publisher';
 export * from './transformation';
 export * from './transpile';
 export * from './variance';
