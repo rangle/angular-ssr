@@ -12,7 +12,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core/index';
 
-import {AnimationPlayerImpl} from './animation-player';
+import {NoOpAnimationPlayer} from '@angular/core/src/animation/animation_player';
+
 import {namespaces} from './namespace';
 import {DocumentContainer} from '../document';
 import {DocumentStyles} from '../styles';
@@ -304,7 +305,7 @@ export class RendererImpl implements Renderer {
           delay: number,
           easing: string,
           previousPlayers?: AnimationPlayer[]): AnimationPlayer {
-    return new AnimationPlayerImpl();
+    return new NoOpAnimationPlayer();
   }
 
   private get hostIdentifier(): string {
