@@ -1,10 +1,10 @@
-import {Injectable} from '@angular/core/index';
+import {Injectable} from '@angular/core';
 
 import {
   Connection,
   ConnectionBackend,
   Request
-} from '@angular/http/index';
+} from '@angular/http';
 
 import {HttpConnection} from './connection';
 

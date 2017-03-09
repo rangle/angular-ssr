@@ -1,6 +1,6 @@
-import {NgModuleFactory} from '@angular/core/index';
+import {NgModuleFactory} from '@angular/core';
 
-import {createAotCompiler} from '@angular/compiler/index';
+import {createAotCompiler} from '@angular/compiler';
 
 import {
   CompilerHost as AngularCompilerHost,

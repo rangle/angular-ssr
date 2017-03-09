@@ -12,9 +12,9 @@ import {
   NgZone,
   PlatformRef,
   Type,
-} from '@angular/core/index';
+} from '@angular/core';
 
-import {BrowserModule} from '@angular/platform-browser/index';
+import {BrowserModule} from '@angular/platform-browser';
 
 import {PlatformException} from '../exception';
 

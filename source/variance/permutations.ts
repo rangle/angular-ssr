@@ -1,4 +1,4 @@
-import {Injector, ReflectiveInjector, Type} from '@angular/core/index';
+import {Injector, ReflectiveInjector, Type} from '@angular/core';
 
 import {Reflector} from '../platform';
 import {Variant, VariantDefinitions} from './variant';

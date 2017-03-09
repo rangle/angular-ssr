@@ -3,9 +3,9 @@ import {
   Type,
   ModuleWithProviders,
   NgModule
-} from '@angular/core/index';
+} from '@angular/core';
 
-import {BrowserModule} from '@angular/platform-browser/index';
+import {BrowserModule} from '@angular/platform-browser';
 
 import {Reflector} from './metadata';
 

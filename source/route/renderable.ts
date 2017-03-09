@@ -1,12 +1,12 @@
 import {
   NgModuleFactory,
   NgModuleRef
-} from '@angular/core/index';
+} from '@angular/core';
 
 import {
   Router,
   Route as RouteDefinition,
-} from '@angular/router/index';
+} from '@angular/router';
 
 import {
   bootstrapModuleFactory,

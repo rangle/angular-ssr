@@ -1,4 +1,4 @@
-import {Injector, NgModuleFactory} from '@angular/core/index';
+import {Injector, NgModuleFactory} from '@angular/core';
 
 import {Disposable} from '../../disposable';
 import {RenderOperation, ApplicationStateReader} from '../operation';

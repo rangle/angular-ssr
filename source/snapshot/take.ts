@@ -3,7 +3,7 @@ import {
   NgModuleRef,
   ReflectiveInjector,
   Type,
-} from '@angular/core/index';
+} from '@angular/core';
 
 import {Subscription} from 'rxjs';
 

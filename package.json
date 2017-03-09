@@ -45,6 +45,7 @@
     "@angular/compiler-cli": ">=2.3.1 <4.0.0",
     "@angular/core": ">=2.3.1 <4.0.0",
     "@angular/http": ">=2.3.1 <4.0.0",
+    "@angular/platform-browser": ">=2.3.1 <4.0.0",
     "@angular/router": ">=3.4 <4.0.0",
     "@angular/tsc-wrapped": ">=0.5 <1.0.0",
     "reflect-metadata": "^0.1",
@@ -75,6 +76,14 @@
     "typescript": "2.2.0"
   },
   "devDependencies": {
+    "@angular/common": ">=2.3.1 <4.0.0",
+    "@angular/compiler": ">=2.3.1 <4.0.0",
+    "@angular/compiler-cli": ">=2.3.1 <4.0.0",
+    "@angular/core": ">=2.3.1 <4.0.0",
+    "@angular/http": ">=2.3.1 <4.0.0",
+    "@angular/platform-browser": ">=2.3.1 <4.0.0",
+    "@angular/router": ">=3.4 <4.0.0",
+    "@angular/tsc-wrapped": ">=0.5 <1.0.0",
     "jasmine-core": "2.5.2",
     "jasmine-promises": "0.4.1",
     "jest": "19.0.2",

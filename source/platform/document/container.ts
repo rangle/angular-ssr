@@ -1,4 +1,4 @@
-import {Injectable, Inject, OnDestroy} from '@angular/core/index';
+import {Injectable, Inject, OnDestroy} from '@angular/core';
 
 import {PlatformException} from '../../exception';
 

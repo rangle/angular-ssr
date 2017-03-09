@@ -1,4 +1,4 @@
-import {NgModule, NgModuleFactory, Type} from '@angular/core/index';
+import {NgModule, NgModuleFactory, Type} from '@angular/core';
 
 import {Observable} from 'rxjs';
 

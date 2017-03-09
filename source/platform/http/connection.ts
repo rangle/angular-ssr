@@ -8,7 +8,7 @@ import {
   Request,
   RequestMethod,
   ResponseType,
-} from '@angular/http/index';
+} from '@angular/http';
 
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 

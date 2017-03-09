@@ -1,6 +1,6 @@
-import {Component, NgModule} from '@angular/core/index';
+import {Component, NgModule} from '@angular/core';
 
-import {BrowserModule} from '@angular/platform-browser/index';
+import {BrowserModule} from '@angular/platform-browser';
 
 @Component({
   selector: 'application',

@@ -2,9 +2,9 @@ import {
   Injector,
   NgZone,
   ReflectiveInjector,
-} from '@angular/core/index';
+} from '@angular/core';
 
-import {BrowserModule} from '@angular/platform-browser/index';
+import {BrowserModule} from '@angular/platform-browser';
 
 import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
 import {PLATFORM_DOCUMENT_PROVIDERS} from './document';

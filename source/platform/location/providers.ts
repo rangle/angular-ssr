@@ -1,6 +1,6 @@
-import {Provider} from '@angular/core/index';
+import {Provider} from '@angular/core';
 
-import {PlatformLocation} from '@angular/common/index';
+import {PlatformLocation} from '@angular/common';
 
 import {LocationImpl} from './location';
 

@@ -1,4 +1,4 @@
-import {Provider, RootRenderer} from '@angular/core/index';
+import {Provider, RootRenderer} from '@angular/core';
 
 import {RootRendererImpl} from './renderer';
 

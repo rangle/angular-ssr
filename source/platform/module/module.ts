@@ -2,9 +2,9 @@ import {
   ApplicationModule,
   NgModule,
   Type
-} from '@angular/core/index';
+} from '@angular/core';
 
-import {CommonModule} from '@angular/common/index';
+import {CommonModule} from '@angular/common';
 
 import {Reflector} from './metadata';
 import {cleanImports, inlineComponentsFromModule, recursiveCollect} from './mutate';

@@ -1,4 +1,4 @@
-import {Injector} from '@angular/core/index';
+import {Injector} from '@angular/core';
 
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';

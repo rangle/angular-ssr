@@ -1,6 +1,6 @@
-import {Provider} from '@angular/core/index';
+import {Provider} from '@angular/core';
 
-import {ResourceLoader} from '@angular/compiler/index';
+import {ResourceLoader} from '@angular/compiler';
 
 import {ResourceLoaderImpl} from './loader';
 

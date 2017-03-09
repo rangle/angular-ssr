@@ -1,4 +1,4 @@
-import {Provider} from '@angular/core/index';
+import {Provider} from '@angular/core';
 
 import {CurrentZone} from '../zone';
 import {DocumentContainer} from './container';

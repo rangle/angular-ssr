@@ -10,7 +10,7 @@ import {
   OnDestroy,
   RootRenderer,
   ViewEncapsulation,
-} from '@angular/core/index';
+} from '@angular/core';
 
 import {NoOpAnimationPlayer} from '@angular/core/src/animation/animation_player';
 

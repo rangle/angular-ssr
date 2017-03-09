@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core/index';
+import {Injectable} from '@angular/core';
 
 @Injectable()
 export class SharedStyles {

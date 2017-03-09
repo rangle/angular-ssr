@@ -1,4 +1,4 @@
-import {Injectable, ErrorHandler, OnDestroy} from '@angular/core/index';
+import {Injectable, ErrorHandler, OnDestroy} from '@angular/core';
 
 import {Observable, ReplaySubject} from 'rxjs';
 

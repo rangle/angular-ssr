@@ -1,4 +1,4 @@
-import {NgModuleFactory, Type} from '@angular/core/index';
+import {NgModuleFactory, Type} from '@angular/core';
 
 import {ApplicationBase} from './application';
 

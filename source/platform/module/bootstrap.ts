@@ -4,7 +4,7 @@ import {
   NgModuleFactory,
   NgModuleRef,
   Type
-} from '@angular/core/index';
+} from '@angular/core';
 
 import {PlatformImpl} from '../platform';
 import {browserModuleToServerModule} from '../module';

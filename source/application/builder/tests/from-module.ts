@@ -1,4 +1,4 @@
-import {Router} from '@angular/router/index';
+import {Router} from '@angular/router';
 
 import {
   BasicExternalComponent,

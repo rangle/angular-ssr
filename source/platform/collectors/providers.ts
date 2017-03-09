@@ -1,4 +1,4 @@
-import {ErrorHandler, Provider} from '@angular/core/index';
+import {ErrorHandler, Provider} from '@angular/core';
 
 import {ConsoleCollector} from './console';
 

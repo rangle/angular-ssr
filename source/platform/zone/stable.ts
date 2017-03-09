@@ -1,4 +1,4 @@
-import {NgModuleRef, NgZone} from '@angular/core/index';
+import {NgModuleRef, NgZone} from '@angular/core';
 
 export const waitForZoneToBecomeStable = async <M>(moduleRef: NgModuleRef<M>): Promise<void> => {
   const zone: NgZone = moduleRef.injector.get(NgZone);

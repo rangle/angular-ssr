@@ -1,6 +1,6 @@
 import {existsSync, readFileSync} from 'fs';
 
-import {ResourceLoader} from '@angular/compiler/index';
+import {ResourceLoader} from '@angular/compiler';
 
 import {ResourceException} from '../../exception';
 

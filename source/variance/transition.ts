@@ -1,4 +1,4 @@
-import {Injector} from '@angular/core/index';
+import {Injector} from '@angular/core';
 
 export type ComposedTransition = (injector: Injector) => void;
 

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import {Type} from '@angular/core/index';
+import {Type} from '@angular/core';
 
 import {privateCoreImplementation} from '../../imports';
 

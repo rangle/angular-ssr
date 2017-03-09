@@ -1,4 +1,4 @@
-import {Provider} from '@angular/core/index';
+import {Provider} from '@angular/core';
 
 import {
   BaseResponseOptions,
@@ -6,7 +6,7 @@ import {
   ConnectionBackend,
   ResponseOptions,
   RequestOptions,
-} from '@angular/http/index';
+} from '@angular/http';
 
 import {HttpBackend} from './backend';
 

@@ -4,12 +4,12 @@ import {
   PlatformRef,
   Provider,
   createPlatformFactory,
-} from '@angular/core/index';
+} from '@angular/core';
 
 import {
   COMPILER_PROVIDERS,
   platformCoreDynamic
-} from '@angular/compiler/index';
+} from '@angular/compiler';
 
 import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
 import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';

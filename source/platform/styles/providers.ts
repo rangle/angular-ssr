@@ -1,4 +1,4 @@
-import {Provider} from '@angular/core/index';
+import {Provider} from '@angular/core';
 
 import {DocumentStyles} from './document';
 
