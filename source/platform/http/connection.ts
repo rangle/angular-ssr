@@ -1,7 +1,5 @@
 import fetch from 'node-fetch';
 
-import {scheduleMicroTask} from '@angular/core/src/facade/lang';
-
 import {
   Connection,
   Headers,
@@ -24,7 +22,7 @@ export class HttpConnection extends Connection {
     this.readyState = ReadyState.Unsent;
     this.response = new ReplaySubject<Response>();
 
-    scheduleMicroTask(() => this.send());
+    setImmediate(() => this.send());
   }
 
   private async send() {

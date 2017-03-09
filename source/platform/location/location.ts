@@ -11,7 +11,7 @@ import {
   PlatformLocation,
 } from '@angular/common/index';
 
-import {DocumentContainer, RequestUri} from './document';
+import {DocumentContainer, RequestUri} from '../document';
 
 @Injectable()
 export class LocationImpl implements PlatformLocation, OnDestroy {

@@ -10,33 +10,17 @@ import {
   NgModuleFactory,
   NgModuleRef,
   NgZone,
-  ReflectiveInjector,
-  RootRenderer,
   PlatformRef,
   Type,
 } from '@angular/core/index';
 
-import {
-  BaseResponseOptions,
-  BaseRequestOptions,
-  ConnectionBackend,
-  ResponseOptions,
-  RequestOptions,
-} from '@angular/http/index';
-
-import {PlatformLocation} from '@angular/common/index';
-
 import {BrowserModule} from '@angular/platform-browser/index';
 
-import {HttpBackend} from './http';
-import {LocationImpl} from './location';
 import {PlatformException} from '../exception';
-import {DocumentContainer, TemplateDocument, RequestUri} from './document';
-import {RootRendererImpl} from './render';
-import {DocumentStyles, SharedStyles} from './styles';
+
+import {createPlatformInjector} from './injector';
 
 import {
-  CurrentZone,
   mapZoneToInjector,
   waitForZoneToBecomeStable,
 } from './zone';
@@ -89,7 +73,9 @@ export class PlatformImpl implements PlatformRef {
   async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>> {
     const zone = new NgZone({enableLongStackTrace: true});
 
-    const moduleRef = moduleFactory.create(this.injectorFactory(zone));
+    const injector = createPlatformInjector(this.injector, zone);
+
+    const moduleRef = moduleFactory.create(injector);
 
     if (moduleRef.injector.get(BrowserModule, null) != null) {
       throw new PlatformException('You cannot use an NgModuleFactory that has been compiled with a BrowserModule import');
@@ -130,10 +116,11 @@ export class PlatformImpl implements PlatformRef {
     return new Promise<void>((resolve, reject) => {
       const exceptionHandler: ErrorHandler = moduleRef.injector.get(ErrorHandler);
 
-      zone.onError.subscribe(exception => {
-        exceptionHandler.handleError(exception);
-        reject(exception);
-      });
+      zone.onError.subscribe(
+        exception => {
+          exceptionHandler.handleError(exception);
+          reject(exception);
+        });
 
       const applicationInit = moduleRef.injector.get(ApplicationInitStatus, null);
       if (applicationInit == null) {
@@ -166,41 +153,6 @@ export class PlatformImpl implements PlatformRef {
     });
   }
 
-  private injectorFactory(ngZone: NgZone): Injector {
-    const providers = [
-      {provide: NgZone, useValue: ngZone},
-      {provide: BrowserModule, useValue: null},
-      {provide: PlatformLocation, useClass: LocationImpl},
-      {provide: DocumentContainer, useClass: DocumentContainer},
-      {provide: RootRenderer, useClass: RootRendererImpl},
-      {provide: SharedStyles, useClass: SharedStyles},
-      {provide: DocumentStyles, useClass: DocumentStyles},
-      {provide: ConnectionBackend, useClass: HttpBackend},
-      {provide: RequestOptions, useClass: BaseRequestOptions},
-      {provide: ResponseOptions, useClass: BaseResponseOptions},
-      {
-        provide: TemplateDocument,
-        useFactory: (currentZone: CurrentZone) => {
-          return currentZone.parameter<string>('documentTemplate');
-        },
-        deps: [CurrentZone],
-      },
-      {
-        provide: RequestUri,
-        useFactory: (currentZone: CurrentZone) => {
-          return currentZone.parameter<string>('requestUri');
-        },
-        deps: [CurrentZone],
-      },
-    ];
-
-    return ReflectiveInjector.resolveAndCreate(providers, this.injector);
-  }
-
-  onDestroy(callback: () => void) {
-    throw new PlatformException('Not implemented');
-  }
-
   async destroy() {
     this.destroyed = true;
 
@@ -210,20 +162,25 @@ export class PlatformImpl implements PlatformRef {
       // spectacular ways if their entire execution context has been ripped out from under
       // them. So we wait for the zone associated with the module to become stable before
       // we attempt to dispose of it.
-      await waitForZoneToBecomeStable(module);
-
-      module.destroy();
+      waitForZoneToBecomeStable(module).then(() => module.destroy());
 
       this.references.delete(module);
     }
 
     this.compiledModules.clear();
   }
+
+  onDestroy(callback: () => void) {
+    throw new PlatformException('Not implemented');
+  }
 }
 
 const nonstandardOptions = (compilerOptions: CompilerOptions | Array<CompilerOptions>) => {
-  if (Array.isArray(compilerOptions)) {
-    return compilerOptions.length > 0;
+  if (compilerOptions) {
+    if (Array.isArray(compilerOptions)) {
+      return compilerOptions.length > 0;
+    }
+    return true;
   }
-  return compilerOptions != null;
+  return false;
 };
