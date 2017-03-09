@@ -66,8 +66,7 @@ export class RendererImpl implements Renderer {
     private component: RenderComponentType,
     private componentId: string,
   ) {
-    this.styles =
-      flatten<string>(component.styles).map(s => s.replace(/%COMP%/g, componentId));
+    this.styles = flatten<string>(component.styles).map(s => s.replace(/%COMP%/g, componentId));
 
     switch (component.encapsulation) {
       case ViewEncapsulation.Native:
