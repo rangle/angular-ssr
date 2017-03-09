@@ -1,15 +1,20 @@
-import {ApplicationFromModule} from '../../../application';
+import {Router} from '@angular/router/index';
 
 import {
   BasicExternalComponent,
   BasicExternalStyledComponent,
   BasicInlineComponent,
   BasicRoutedModule,
+  loadApplicationFixtureFromModule,
   renderComponentFixture,
   renderModuleFixture,
   moduleFromComponent,
   trimDocument,
 } from '../../../test/fixtures';
+
+import {ApplicationFromModule} from '../../../application';
+
+import {extractRoutesFromRouter} from '../../../route';
 
 describe('ApplicationFromModule', () => {
   it('should require a template document in order to render', done => {
@@ -35,7 +40,8 @@ describe('ApplicationFromModule', () => {
             done();
           },
           exception => done.fail(exception));
-      });
+      })
+      .catch(exception => done.fail(exception));
   });
 
   it('should be able to render a Hello World application with external template', done => {
@@ -52,7 +58,8 @@ describe('ApplicationFromModule', () => {
             done();
           },
           exception => done.fail(exception));
-      });
+      })
+      .catch(exception => done.fail(exception));
   });
 
   it('should be able to render a Hello World application with external template and SCSS styles', done => {
@@ -69,7 +76,8 @@ describe('ApplicationFromModule', () => {
             done();
           },
           exception => done.fail(exception));
-      });
+      })
+      .catch(exception => done.fail(exception));
   });
 
   it('should be able to render an application that uses the router', done => {
@@ -90,6 +98,31 @@ describe('ApplicationFromModule', () => {
             }
           },
           exception => done.fail(exception));
+      })
+      .catch(exception => done.fail(exception));
+  });
+
+  it('should be able to transmit state from the server to the client in the prerendered document', done => {
+    const module = loadApplicationFixtureFromModule(BasicRoutedModule);
+
+    module.stateReader(
+      injector => {
+        const router = injector.get(Router);
+        const routes = extractRoutesFromRouter(router);
+        return Promise.resolve(routes.map(r => r.path));
       });
+
+    module.prerender()
+      .then(snapshots => {
+        snapshots.subscribe(
+          snapshot => {
+            expect(snapshot.applicationState).not.toBeNull();
+            expect(Array.isArray(snapshot.applicationState)).toBeTruthy();
+            const expr = /<script type="text\/javascript">window.bootstrapApplicationState = \[\[\],\["one"\]\];<\/script>/;
+            expect(expr.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
+            done();
+          });
+      })
+      .catch(exception => done.fail(exception));
   });
 });

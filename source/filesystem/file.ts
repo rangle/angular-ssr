@@ -3,7 +3,7 @@ import {
   readFileSync,
   realpathSync,
   writeFileSync,
-  unlink,
+  unlinkSync,
 } from 'fs';
 
 import {FileType, FilesystemType} from './type';
@@ -97,7 +97,10 @@ export class FileImpl extends FilesystemBaseImpl implements FileReference {
   }
 
   unlink() {
-    unlink(this.toString());
+    try {
+      unlinkSync(this.toString());
+    }
+    catch (exception) {}
   }
 
   toString() {

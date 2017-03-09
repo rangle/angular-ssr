@@ -20,11 +20,17 @@ export const renderComponentFixture = <M>(componentType: Type<M>): Promise<Obser
   return renderModuleFixture(moduleFromComponent(componentType));
 };
 
+export const loadApplicationFixtureFromModule = <M>(moduleType: Type<M>): ApplicationFromModule<{}, M> => {
+  const application = new ApplicationFromModule(moduleType);
+  application.templateDocument(templateDocument);
+  return application;
+};
+
 export const renderModuleFixture = <M>(moduleType: Type<M>): Promise<Observable<Snapshot<void>>> => {
-  const application = new ApplicationFromModule<void, any>(moduleType);
+  const application = loadApplicationFixtureFromModule(moduleType);
   application.templateDocument(templateDocument);
 
-  return application.prerender();
+  return <Promise<Observable<Snapshot<any>>>> application.prerender();
 };
 
 const namedFunction = <T>(name: string, f: Function): Type<T> => {

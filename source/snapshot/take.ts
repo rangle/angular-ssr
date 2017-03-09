@@ -45,11 +45,15 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
 
     await waitForZoneToBecomeStable(moduleRef);
 
-    const renderedDocument = container.document.outerHTML;
-
     const stateReader = conditionalInstantiate(vop.scope.stateReader);
 
     const applicationState = await stateReader(moduleRef.injector);
+
+    if (applicationState != null) {
+      injectStateIntoDocument(container, applicationState);
+    }
+
+    const renderedDocument = container.document.outerHTML;
 
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }
@@ -81,4 +85,27 @@ const conditionalInstantiate = (reader: ApplicationStateReader): StateReaderFunc
   }
 
   return <StateReaderFunction> reader;
+};
+
+const injectStateIntoDocument = (container: DocumentContainer, applicationState): void => {
+  const {document} = container;
+
+  if (document.head == null) {
+    const headElement = document.createElement('head');
+
+    document.appendChild(headElement);
+  }
+
+  const script = document.createElement('script');
+
+  script.setAttribute('type', 'text/javascript');
+
+  try {
+    script.textContent = `window.bootstrapApplicationState = ${JSON.stringify(applicationState)};`;
+  }
+  catch (exception) {
+    throw new SnapshotException(`Application state must be a plain serializable JavaScript object, but serialization failed: ${exception}`);
+  }
+
+  document.head.appendChild(script);
 };

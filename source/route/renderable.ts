@@ -23,17 +23,12 @@ export const renderableRoutes = async <M>(moduleFactory: NgModuleFactory<M>, tem
     async () =>
       await bootstrapModuleFactory<M, Array<Route>>(
         moduleFactory,
-        moduleRef => extractRoutes(moduleRef)));
+        moduleRef => extractRoutesFromModule(moduleRef)));
 
   return routes;
 };
 
-const extractRoutes = <M>(moduleRef: NgModuleRef<M>): Array<Route> => {
-  const router: Router = moduleRef.injector.get(Router, null);
-  if (router == null) {
-    return [{path: []}]; // application does not use the router at all
-  }
-
+export const extractRoutesFromRouter = (router: Router): Array<Route> => {
   if (router.config == null) {
     throw new RouteException(`Router configuration not found`);
   }
@@ -53,4 +48,13 @@ const extractRoutes = <M>(moduleRef: NgModuleRef<M>): Array<Route> => {
   };
 
   return flatten(new Array<string>(), router.config);
+};
+
+export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Route> => {
+  const router: Router = moduleRef.injector.get(Router, null);
+  if (router == null) {
+    return [{path: []}]; // application does not use the router at all, so there is one route: /
+  }
+
+  return extractRoutesFromRouter(router);
 };
