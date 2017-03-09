@@ -2,6 +2,7 @@ import './dependencies';
 export * from './application';
 export * from './cache';
 export * from './filesystem';
+export * from './output';
 export * from './platform';
 export * from './route';
 export * from './snapshot';

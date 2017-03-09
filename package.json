@@ -40,12 +40,13 @@
     "url": "https://github.com/clbond/angular-ssr/issues"
   },
   "peerDependencies": {
-    "@angular/common": "^2.4",
-    "@angular/compiler": "^2.4",
-    "@angular/compiler-cli": "^2.4",
-    "@angular/core": "^2.4",
-    "@angular/http": "^2.4",
-    "@angular/router": "^3.4",
+    "@angular/common": ">=2.3.1 <4.0.0",
+    "@angular/compiler": ">=2.3.1 <4.0.0",
+    "@angular/compiler-cli": ">=2.3.1 <4.0.0",
+    "@angular/core": ">=2.3.1 <4.0.0",
+    "@angular/http": ">=2.3.1 <4.0.0",
+    "@angular/router": ">=3.4 <4.0.0",
+    "@angular/tsc-wrapped": ">=0.5 <1.0.0",
     "reflect-metadata": "^0.1",
     "zone.js": "^0.7",
     "typescript": "^2.2.0"
@@ -54,8 +55,6 @@
     "@ngrx/store": "^2.2.1"
   },
   "dependencies": {
-    "@angular/compiler-cli": "^2.4.7",
-    "@angular/tsc-wrapped": "^0.5.2",
     "@types/babel-core": "6.7.14",
     "@types/codependency": "0.1.1",
     "@types/jasmine": "2.5.41",
@@ -76,13 +75,6 @@
     "typescript": "2.2.0"
   },
   "devDependencies": {
-    "@angular/common": "^2.4.6",
-    "@angular/compiler": "^2.4.6",
-    "@angular/core": "^2.4.6",
-    "@angular/http": "^2.4.6",
-    "@angular/platform-browser": "^2.4.7",
-    "@angular/router": "^3.4.6",
-    "@ngrx/store": "^2.2.1",
     "jasmine-core": "2.5.2",
     "jasmine-promises": "0.4.1",
     "jest": "19.0.2",
