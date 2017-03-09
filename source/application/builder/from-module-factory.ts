@@ -7,6 +7,8 @@ export class ApplicationFromModuleFactory<V> extends ApplicationBase<V, any> {
     super();
   }
 
+  dispose() {}
+
   protected getModuleFactory(): Promise<NgModuleFactory<any>> {
     return Promise.resolve(this.factory);
   }

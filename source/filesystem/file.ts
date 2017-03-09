@@ -3,6 +3,7 @@ import {
   readFileSync,
   realpathSync,
   writeFileSync,
+  unlink,
 } from 'fs';
 
 import {FileType, FilesystemType} from './type';
@@ -93,6 +94,10 @@ export class FileImpl extends FilesystemBaseImpl implements FileReference {
     if (this.exists() === false) {
       throw new FilesystemException(`FileReference is nonexistent: ${this.sourcePath}`);
     }
+  }
+
+  unlink() {
+    unlink(this.toString());
   }
 
   toString() {

@@ -4,6 +4,7 @@ import {createAotCompiler} from '@angular/compiler/index';
 
 import {
   CompilerHost as AngularCompilerHost,
+  CompilerHostContext,
   NodeCompilerHostContext,
   StaticReflector
 } from '@angular/compiler-cli';
@@ -31,19 +32,20 @@ import {
   pathFromString,
 } from '../../filesystem';
 
-import {ngModuleDecorator} from '../../identifiers';
 import {ApplicationModuleDescriptor} from '../project';
-import {CompilerEmitted} from './emitted';
+import {ApplicationBuild} from './build';
 import {CompilerException} from '../../exception';
+import {Disposable} from '../../disposable';
 import {assertDiagnostics} from './diagnostics';
 import {discoverApplicationModule} from '../static';
+import {ngModuleDecorator} from '../../identifiers';
 
-export class CompilableProgram {
+export class CompilableProgram implements Disposable {
   private compilerHost: CompilerHost;
 
   private program: Program;
 
-  private compilationEmit: CompilerEmitted;
+  private build: ApplicationBuild;
 
   constructor(
     private basePath: PathReference,
@@ -67,13 +69,11 @@ export class CompilableProgram {
   async loadModule<M>(module: ApplicationModuleDescriptor): Promise<NgModuleFactory<M>> {
     module = this.discoverApplicationModule(module);
 
-    if (this.compilationEmit == null) {
-      this.compilationEmit = await this.compile();
-    }
+    await this.demandCompile();
 
     const roots = [pathFromString(this.ts.outDir)].concat(this.roots(), this.basePath);
 
-    const [resolvedModule, symbol] = this.compilationEmit.resolve(roots, module);
+    const [resolvedModule, symbol] = this.build.resolve(roots, module);
     if (resolvedModule == null) {
       throw new CompilerException(`Cannot find a module matching the name ${module.source} with a symbol ${module.symbol}`);
     }
@@ -86,19 +86,46 @@ export class CompilableProgram {
     return loadedModule[symbol];
   }
 
-  private async compile(): Promise<CompilerEmitted> {
+  dispose() {
+    if (this.build) {
+      this.build.dispose();
+      this.build = undefined;
+    }
+  }
+
+  private async demandCompile(): Promise<void> {
+    if (this.build == null) {
+      try {
+        await this.compile();
+      }
+      catch (exception) {
+        this.build.dispose();
+        this.build = undefined;
+
+        throw new CompilerException(`Compilation failed: ${exception}`, exception);
+      }
+    }
+  }
+
+  private async compile(): Promise<void> {
+    this.build = new ApplicationBuild();
+
     const [host, generated] = await this.generateTemplates();
 
     const sources = this.program.getSourceFiles().map(sf => sf.fileName).concat(generated);
 
     const templatedProgram = createProgram(sources, this.ts, host, this.program);
 
-    const emitted = new CompilerEmitted();
-
     const originalWriteFile = this.compilerHost.writeFile.bind(this.compilerHost);
 
-    const writeFile = (filename: string, data: string, writeByteOrderMark: boolean, onError: (message: string) => void, sourceFiles: Array<SourceFile>) => {
-      emitted.emit(filename, sourceFiles);
+    const writeFile = (
+        filename: string,
+        data: string,
+        writeByteOrderMark: boolean,
+        onError: (message: string) => void,
+        sourceFiles: Array<SourceFile>
+    ) => {
+      this.build.emit(filename, sourceFiles);
 
       return originalWriteFile(filename, data, writeByteOrderMark, onError, sourceFiles);
     };
@@ -107,22 +134,12 @@ export class CompilableProgram {
     if (emitResult) {
       assertDiagnostics(emitResult.diagnostics);
     }
-
-    return emitted;
   }
 
   private async generateTemplates(): Promise<[CompilerHost, Array<string>]> {
     const hostContext = new NodeCompilerHostContext();
 
-    const hasRoots = this.roots().length > 0;
-
-    const compiler = hasRoots
-      ? new PathMappedCompilerHost(this.program, this.ng, hostContext)
-      : new AngularCompilerHost(this.program, this.ng, hostContext);
-
-    compiler.getCanonicalFileName = (fileName: string) => {
-      return fileName;
-    }
+    const compiler = this.compilerFactory(hostContext);
 
     const cli = new NgcCliOptions({
       i18nFormat: null,
@@ -136,6 +153,16 @@ export class CompilableProgram {
     const metadataWriter = new MetadataWriterHost(this.compilerHost, this.ng);
 
     return [metadataWriter, generatedModules];
+  }
+
+  private compilerFactory(context: CompilerHostContext): AngularCompilerHost {
+    const hasRoots = this.roots().length > 0;
+
+    if (hasRoots) {
+      return new PathMappedCompilerHost(this.program, this.ng, context);
+    }
+
+    return new AngularCompilerHost(this.program, this.ng, context);
   }
 
   private async generateTemplateCode(compilerHost: AngularCompilerHost, cli: NgcCliOptions) {
@@ -155,8 +182,13 @@ export class CompilableProgram {
     return generatedModules.map(
       generatedModule => {
         const sourceFile = this.program.getSourceFile(generatedModule.srcFileUrl);
+
         const emitPath = compilerHost.calculateEmitPath(generatedModule.genFileUrl);
+
         this.compilerHost.writeFile(emitPath, generatedModule.source, false, function () {}, [sourceFile]);
+
+        this.build.emit(emitPath, [sourceFile]);
+
         return emitPath;
       });
   }

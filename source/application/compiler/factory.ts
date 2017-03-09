@@ -20,6 +20,12 @@ export const getCompilableProgram = (project: Project): CompilableProgram => {
   ngOptions.basePath = project.basePath;
   ngOptions.generateCodeForLibraries = true;
 
+  if (project.workingPath != null) {
+    parsed.options.outDir = project.workingPath.toString();
+
+    ngOptions.outDir = parsed.options.outDir;
+  }
+
   const sources = parsed.fileNames.filter(file => testHeuristic(file) === false);
 
   const basePath = pathFromString(project.basePath);

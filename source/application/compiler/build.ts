@@ -2,11 +2,12 @@ import {SourceFile} from 'typescript';
 
 import {join, normalize} from 'path';
 
-import {PathReference} from '../../filesystem';
-
+import {Disposable} from '../../disposable';
+import {PathReference, fileFromString} from '../../filesystem';
 import {ApplicationModuleDescriptor} from './../project';
+import {flatten} from '../../transformation';
 
-export class CompilerEmitted {
+export class ApplicationBuild implements Disposable {
   private map = new Map<string, Array<string>>();
 
   emit(filename: string, sourceFiles: Array<SourceFile>) {
@@ -39,6 +40,16 @@ export class CompilerEmitted {
     }
 
     return [null, null];
+  }
+
+  dispose() {
+    const emitted = flatten<string>(Array.from(this.map.entries()).map(([k, v]) => v));
+
+    for (const file of emitted.map(fileFromString)) {
+      file.unlink();
+    }
+
+    this.map = new Map<string, Array<string>>();
   }
 
   private sourceArray(filename: string) {

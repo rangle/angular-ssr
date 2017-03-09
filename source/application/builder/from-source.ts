@@ -5,15 +5,19 @@ import {ApplicationBase} from './application';
 import {Project} from '../project';
 
 export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
-  private compilable: CompilableProgram;
+  private program: CompilableProgram;
 
   constructor(public project: Project) {
     super();
 
-    this.compilable = getCompilableProgram(project);
+    this.program = getCompilableProgram(project);
+  }
+
+  dispose() {
+    this.program.dispose();
   }
 
   protected async getModuleFactory(): Promise<NgModuleFactory<any>> {
-    return await this.compilable.loadModule(this.project.applicationModule);
+    return await this.program.loadModule(this.project.applicationModule);
   }
 }

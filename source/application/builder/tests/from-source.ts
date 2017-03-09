@@ -1,10 +1,17 @@
 import {ApplicationFromSource} from '../from-source';
 
-import {templateDocument, getApplicationProject} from '../../../test/fixtures';
+import {
+  templateDocument,
+  getApplicationProject,
+  getTemporaryWorkingPath,
+} from '../../../test/fixtures';
 
 describe('ApplicationFromSource', () => {
   it('can compile a project from source and load a NgFactory module', done => {
-    const project = getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule');
+    const project = getApplicationProject(
+      'source/test/fixtures/application-basic-inline',
+      'BasicInlineModule',
+      getTemporaryWorkingPath());
 
     const application = new ApplicationFromSource(project);
 
@@ -22,6 +29,7 @@ describe('ApplicationFromSource', () => {
             expect(r.applicationState).toBeUndefined();
             const expr = /<application ng-version="([\d\.]+)"><div>Hello!<\/div><\/application>/;
             expect(expr.test(r.renderedDocument)).toBeTruthy();
+            application.dispose();
             done();
           },
           exception => fail(exception));

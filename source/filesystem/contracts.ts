@@ -24,6 +24,9 @@ export interface FileReference extends FilesystemBase {
 
   // Read the content of this file as a UTF8 string
   content(): string;
+
+  // Delete this file or fail silently in case of failure
+  unlink(): void;
 }
 
 export interface PathReference extends FilesystemBase {

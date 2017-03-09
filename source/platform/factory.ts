@@ -25,22 +25,21 @@ const {
   APP_ID_RANDOM_PROVIDER,
 } = privateCoreImplementation();
 
-export type PlatformFactory = (extraProviders?: Array<Provider>) => PlatformRef;
-
-export const platformNode: PlatformFactory =
-  createPlatformFactory(platformCoreDynamic, 'nodejs', [
-    COMPILER_PROVIDERS,
-    {
-      provide: COMPILER_OPTIONS,
-      useValue: {providers: [
-        {provide: ResourceLoader, useClass: ResourceLoaderImpl}
-      ]},
-      multi: true,
-    },
-    APP_ID_RANDOM_PROVIDER,
-    {provide: ExceptionStream, useClass: ExceptionStream},
-    {provide: PlatformRef, useClass: PlatformImpl},
-    {provide: Sanitizer, useClass: SanitizerImpl},
-    {provide: ErrorHandler, useClass: ErrorHandlerImpl},
-    {provide: CurrentZone, useClass: CurrentZone},
-  ]);
+export const createServerPlatform =
+  createPlatformFactory(platformCoreDynamic, 'nodejs',
+    new Array<Provider>(
+      COMPILER_PROVIDERS,
+      {
+        provide: COMPILER_OPTIONS,
+        useValue: {providers: [
+          {provide: ResourceLoader, useClass: ResourceLoaderImpl}
+        ]},
+        multi: true,
+      },
+      APP_ID_RANDOM_PROVIDER,
+      {provide: ExceptionStream, useClass: ExceptionStream},
+      {provide: PlatformRef, useClass: PlatformImpl},
+      {provide: Sanitizer, useClass: SanitizerImpl},
+      {provide: ErrorHandler, useClass: ErrorHandlerImpl},
+      {provide: CurrentZone, useClass: CurrentZone}
+    ));

@@ -1,4 +1,4 @@
-import {getApplicationProject} from '../../../test/fixtures';
+import {getApplicationProject, getTemporaryWorkingPath} from '../../../test/fixtures';
 
 import {getCompilableProgram} from '../factory';
 
@@ -7,30 +7,40 @@ import {CompilableProgram} from '../program';
 describe('program compilation', () => {
   let program: CompilableProgram;
 
-  beforeAll(() => {
-    const baseProject = getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule');
-    program = getCompilableProgram(baseProject);
+  beforeAll(() => { // reuse the same compiled program for each test
+    program = getCompilableProgram(
+      getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule', getTemporaryWorkingPath()));
+  });
+
+  afterAll(() => {
+    program.dispose();
   });
 
   it('can build application-basic-inline in memory return executable NgModuleFactory', async () => {
-    const project = getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule');
-    const module = await program.loadModule(project.applicationModule);
+    const module = await program.loadModule({
+      source: 'source/test/fixtures/application-basic-inline',
+      symbol: 'BasicInlineModule',
+    });
     expect(module).not.toBeNull();
     expect(typeof module).toBe('object');
     expect(module.constructor.name).toBe('NgModuleFactory');
   });
 
   it('can build application-basic-external in memory return executable NgModuleFactory', async () => {
-    const project = getApplicationProject('source/test/fixtures/application-basic-external', 'BasicExternalModule');
-    const module = await program.loadModule(project.applicationModule);
+    const module = await program.loadModule({
+      source: 'source/test/fixtures/application-basic-external',
+      symbol: 'BasicExternalModule'
+    });
     expect(module).not.toBeNull();
     expect(typeof module).toBe('object');
     expect(module.constructor.name).toBe('NgModuleFactory');
   });
 
   it('can build application-routed in memory return executable NgModuleFactory', async () => {
-    const project = getApplicationProject('source/test/fixtures/application-routed', 'BasicRoutedModule');
-    const module = await program.loadModule(project.applicationModule);
+    const module = await program.loadModule({
+      source: 'source/test/fixtures/application-routed',
+      symbol: 'BasicRoutedModule'
+    });
     expect(module).not.toBeNull();
     expect(typeof module).toBe('object');
     expect(module.constructor.name).toBe('NgModuleFactory');

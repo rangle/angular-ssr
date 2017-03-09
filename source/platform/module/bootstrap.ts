@@ -8,11 +8,11 @@ import {
 
 import {PlatformImpl} from '../platform';
 import {browserModuleToServerModule} from '../module';
-import {platformNode} from '../factory';
+import {createServerPlatform} from '../factory';
 
 export type ModuleExecute<M, R> = (moduleRef: NgModuleRef<M>) => R | Promise<R>;
 
-const platform = <PlatformImpl> platformNode();
+const platform = <PlatformImpl> createServerPlatform();
 
 declare const Zone;
 

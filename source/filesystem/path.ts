@@ -63,7 +63,7 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
     for (const component of this.toString().split(/[\\\/]/g).filter(v => v)) {
       aggregator.push(component);
 
-      const current = aggregator.join(sep);
+      const current = `${sep}${aggregator.join(sep)}`;
 
       if (existsSync(current) === false) {
         mkdirSync(current);
