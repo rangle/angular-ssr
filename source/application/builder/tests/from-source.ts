@@ -4,7 +4,7 @@ import {templateDocument, getApplicationProject} from '../../../test/fixtures';
 
 describe('ApplicationFromSource', () => {
   it('can compile a project from source and load a NgFactory module', done => {
-    const project = getApplicationProject('test/fixtures/application-basic-inline', 'BasicInlineModule');
+    const project = getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule');
 
     const application = new ApplicationFromSource(project);
 

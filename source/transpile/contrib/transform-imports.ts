@@ -1,13 +1,12 @@
-/* tslint:disable */
+// tslint:disable
 
 // This is forked from babel-plugin-transform-inline-imports-commonjs to make defineProperty
-// set `configurable' to true so that files can export the same symbol multiple times (which
-// sounds stupid, but Angular material does). All copyrights etc belongs to the original
-// upstream package author.
-
-'use strict';
+// set `configurable' to true so that files can export the same symbol multiple times. This
+// may sound silly, but @angular/material has index files that export the same symbol more
+// than once. All copyrights etc belongs to the original upstream package author.
 
 const pathModule = require('path');
+
 const builtinModules = new Set(require('builtin-modules/static'));
 
 const THIS_BREAK_KEYS = [

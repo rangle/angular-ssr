@@ -11,13 +11,13 @@ export const pathFromString = (sourcePath: string): PathReference =>
 export const fileFromString = (filePath: string): FileReference =>
   new FileImpl(pathFromString(dirname(filePath)), filePath) as FileReference;
 
-export const makeAbsolute = (basePath: string, subpath: string): string =>
+export const makeAbsolute = (basePath: string | PathReference, subpath: string): string =>
   /^\.\.(\\|\/)/.test(subpath)
-    ? join(basePath, subpath)
+    ? join(basePath.toString(), subpath)
     : subpath;
 
-export const absolutePath = (basePath: string, subpath: string) =>
-  pathFromString(makeAbsolute(basePath, subpath));
+export const absolutePath = (basePath: string | PathReference, subpath: string) =>
+  pathFromString(makeAbsolute(basePath.toString(), subpath));
 
-export const absoluteFile = (basePath: string, subpath: string) =>
-  fileFromString(makeAbsolute(basePath, subpath));
+export const absoluteFile = (basePath: string | PathReference, subpath: string) =>
+  fileFromString(makeAbsolute(basePath.toString(), subpath));

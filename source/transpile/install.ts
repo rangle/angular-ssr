@@ -1,20 +1,19 @@
 import {dirname} from 'path';
 
-import {transpilers} from './composed';
-import {transpileMatch} from './process';
-import {compile} from './compile';
-import {Cache} from '../cache';
+import {getTranspilers, transpile} from '../transpile';
 
-export type Uninstall = () => void;
+export type UninstallExtension = () => void;
 
-export const install = (): Uninstall => {
+const transpilers = getTranspilers();
+
+export const install = (): UninstallExtension => {
   if (require.extensions == null) {
     return () => {};
   }
 
-  const installed = new Array<Uninstall>();
+  const installed = new Array<UninstallExtension>();
 
-  const extensions = new Set<string>(transpilers(false).map(t => t.extension));
+  const extensions = new Set<string>(transpilers.map(t => t.extension));
 
   for (const extension of Array.from(extensions)) {
     installed.push(installExtension(extension));
@@ -23,28 +22,20 @@ export const install = (): Uninstall => {
   return () => installed.forEach(uninstall => uninstall());
 };
 
-const cache = new Cache<string, any>();
-
-export const installExtension = (extension: string): Uninstall => {
+export const installExtension = (extension: string): UninstallExtension => {
   const previous = require.extensions[extension];
 
   require.extensions[extension] =
-    (module: NodeModule, filename: string) => {
+    (module: NodeModule & {_compile?}, filename: string) => {
       const fallback = () => previous(module, filename);
 
-      return cache.query(module.id, () => {
-        const transpiled = transpileMatch(false, module, filename, dirname(filename));
-        if (transpiled == null) {
-          return fallback();
-        }
+      const transpiled = transpile(transpilers, module, dirname(filename));
+      if (transpiled == null) {
+        return fallback();
+      }
 
-        const compiled = compile(module, transpiled);
-
-        return compiled.exports();
-      });
+      module._compile(transpiled, filename);
     };
 
-  return () => {
-    require.extensions[extension] = previous;
-  };
+  return () => require.extensions[extension] = previous;
 };

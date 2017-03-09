@@ -7,7 +7,7 @@ import {
   SyntaxKind,
 } from 'typescript';
 
-import {dirname, join, normalize} from 'path';
+import {dirname, join, normalize, relative} from 'path';
 
 import {ApplicationModuleDescriptor} from './../project';
 
@@ -21,7 +21,7 @@ import {
   ngModuleDecorator
 } from '../../identifiers';
 
-export const discoverApplicationModule = (program: Program): ApplicationModuleDescriptor => {
+export const discoverApplicationModule = (basePath: string, program: Program): ApplicationModuleDescriptor => {
   const expression = new RegExp(`(\.${bootstrap}|\.${bootstrapFactory}|\@${ngModuleDecorator})`);
 
   const candidates = new Array<ApplicationModuleDescriptor>();
@@ -54,12 +54,12 @@ export const discoverApplicationModule = (program: Program): ApplicationModuleDe
       });
 
     for (const identifier of Array.from(bootstrapIdentifiers)) {
-      const imported = importClause(sourceFile, identifier);
+      const imported = importClause(basePath, sourceFile, identifier);
       if (imported) {
         candidates.push(imported);
       }
       else {
-        const declaration = exportClause(sourceFile, identifier);
+        const declaration = exportClause(basePath, sourceFile, identifier);
         if (declaration) {
           invalidPairing(sourceFile, identifier);
         }
@@ -77,13 +77,13 @@ export const discoverApplicationModule = (program: Program): ApplicationModuleDe
   }
 };
 
-const exportClause = (sourceFile: SourceFile, identifier: string): ApplicationModuleDescriptor => {
+const exportClause = (basePath: string, sourceFile: SourceFile, identifier: string): ApplicationModuleDescriptor => {
   const exports: Map<string, any> = sourceFile['symbol'].exports;
 
   for (const exportIdentifier of Array.from(exports.keys())) {
     if (exportIdentifier === identifier) {
       return {
-        source: sourceFile.fileName,
+        source: relative(basePath, sourceFile.fileName),
         symbol: exportIdentifier,
       };
     }
@@ -92,7 +92,7 @@ const exportClause = (sourceFile: SourceFile, identifier: string): ApplicationMo
   return null;
 };
 
-const importClause = (sourceFile: SourceFile, identifier: string): ApplicationModuleDescriptor => {
+const importClause = (basePath: string, sourceFile: SourceFile, identifier: string): ApplicationModuleDescriptor => {
   for (const statement of sourceFile['imports']) {
     if (statement.parent == null ||
         statement.parent.importClause == null ||
@@ -105,7 +105,7 @@ const importClause = (sourceFile: SourceFile, identifier: string): ApplicationMo
       }
       if (defactory(clause.name.text) === identifier) {
         return {
-          source: relativeImportPath(sourceFile.fileName, statement.text),
+          source: relativeImportPath(basePath, sourceFile.fileName, statement.text),
           symbol: identifier,
         };
       }
@@ -118,7 +118,7 @@ const defactory = (identifier: string) => identifier.replace(/NgFactory/, String
 
 const isExternal = (file: SourceFile): boolean => /(\\|\/)node_modules(\\|\/)/.test(file.fileName);
 
-const relativeImportPath = (filename: string, relativePath: string) => normalize(join(dirname(filename), relativePath));
+const relativeImportPath = (basePath: string, filename: string, relativePath: string) => normalize(relative(basePath, join(dirname(filename), relativePath)));
 
 const formatCandidates = (candidates: Array<ApplicationModuleDescriptor>) => candidates.map(m => `${m.symbol} in ${m.source}`).join(', and ');
 

@@ -6,4 +6,5 @@ machine:
 
 checkout:
   post:
+    - npm install
     - npm run build
