@@ -5,7 +5,7 @@ import {DocumentContainer} from '../document';
 import {SharedStyles} from './shared';
 
 @Injectable()
-export class DocumentStyles implements OnDestroy {
+export class SharedStylesToStyleTags implements OnDestroy {
   private host = new Set<Node>();
 
   private styleElements = new Set<Element>();

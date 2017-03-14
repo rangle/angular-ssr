@@ -1,10 +1,10 @@
 import {Provider} from '@angular/core';
 
-import {DocumentStyles} from './document';
+import {SharedStylesToStyleTags} from './shared-tags';
 
 import {SharedStyles} from './shared';
 
 export const PLATFORM_STYLE_PROVIDERS: Array<Provider> = [
   {provide: SharedStyles, useClass: SharedStyles},
-  {provide: DocumentStyles, useClass: DocumentStyles},
+  {provide: SharedStylesToStyleTags, useClass: SharedStylesToStyleTags},
 ];

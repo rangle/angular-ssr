@@ -16,7 +16,7 @@ import {NoOpAnimationPlayer} from '@angular/core/src/animation/animation_player'
 
 import {namespaces} from './namespace';
 import {DocumentContainer} from '../document';
-import {DocumentStyles} from '../styles';
+import {SharedStylesToStyleTags} from '../styles';
 import {RendererException} from '../../exception';
 import {flatten} from '../../transformation';
 
@@ -27,7 +27,7 @@ export class RootRendererImpl implements RootRenderer, OnDestroy {
   constructor(
     @Inject(APP_ID) private applicationId: string,
     private container: DocumentContainer,
-    private sharedStyles: DocumentStyles
+    private sharedStyles: SharedStylesToStyleTags
   ) {}
 
   get document(): Document {
@@ -61,7 +61,7 @@ export class RootRendererImpl implements RootRenderer, OnDestroy {
 
 export class RendererImpl implements Renderer {
   constructor(
-    private documentStyles: DocumentStyles,
+    private styleMapper: SharedStylesToStyleTags,
     private root: RootRendererImpl,
     private component: RenderComponentType,
     private componentId: string,
@@ -72,7 +72,7 @@ export class RendererImpl implements Renderer {
       case ViewEncapsulation.Native:
         break;
       default:
-        documentStyles.addStyles(this.styles);
+        styleMapper.addStyles(this.styles);
         break;
     }
   }
@@ -124,7 +124,7 @@ export class RendererImpl implements Renderer {
       case ViewEncapsulation.Native:
         const fragment = this.root.document.createDocumentFragment();
 
-        this.documentStyles.addHost(fragment);
+        this.styleMapper.addHost(fragment);
 
         for (const style of this.styles) {
           const element = document.createElement('style');
@@ -198,7 +198,7 @@ export class RendererImpl implements Renderer {
     switch (this.component.encapsulation) {
       case ViewEncapsulation.Native:
         if (hostElement != null) {
-          this.documentStyles.removeHost(hostElement);
+          this.styleMapper.removeHost(hostElement);
         }
       default:
         break;
