@@ -6,7 +6,7 @@ import {ExceptionCollector} from './exceptions';
 
 import {privateCoreImplementation} from './../imports';
 
-const {Console} = privateCoreImplementation();
+const {ɵConsole: Console} = privateCoreImplementation();
 
 export const PLATFORM_COLLECTOR_PROVIDERS: Array<Provider> = [
   {provide: ConsoleCollector, useClass: ConsoleCollector},

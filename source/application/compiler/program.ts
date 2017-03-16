@@ -6,7 +6,6 @@ import {
   CompilerHost as AngularCompilerHost,
   CompilerHostContext,
   NodeCompilerHostContext,
-  StaticReflector
 } from '@angular/compiler-cli';
 
 import {PathMappedCompilerHost} from '@angular/compiler-cli/src/path_mapped_compiler_host';
@@ -38,7 +37,6 @@ import {CompilerException} from '../../exception';
 import {Disposable} from '../../disposable';
 import {assertDiagnostics} from './diagnostics';
 import {discoverApplicationModule} from '../static';
-import {ngModuleDecorator} from '../../identifiers';
 
 export class CompilableProgram implements Disposable {
   private compilerHost: CompilerHost;
@@ -82,7 +80,6 @@ export class CompilableProgram implements Disposable {
     if (loadedModule[symbol] == null) {
       throw new CompilerException(`Module ${module.source} does not contain a symbol named ${symbol}`);
     }
-
     return loadedModule[symbol];
   }
 
@@ -166,14 +163,11 @@ export class CompilableProgram implements Disposable {
   }
 
   private async generateTemplateCode(compilerHost: AngularCompilerHost, cli: NgcCliOptions) {
-    const {compiler, reflector} = createAotCompiler(compilerHost, {
-      debug: false,
+    const {compiler} = createAotCompiler(compilerHost, {
       translations: null, // FIXME(cbond): Load from translation file
       i18nFormat: cli.i18nFormat,
       locale: cli.locale
     });
-
-    patchReflectorToRemoveBrowserModule(reflector);
 
     const filenames = this.program.getSourceFiles().map(sf => compilerHost.getCanonicalFileName(sf.fileName));
 
@@ -210,38 +204,3 @@ export class CompilableProgram implements Disposable {
     return module;
   }
 }
-
-const patchReflectorToRemoveBrowserModule = (reflector: StaticReflector) => {
-  const originalAnnotations = reflector.annotations.bind(reflector);
-
-  reflector.annotations = type => {
-    const original = originalAnnotations(type);
-
-    for (const decorator of original) {
-      if (decorator.toString() !== `@${ngModuleDecorator}` ||
-          decorator.imports == null ||
-          decorator.imports.length === 0) {
-        continue;
-      }
-
-      const browserIndex = decorator.imports.findIndex(s => s.name === 'BrowserModule');
-      if (browserIndex < 0) {
-        continue;
-      }
-
-      decorator.imports.splice(browserIndex, 1);
-
-      if (decorator.imports.find(i => i.name === 'ApplicationModule') == null) {
-        const identifier = reflector.resolveIdentifier('ApplicationModule', '@angular/core/src/application_module');
-        decorator.imports.push(identifier);
-      }
-
-      if (decorator.imports.find(i => i.name === 'CommonModule') == null) {
-        const identifier = reflector.resolveIdentifier('CommonModule', '@angular/common/src/common_module');
-        decorator.imports.push(identifier);
-      }
-    }
-
-    return original;
-  };
-};

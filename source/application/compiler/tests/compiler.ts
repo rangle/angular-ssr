@@ -16,7 +16,7 @@ describe('program compilation', () => {
     program.dispose();
   });
 
-  it('can build application-basic-inline in memory return executable NgModuleFactory', async () => {
+  it('can build application-basic-inline into executable NgModuleFactory', async () => {
     const module = await program.loadModule({
       source: 'source/test/fixtures/application-basic-inline',
       symbol: 'BasicInlineModule',
@@ -26,7 +26,7 @@ describe('program compilation', () => {
     expect(module.constructor.name).toBe('NgModuleFactory');
   });
 
-  it('can build application-basic-external in memory return executable NgModuleFactory', async () => {
+  it('can build application-basic-external into executable NgModuleFactory', async () => {
     const module = await program.loadModule({
       source: 'source/test/fixtures/application-basic-external',
       symbol: 'BasicExternalModule'
@@ -36,7 +36,7 @@ describe('program compilation', () => {
     expect(module.constructor.name).toBe('NgModuleFactory');
   });
 
-  it('can build application-routed in memory return executable NgModuleFactory', async () => {
+  it('can build application-routed into executable NgModuleFactory', async () => {
     const module = await program.loadModule({
       source: 'source/test/fixtures/application-routed',
       symbol: 'BasicRoutedModule'

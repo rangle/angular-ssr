@@ -4,8 +4,6 @@ import {
   ReflectiveInjector,
 } from '@angular/core';
 
-import {BrowserModule} from '@angular/platform-browser';
-
 import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
 import {PLATFORM_DOCUMENT_PROVIDERS} from './document';
 import {PLATFORM_HTTP_PROVIDERS} from './http';
@@ -21,7 +19,6 @@ export const createPlatformInjector = (root: Injector, ngZone: NgZone): Injector
     ...PLATFORM_LOCATION_PROVIDERS,
     ...PLATFORM_RENDERER_PROVIDERS,
     ...PLATFORM_STYLE_PROVIDERS,
-    {provide: BrowserModule, useValue: null},
     {provide: NgZone, useValue: ngZone},
   ];
 

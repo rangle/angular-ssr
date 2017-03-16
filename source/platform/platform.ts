@@ -14,8 +14,6 @@ import {
   Type,
 } from '@angular/core';
 
-import {BrowserModule} from '@angular/platform-browser';
-
 import {PlatformException} from '../exception';
 
 import {createPlatformInjector} from './injector';
@@ -77,10 +75,6 @@ export class PlatformImpl implements PlatformRef {
 
     const moduleRef = moduleFactory.create(injector);
 
-    if (moduleRef.injector.get(BrowserModule, null) != null) {
-      throw new PlatformException('You cannot use an NgModuleFactory that has been compiled with a BrowserModule import');
-    }
-
     const unmap = mapZoneToInjector(moduleRef.injector);
 
     moduleRef.onDestroy(() => {
@@ -124,7 +118,7 @@ export class PlatformImpl implements PlatformRef {
 
       const applicationInit = moduleRef.injector.get(ApplicationInitStatus, null);
       if (applicationInit == null) {
-        throw new PlatformException('Your application module does not import ApplicationModule, but it must');
+        throw new PlatformException(`Your application module ${moduleRef.instance.constructor} does not import ApplicationModule, but it must`);
       }
 
       applicationInit.donePromise.then(() => {

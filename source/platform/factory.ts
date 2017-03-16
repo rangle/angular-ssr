@@ -1,4 +1,5 @@
 import {
+  APP_ID,
   COMPILER_OPTIONS,
   Sanitizer,
   PlatformRef,
@@ -17,11 +18,11 @@ import {PlatformImpl} from './platform';
 import {SanitizerImpl} from './sanitizer';
 import {CurrentZone} from './zone';
 
-import {privateCoreImplementation} from '../platform';
+const generateRandomIdentifier = () => {
+  const character = () => Math.random().toString(36).slice(2)[0];
 
-const {
-  APP_ID_RANDOM_PROVIDER,
-} = privateCoreImplementation();
+  return `${character()}${character()}${character()}`;
+};
 
 export const createServerPlatform =
   createPlatformFactory(platformCoreDynamic, 'nodejs',
@@ -34,7 +35,7 @@ export const createServerPlatform =
         ]},
         multi: true,
       },
-      APP_ID_RANDOM_PROVIDER,
+      {provide: APP_ID, useFactory: generateRandomIdentifier},
       ...PLATFORM_COLLECTOR_PROVIDERS,
       {provide: PlatformRef, useClass: PlatformImpl},
       {provide: Sanitizer, useClass: SanitizerImpl},

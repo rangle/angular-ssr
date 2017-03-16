@@ -17,7 +17,7 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
     this.program.dispose();
   }
 
-  protected async getModuleFactory(): Promise<NgModuleFactory<any>> {
+  async getModuleFactory(): Promise<NgModuleFactory<any>> {
     return await this.program.loadModule(this.project.applicationModule);
   }
 }

@@ -1,31 +1,13 @@
-import {install} from './transpile/install';
-
-import {RuntimeException} from './exception';
-
-try {
-  install();
-}
-catch (exception) {
-  throw new RuntimeException('Failed to install runtime transpiler', exception);
-}
-
-const {
-  CustomEvent,
-  Event,
-  EventTarget,
-  MouseEvent,
-  HTMLElement,
-  UIEvent,
-} = require('domino');
+const domino = require('domino');
 
 // These must be exposed because Angular uses them in its property decorators
 Object.assign(global, {
-  CustomEvent,
-  Event,
-  EventTarget,
-  MouseEvent,
-  HTMLElement,
-  UIEvent,
+  CustomEvent: domino.CustomEvent,
+  Event: domino.Event,
+  EventTarget: domino.EventTarget,
+  MouseEvent: domino.MouseEvent,
+  HTMLElement: domino.HTMLElement,
+  UIEvent: domino.UIEvent,
 });
 
 require('mock-local-storage');

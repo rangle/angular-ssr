@@ -3,9 +3,8 @@ import 'reflect-metadata';
 import '../dependencies';
 
 import {ApplicationRenderer, ApplicationFromSource} from '../application';
-import {HtmlOutput} from '../output';
+import {HtmlOutput, logger} from '../output';
 import {commandLineToOptions} from './options';
-import {logger} from './logger';
 
 const options = commandLineToOptions();
 
@@ -14,7 +13,7 @@ logger.info('Starting application render process');
 const application = new ApplicationFromSource(options.project);
 application.templateDocument(options.templateDocument);
 
-const output = new HtmlOutput(logger, options.output);
+const output = new HtmlOutput(options.output);
 
 const applicationRenderer = new ApplicationRenderer(application);
 

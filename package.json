@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.0.5",
+  "version": "0.0.10",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -40,17 +40,17 @@
     "url": "https://github.com/clbond/angular-ssr/issues"
   },
   "peerDependencies": {
-    "@angular/common": ">=2.3.1 <4.0.0",
-    "@angular/compiler": ">=2.3.1 <4.0.0",
-    "@angular/compiler-cli": ">=2.3.1 <4.0.0",
-    "@angular/core": ">=2.3.1 <4.0.0",
-    "@angular/http": ">=2.3.1 <4.0.0",
-    "@angular/platform-browser": ">=2.3.1 <4.0.0",
-    "@angular/router": ">=3.4 <4.0.0",
-    "@angular/tsc-wrapped": ">=0.5 <1.0.0",
+    "@angular/common": "<5.0.0",
+    "@angular/compiler": "<5.0.0",
+    "@angular/compiler-cli": "<5.0.0",
+    "@angular/core": "<5.0.0",
+    "@angular/http": "<5.0.0",
+    "@angular/platform-browser": "<5.0.0",
+    "@angular/router": "<5.0.0",
+    "@angular/tsc-wrapped": "<5.0.0",
     "reflect-metadata": ">0.0.0",
     "zone.js": "^0.7",
-    "typescript": "~2.0.0"
+    "typescript": "~2.2.0"
   },
   "optionalPeerDependencies": {
     "@ngrx/store": "^2.2.1"
@@ -76,37 +76,29 @@
     "typescript": "~2.2.0"
   },
   "devDependencies": {
-    "@angular/common": ">=2.3.1 <4.0.0",
-    "@angular/compiler": ">=2.3.1 <4.0.0",
-    "@angular/compiler-cli": ">=2.3.1 <4.0.0",
-    "@angular/core": ">=2.3.1 <4.0.0",
-    "@angular/http": ">=2.3.1 <4.0.0",
-    "@angular/platform-browser": ">=2.3.1 <4.0.0",
-    "@angular/router": ">=3.4 <4.0.0",
-    "@angular/tsc-wrapped": ">=0.5 <1.0.0",
+    "@angular/common": "^4.0.0-rc.3",
+    "@angular/compiler": "^4.0.0-rc.3",
+    "@angular/compiler-cli": "^4.0.0-rc.3",
+    "@angular/core": "^4.0.0-rc.3",
+    "@angular/http": "^4.0.0-rc.3",
+    "@angular/platform-browser": "^4.0.0-rc.3",
+    "@angular/router": "^4.0.0-rc.3",
+    "@angular/tsc-wrapped": "^4.0.0-rc.2",
     "jasmine-core": "2.5.2",
-    "jasmine-promises": "0.4.1",
     "jest": "19.0.2",
     "ts-jest": "^19.0.0",
     "tslint": "4.4.2",
     "zone.js": "0.7.6"
   },
   "jest": {
-    "testEnvironment": "jest-environment-node",
+    "testEnvironment": "node",
     "modulePaths": [
       "<rootDir>/source",
       "<rootDir>/node_modules"
     ],
     "setupTestFrameworkScriptFile": "<rootDir>/source/test/fixtures/dependencies.js",
-    "modulePathIgnorePatterns": [
-      "bundles(\\|/)"
-    ],
     "transform": {
-      "@angular/(.*)\\.js$": "<rootDir>/build/transpile/process.js",
       "\\.ts$": "ts-jest/dist/preprocessor.js"
-    },
-    "moduleNameMapper": {
-      "@angular/([^/]+)$": "@angular/$1/index"
     },
     "transformIgnorePatterns": [],
     "testRegex": "source/.*/tests/.*\\.ts$",

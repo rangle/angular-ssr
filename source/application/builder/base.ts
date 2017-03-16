@@ -8,7 +8,7 @@ import {VariantDefinitions, permutations} from '../../variance';
 export abstract class ApplicationBuilderBase<V, M> implements Disposable {
   protected operation: Partial<RenderOperation<M, V>> = {};
 
-  protected abstract getModuleFactory(): Promise<NgModuleFactory<M>>;
+  abstract getModuleFactory(): Promise<NgModuleFactory<M>>;
 
   abstract dispose();
 

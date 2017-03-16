@@ -1,6 +1,6 @@
-import {ApplicationModule, Component, NgModule} from '@angular/core';
+import {Component, NgModule} from '@angular/core';
 
-import {CommonModule} from '@angular/common';
+import {BrowserModule} from '@angular/platform-browser';
 
 import {RouterModule} from '@angular/router';
 
@@ -19,8 +19,7 @@ export class BasicRoutedRootComponent {}
 
 @NgModule({
   imports: [
-    ApplicationModule,
-    CommonModule,
+    BrowserModule,
     RouterModule.forRoot([
       {path: '', pathMatch: 'full', redirectTo: '/one'},
       {path: 'one', component: BasicRoutedRootComponent},

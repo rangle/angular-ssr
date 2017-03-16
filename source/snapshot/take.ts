@@ -56,7 +56,7 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
       injectStateIntoDocument(container, applicationState);
     }
 
-    const renderedDocument = container.document.outerHTML;
+    const renderedDocument = (<any>container.document).outerHTML;
 
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }

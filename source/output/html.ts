@@ -8,10 +8,13 @@ import {PathReference, fileFromString, pathFromString} from '../filesystem';
 import {Snapshot} from '../snapshot';
 import {Route, routeToPath} from '../route';
 import {htmlRoot} from '../identifiers';
+import {logger as baseLogger} from './logger';
 
 export class HtmlOutput extends Output {
-  constructor(private logger: Logger, public path: PathReference) {
+  constructor(public path: PathReference, private logger?: Logger) {
     super();
+
+    this.logger = logger || baseLogger;
   }
 
   initialize(): Promise<void> {

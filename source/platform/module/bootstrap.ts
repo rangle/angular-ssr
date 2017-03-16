@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 
 import {PlatformImpl} from '../platform';
-import {browserModuleToServerModule} from '../module';
 import {createServerPlatform} from '../factory';
 
 export type ModuleExecute<M, R> = (moduleRef: NgModuleRef<M>) => R | Promise<R>;
@@ -29,7 +28,7 @@ export const forkZone = <R>(documentTemplate: string, requestUri: string, execut
 }
 
 export const compileModule = async <M>(moduleType: Type<M>): Promise<NgModuleFactory<M>> => {
-  return await platform.compileModule(browserModuleToServerModule(moduleType), []);
+  return await platform.compileModule(moduleType, []);
 };
 
 export const bootstrapModuleFactory = async <M, R>(moduleFactory: NgModuleFactory<M>, execute: ModuleExecute<M, R>): Promise<R> => {
