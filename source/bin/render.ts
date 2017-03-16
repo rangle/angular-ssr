@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import '../dependencies';
 
 import {ApplicationRenderer, ApplicationFromSource} from '../application';

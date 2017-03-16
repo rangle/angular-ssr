@@ -4,6 +4,8 @@ node_modules
 
 yarn-error.log
 
+nohup.out
+
 **/*.orig
 **/*.rej
 

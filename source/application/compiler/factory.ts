@@ -17,6 +17,9 @@ export const getCompilableProgram = (project: Project): CompilableProgram => {
 
   const {parsed, ngOptions} = tsc.readConfiguration(project.tsconfig, project.basePath);
 
+  parsed.options.declaration = true;
+
+  ngOptions.declaration = true;
   ngOptions.basePath = project.basePath;
   ngOptions.generateCodeForLibraries = true;
 
@@ -35,7 +38,7 @@ export const getCompilableProgram = (project: Project): CompilableProgram => {
 
 export const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions => {
   return Object.assign({}, baseOptions, {
-    declaration: false,
+    declaration: true,
     module: ModuleKind.CommonJS,
     moduleResolution: ModuleResolutionKind.NodeJs,
     noEmitHelpers: false,

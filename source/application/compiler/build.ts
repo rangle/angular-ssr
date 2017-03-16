@@ -15,7 +15,7 @@ export class ApplicationBuild implements Disposable {
       return;
     }
 
-    for (const sourceFile of sourceFiles) {
+    for (const sourceFile of sourceFiles.filter(sf => sf != null)) {
       const array = this.sourceArray(sourceFile.fileName);
       array.push(filename);
     }

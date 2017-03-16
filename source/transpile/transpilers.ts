@@ -64,7 +64,12 @@ export const transformRequires = (source: string): string =>
 export const transformImports = (source: string): string =>
   source.replace(/from ['"]@angular\/([^\/'"]+)['"]/g, 'from "@angular/$1/index"');
 
-export const debundleImport = (moduleId: string): string => moduleId.replace(/@angular\/([^\/]+)$/, '@angular/$1/index');
+export const debundleImport = (moduleId: string): string => {
+  if (moduleId.endsWith('.js')) {
+    return moduleId.replace(/@angular\/([^\/]+)\/bundles\/([^\/]+).umd.js/, '@angular/$1/index.js');
+  }
+  return moduleId.replace(/@angular\/([^\/]+)$/, '@angular/$1/index');
+};
 
 export const transpile = (transpilers: Array<TranspileDescriptor>, module: NodeModule, basePath?: string): string => {
   for (const transpiler of transpilers) {
@@ -76,6 +81,10 @@ export const transpile = (transpilers: Array<TranspileDescriptor>, module: NodeM
       if (transpiler.expression.test(module.filename) === false) {
         continue;
       }
+    }
+
+    if (transpiler.moduleTranslator) {
+      module.filename = require.resolve(transpiler.moduleTranslator(module.id || module.filename));
     }
 
     const file = fileFromString(module.filename);

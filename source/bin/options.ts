@@ -49,7 +49,13 @@ export const commandLineToOptions = (): CommandLineOptions => {
     throw new ConfigurationException(`HTML template document does not exist: ${options['template']}`);
   }
 
-  const output = pathFromString(options['output']);
+  let outputString = options['output'];
+
+  if (/^(\\|\/)/.test(outputString) === false) {
+    outputString = join(process.cwd(), outputString);
+  }
+
+  const output = pathFromString(outputString);
 
   return {output, project, templateDocument: template.content()};
 };
