@@ -65,7 +65,7 @@
     "babel-plugin-transform-strict-mode": "^6.22.0",
     "codependency": "0.1.4",
     "commander": "2.9.0",
-    "domino": "https://github.com/clbond/domino/archive/1.0.29.tar.gz",
+    "domino": "https://github.com/clbond/domino/archive/1.0.30.tar.gz",
     "mock-local-storage": "^1.0.2",
     "node-fetch": "^1.6.3",
     "reflect-metadata": "0.1.9",
@@ -73,7 +73,8 @@
     "rxjs": "5.1.0",
     "scoped-logger": "^0.0.19",
     "source-map-support": "0.4.11",
-    "typescript": "~2.2.0"
+    "typescript": "~2.2.0",
+    "xhr2": "^0.1.4"
   },
   "devDependencies": {
     "@angular/common": "^4.0.0-rc.3",
