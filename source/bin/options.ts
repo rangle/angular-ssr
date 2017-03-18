@@ -2,18 +2,16 @@ import commander = require('commander');
 
 import {dirname, join} from 'path';
 
-import {Project} from '../application';
-
-import {ConfigurationException} from '../exception';
-
-import {tsconfig} from '../identifiers';
-
 import {
   FileType,
   PathReference,
+  ConfigurationException,
+  Project,
+  getTemporaryWorkingPath,
   fileFromString,
   pathFromString,
-} from '../filesystem';
+  tsconfig,
+} from '../index';
 
 const {version} = require('../../package.json');
 
@@ -40,6 +38,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
   const project: Project = {
     basePath: dirname(tsconfig),
     tsconfig,
+    workingPath: getTemporaryWorkingPath(),
     applicationModule: {source, symbol},
   };
 

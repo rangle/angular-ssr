@@ -2,7 +2,7 @@ import {EOL} from 'os';
 
 export class Exception extends Error {
   constructor(msg: string, public innerException?: Error) {
-    super(innerException ? `${msg} -> ${innerException.stack}` : msg);
+    super(innerException ? `${msg} -> ${innerException.toString()}` : msg);
  }
 }
 

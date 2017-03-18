@@ -1,6 +1,7 @@
 import './dependencies';
 export * from './application';
 export * from './filesystem';
+export * from './identifiers';
 export * from './output';
 export * from './platform';
 export * from './route';

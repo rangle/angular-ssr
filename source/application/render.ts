@@ -17,12 +17,12 @@ export class ApplicationRenderer {
               output.write(snapshot);
             },
             exception => {
-              reject(new Error(`Fatal render exception: ${exception.stack}`));
+              reject(new Error(`Fatal render exception: ${exception}`));
             },
             () => resolve());
         })
         .catch(exception => {
-          reject(new Error(`Failed to render application: ${exception.stack}`));
+          reject(new Error(`Failed to render application: ${exception}`));
         });
     });
   }

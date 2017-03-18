@@ -1,8 +1,7 @@
-import {dirname, join} from 'path';
+import {dirname} from 'path';
 
-import {tmpdir} from 'os';
+import {Project, getTemporaryWorkingPath} from '../../application';
 
-import {Project} from '../../application';
 import {PathReference, pathFromString} from '../../filesystem';
 
 export const getApplicationProject = (moduleId: string, moduleSymbol: string, workingPath?: PathReference): Project => {
@@ -15,18 +14,10 @@ export const getApplicationProject = (moduleId: string, moduleSymbol: string, wo
   return <Project> {
     basePath: dirname(tsconfigPath),
     tsconfig: tsconfigPath,
-    workingPath,
+    workingPath: workingPath || getTemporaryWorkingPath(),
     applicationModule: {
       source: moduleId,
       symbol: moduleSymbol,
     }
   };
 };
-
-const randomId = (): string => Math.random().toString(16).slice(2);
-
-export const getTemporaryWorkingPath = (): PathReference => {
-  const path = pathFromString(join(tmpdir(), randomId()));
-  path.mkdir();
-  return path;
-}

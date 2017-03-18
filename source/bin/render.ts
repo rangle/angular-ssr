@@ -1,14 +1,17 @@
 import 'reflect-metadata';
 
-import '../dependencies';
+import {
+  ApplicationRenderer,
+  ApplicationFromSource,
+  HtmlOutput,
+  logger,
+} from '../index';
 
-import {ApplicationRenderer, ApplicationFromSource} from '../application';
-import {HtmlOutput, logger} from '../output';
 import {commandLineToOptions} from './options';
 
 const options = commandLineToOptions();
 
-logger.info('Starting application render process');
+logger.info(`Rendering application from source (working path: ${options.project.workingPath}`);
 
 const application = new ApplicationFromSource(options.project);
 application.templateDocument(options.templateDocument);
@@ -17,10 +20,16 @@ const output = new HtmlOutput(options.output);
 
 const applicationRenderer = new ApplicationRenderer(application);
 
-applicationRenderer.renderTo(output)
-  .catch(exception => {
-    logger.error(`Failed to render application: ${exception.stack}`);
-  })
-  .then(() => {
+const execute = async () => {
+  try {
+    await applicationRenderer.renderTo(output);
+  }
+  catch (exception) {
+    logger.error(`Failed to render application: ${exception}`);
+  }
+  finally {
     application.dispose();
-  });
+  }
+};
+
+execute();

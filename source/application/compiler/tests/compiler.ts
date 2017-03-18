@@ -1,4 +1,4 @@
-import {getApplicationProject, getTemporaryWorkingPath} from '../../../test/fixtures';
+import {getApplicationProject} from '../../../test/fixtures';
 
 import {getCompilableProgram} from '../factory';
 
@@ -9,7 +9,7 @@ describe('program compilation', () => {
 
   beforeAll(() => { // reuse the same compiled program for each test
     program = getCompilableProgram(
-      getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule', getTemporaryWorkingPath()));
+      getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
   });
 
   afterAll(() => {

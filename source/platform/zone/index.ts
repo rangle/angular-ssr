@@ -1,3 +1,3 @@
 export * from './current';
-export * from './mapper';
+export * from './environment';
 export * from './stable';

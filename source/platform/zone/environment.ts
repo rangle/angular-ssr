@@ -1,4 +1,4 @@
-import {Injector} from '@angular/core';
+import {Injector, Type} from '@angular/core';
 
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
@@ -33,41 +33,36 @@ const getFromMap = <T>(token): T => {
 
 export const baseConsole = console;
 
+const fromInjectable = <R, T>(token: Type<T> | any, getter?: (value: T) => R): T | R => {
+  const object = getFromMap<T>(token);
+  if (object) {
+    if (getter) {
+      return getter(object);
+    }
+    return object;
+  }
+  return undefined;
+};
+
 Object.defineProperties(environment, {
   console: {
-    get: () => {
-      return getFromMap<ConsoleCollector>(ConsoleCollector) || baseConsole;
-    }
+    get: () => fromInjectable<ConsoleCollector, ConsoleCollector>(ConsoleCollector) || baseConsole,
   },
   window: {
-    get: () => {
-      const container = getFromMap<DocumentContainer>(DocumentContainer);
-      if (container) {
-        return container.window;
-      }
-      return undefined;
-    }
+    get: () => fromInjectable<Window, DocumentContainer>(DocumentContainer, c => c.window),
   },
   document: {
-    get: () => {
-      const container = getFromMap<DocumentContainer>(DocumentContainer);
-      if (container) {
-        return container.document;
-      }
-      return undefined;
-    }
-  }
+    get: () => fromInjectable<Document, DocumentContainer>(DocumentContainer, c => c.document),
+  },
 });
 
 if (environment.System == null) {
   Object.defineProperties(environment, {
     System: {
       get: () => {
-        const loader = getFromMap<RuntimeModuleLoader>(RuntimeModuleLoader);
+        const loader = fromInjectable<RuntimeModuleLoader, RuntimeModuleLoader>(RuntimeModuleLoader);
         if (loader) {
-          return {
-            import: (moduleId: string) => loader.load(moduleId)
-          };
+          return {import: (moduleId: string) => loader.load(moduleId)};
         }
         return undefined;
       }
