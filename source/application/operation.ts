@@ -1,6 +1,6 @@
 import {Injector, NgModuleFactory, Type} from '@angular/core';
 
-import {ComposedTransition} from '../variance';
+import {ComposedTransition} from '../variants';
 
 import {Route} from '../route';
 

@@ -61,6 +61,10 @@ export class ApplicationBuild implements Disposable {
 }
 
 const sourceToNgFactory = (source: string): string => {
+  if (!source) {
+    return source;
+  }
+
   if (/\.ngfactory\.(ts|js)$/.test(source) === false) {
     source = source.replace(/\.(js|ts)$/, String());
     source = source.replace(/\.ngfactory$/, String());
@@ -72,7 +76,11 @@ const sourceToNgFactory = (source: string): string => {
   return source;
 };
 
-const symbolToNgFactory = (symbol: string): string =>
-  /NgFactory$/.test(symbol) === false
+const symbolToNgFactory = (symbol: string): string => {
+  if (!symbol) {
+    return symbol;
+  }
+  return /NgFactory$/.test(symbol) === false
     ? `${symbol}NgFactory`
     : symbol;
+};

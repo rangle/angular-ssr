@@ -5,15 +5,19 @@ export const waitForZoneToBecomeStable = async <M>(moduleRef: NgModuleRef<M>): P
 
   const unstable = () => zone.hasPendingMacrotasks || zone.hasPendingMicrotasks;
 
-  if (unstable()) {
-    return new Promise<void>(resolve => {
-      const subscription = zone.onMicrotaskEmpty.subscribe(() => {
-        if (unstable() === false) {
-          subscription.unsubscribe();
-          resolve();
-        }
-      });
+  return new Promise<void>(resolve => {
+    process.nextTick(() => {
+      if (unstable() === false) {
+        resolve();
+      }
+      else {
+        const subscription = zone.onMicrotaskEmpty.subscribe(() => {
+          if (unstable() === false) {
+            subscription.unsubscribe();
+            resolve();
+          }
+        });
+      }
     });
-  }
-  return Promise.resolve(void 0);
+  });
 };

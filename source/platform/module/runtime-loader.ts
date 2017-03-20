@@ -7,8 +7,6 @@ export class RuntimeModuleLoader {
   constructor(@Inject(ApplicationRuntimeProject) private application) {}
 
   load(moduleId: string): Promise<NgModuleFactory<any>> {
-    const [source, symbol] = moduleId.split('#');
-
-    return this.application.getModuleFactoryFromDescriptor({source, symbol});
+    return this.application.getModuleFactoryFromDescriptor({source: moduleId, symbol: null}, false);
   }
 }

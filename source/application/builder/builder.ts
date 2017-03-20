@@ -3,7 +3,7 @@ import {Injector, NgModuleFactory} from '@angular/core';
 import {Disposable} from '../../disposable';
 import {RenderOperation, ApplicationStateReader} from '../operation';
 import {Route} from '../../route';
-import {VariantDefinitions, permutations} from '../../variance';
+import {VariantDefinitions, permutations} from '../../variants';
 import {PlatformImpl, createServerPlatform} from './../../platform';
 
 export abstract class ApplicationBuilderBase<V, M> implements Disposable {

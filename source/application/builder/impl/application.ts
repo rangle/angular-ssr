@@ -13,6 +13,7 @@ import {fork} from './fork';
 export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M> {
   private moduleFactory: NgModuleFactory<M>;
 
+  // Prerender all discovered routes that do not take parameters
   async prerender(): Promise<Observable<Snapshot<V>>> {
     this.validate();
 

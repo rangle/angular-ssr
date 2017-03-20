@@ -62,7 +62,9 @@ if (environment.System == null) { // ng cli only
       get: () => {
         const loader = fromInjectable<RuntimeModuleLoader, RuntimeModuleLoader>(RuntimeModuleLoader);
         if (loader) {
-          return {import: (moduleId: string) => loader.load(moduleId)};
+          return {
+            import: (moduleId: string) => loader.load(moduleId)
+          };
         }
         return undefined;
       }

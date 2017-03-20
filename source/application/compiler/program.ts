@@ -64,8 +64,10 @@ export class CompilableProgram implements Disposable {
     return candidates.map(c => pathFromString(makeAbsolute(this.basePath, c)));
   }
 
-  async loadModule<M>(module: ApplicationModuleDescriptor): Promise<NgModuleFactory<M>> {
-    module = this.discoverApplicationModule(module);
+  async loadModule<M>(module: ApplicationModuleDescriptor, discovery?: boolean): Promise<NgModuleFactory<M>> {
+    if (discovery == null || discovery === true) {
+      module = this.discoverApplicationModule(module);
+    }
 
     await this.demandCompile();
 
@@ -77,10 +79,13 @@ export class CompilableProgram implements Disposable {
     }
 
     const loadedModule = require(resolvedModule);
-    if (loadedModule[symbol] == null) {
-      throw new CompilerException(`Module ${module.source} does not contain a symbol named ${symbol}`);
+    if (symbol) {
+      if (loadedModule[symbol] == null) {
+        throw new CompilerException(`Module ${module.source} does not contain a symbol named ${symbol}`);
+      }
+      return loadedModule[symbol];
     }
-    return loadedModule[symbol];
+    return loadedModule;
   }
 
   dispose() {

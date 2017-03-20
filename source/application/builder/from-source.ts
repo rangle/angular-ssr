@@ -27,7 +27,7 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
   }
 
   async getModuleFactoryFromDescriptor(moduleDescriptor: ApplicationModuleDescriptor) {
-    return await this.program.loadModule(moduleDescriptor);
+    return await this.program.loadModule(moduleDescriptor, false);
   }
 
   async getModuleFactory(): Promise<NgModuleFactory<any>> {

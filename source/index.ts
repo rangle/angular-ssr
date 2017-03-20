@@ -7,5 +7,5 @@ export * from './platform';
 export * from './route';
 export * from './snapshot';
 export * from './transformation';
-export * from './variance';
+export * from './variants';
 export * from './exception';
