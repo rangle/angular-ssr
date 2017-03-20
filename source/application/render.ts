@@ -1,7 +1,5 @@
 import {ApplicationBase} from '../application';
-import {Route} from '../route';
 import {Output} from '../output';
-import {Snapshot} from '../snapshot';
 
 export class ApplicationRenderer {
   constructor(private application: ApplicationBase<any, any>) {}
@@ -25,9 +23,5 @@ export class ApplicationRenderer {
           reject(new Error(`Failed to render application: ${exception}`));
         });
     });
-  }
-
-  renderRoute<V>(route: Route, variant?: V): Promise<Snapshot<V>> {
-    return this.application.renderRoute(route, variant);
   }
 }

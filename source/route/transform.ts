@@ -22,4 +22,15 @@ export const routeToPath = (route: Route): string => {
   return mapped.filter(v => v).join('/');
 };
 
-export const routeToUri = (route: Route): string => `http://localhost/${routeToPath(route)}`;
+export const routeToUri = (route: Route): string => {
+  let resultUri = `http://localhost/${routeToPath(route)}`;
+
+  if (route.queryString) {
+    if (route.queryString.startsWith('?')) {
+      route.queryString = route.queryString.substring(1);
+    }
+    resultUri += `?${route.queryString}`;
+  }
+
+  return resultUri;
+}
