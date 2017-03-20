@@ -38,6 +38,13 @@ export abstract class ApplicationBuilderBase<V, M> implements Disposable {
     this.operation.bootstrap.push(fn);
   }
 
+  postprocess(transform: (html: string) => string) {
+    if (this.operation.postprocessors == null) {
+      this.operation.postprocessors = [];
+    }
+    this.operation.postprocessors.push(transform);
+  }
+
   variants(definitions: VariantDefinitions) {
     this.operation.variants = permutations<V>(definitions);
     return this;

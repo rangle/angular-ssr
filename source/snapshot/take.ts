@@ -26,7 +26,7 @@ import {
 } from '../platform';
 
 export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
-  const {variant, route, transition, scope: {bootstrap}} = vop;
+  const {variant, route, transition, scope: {bootstrap, postprocessors}} = vop;
 
   const snapshot: Partial<Snapshot<V>> = {variant, route, exceptions: [], console: []};
 
@@ -56,7 +56,7 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
       injectStateIntoDocument(container, applicationState);
     }
 
-    const renderedDocument = (<any>container.document).outerHTML;
+    const renderedDocument = transformDocument(postprocessors || [], (<any>container.document).outerHTML);
 
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }
@@ -131,4 +131,11 @@ const injectStateIntoDocument = (container: DocumentContainer, applicationState)
   }
 
   document.head.appendChild(script);
+};
+
+const transformDocument = (processors: Array<(html: string) => string>, document: string): string => {
+  for (const processor of processors) {
+    document = processor(document);
+  }
+  return document;
 };

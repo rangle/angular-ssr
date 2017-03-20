@@ -19,6 +19,7 @@ export interface RenderOperation<M, V> {
   variants: Map<V, ComposedTransition>;
   stateReader?: ApplicationStateReader;
   bootstrap: Array<(injector: Injector) => void>;
+  postprocessors: Array<(html: string) => string>;
 }
 
 export interface RenderVariantOperation<M, V> {
