@@ -1,6 +1,6 @@
 import {NgModuleFactory, Type} from '@angular/core';
 
-import {ApplicationBase} from './application';
+import {ApplicationBase} from './impl';
 
 import {compileModule} from '../../platform';
 
@@ -9,9 +9,7 @@ export class ApplicationFromModule<V, M> extends ApplicationBase<V, M> {
     super();
   }
 
-  dispose() {}
-
   getModuleFactory(): Promise<NgModuleFactory<M>> {
-    return compileModule(this.moduleType);
+    return compileModule(this.platform, this.moduleType);
   }
 }

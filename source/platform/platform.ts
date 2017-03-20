@@ -147,21 +147,37 @@ export class PlatformImpl implements PlatformRef {
     });
   }
 
-  async destroy() {
-    this.destroyed = true;
+  private destruction: Promise<void>;
 
-    for (const module of Array.from(this.references)) {
-      // We want to avoid destroying a module that is in the middle of some asynchronous
-      // operations, because the handlers for those operations are likely to blow up in
-      // spectacular ways if their entire execution context has been ripped out from under
-      // them. So we wait for the zone associated with the module to become stable before
-      // we attempt to dispose of it.
-      waitForZoneToBecomeStable(module).then(() => module.destroy());
+  async destroy(): Promise<void> {
+    if (this.destruction == null) {
+      this.destruction = new Promise<void>(resolve => {
+        process.nextTick(() => {
+          setImmediate(() => {
+            const promises = new Array<Promise<void>>();
 
-      this.references.delete(module);
+            for (const module of Array.from(this.references)) {
+              // We want to avoid destroying a module that is in the middle of some asynchronous
+              // operations, because the handlers for those operations are likely to blow up in
+              // spectacular ways if their entire execution context has been ripped out from under
+              // them. So we wait for the zone associated with the module to become stable before
+              // we attempt to dispose of it.
+              promises.push(waitForZoneToBecomeStable(module).then(() => module.destroy()));
+
+              this.references.delete(module);
+            }
+
+            Promise.all(promises).then(() => {
+              this.destroyed = true;
+              resolve();
+            });
+
+            this.compiledModules.clear();
+          });
+        });
+      });
     }
-
-    this.compiledModules.clear();
+    return this.destruction;
   }
 
   onDestroy(callback: () => void) {

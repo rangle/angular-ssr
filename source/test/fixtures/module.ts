@@ -12,11 +12,16 @@ export const loadApplicationFixtureFromModule = <M>(moduleType: Type<M>): Applic
   return application;
 };
 
-export const renderModuleFixture = <M>(moduleType: Type<M>): Promise<Observable<Snapshot<void>>> => {
+export const renderModuleFixture = async <M>(moduleType: Type<M>): Promise<Observable<Snapshot<void>>> => {
   const application = loadApplicationFixtureFromModule(moduleType);
-  application.templateDocument(templateDocument);
+  try {
+    application.templateDocument(templateDocument);
 
-  return <Promise<Observable<Snapshot<any>>>> application.prerender();
+    return <Observable<Snapshot<any>>> await application.prerender();
+  }
+  finally {
+    application.dispose();
+  }
 };
 
 export const randomId = () => Math.random().toString(16).slice(2);

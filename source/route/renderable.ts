@@ -1,27 +1,17 @@
-import {
-  NgModuleFactory,
-  NgModuleRef
-} from '@angular/core';
+import {NgModuleFactory, NgModuleRef} from '@angular/core';
+import {Router, Route as RouteDefinition} from '@angular/router';
 
-import {
-  Router,
-  Route as RouteDefinition,
-} from '@angular/router';
-
-import {
-  bootstrapModuleFactory,
-  forkZone,
-} from '../platform';
-
+import {PlatformImpl, bootstrapWithExecute, forkZone} from '../platform';
 import {RouteException} from '../exception';
 import {Route} from './route';
 
-export const renderableRoutes = async <M>(moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
+export const renderableRoutes = async <M>(platform: PlatformImpl, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
   const requestUri = 'http://localhost/';
 
   const routes = await forkZone(templateDocument, requestUri,
     async () =>
-      await bootstrapModuleFactory<M, Array<Route>>(
+      await bootstrapWithExecute<M, Array<Route>>(
+        platform,
         moduleFactory,
         moduleRef => extractRoutesFromModule(moduleRef)));
 

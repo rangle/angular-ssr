@@ -1,7 +1,7 @@
 import {NgModuleFactory} from '@angular/core';
 
 import {CompilableProgram, getCompilableProgram} from './../compiler';
-import {ApplicationBase} from './application';
+import {ApplicationBase} from './impl';
 import {Project} from '../project';
 
 export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
@@ -15,6 +15,8 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
 
   dispose() {
     this.program.dispose();
+
+    return super.dispose();
   }
 
   async getModuleFactory(): Promise<NgModuleFactory<any>> {

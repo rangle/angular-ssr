@@ -1,5 +1,3 @@
-import 'zone.js/dist/zone-node';
-
 import {
   NgModuleFactory,
   NgModuleRef,
@@ -7,11 +5,8 @@ import {
 } from '@angular/core';
 
 import {PlatformImpl} from '../platform';
-import {createServerPlatform} from '../factory';
 
 export type ModuleExecute<M, R> = (moduleRef: NgModuleRef<M>) => R | Promise<R>;
-
-const platform = <PlatformImpl> createServerPlatform();
 
 declare const Zone;
 
@@ -27,16 +22,16 @@ export const forkZone = <R>(documentTemplate: string, requestUri: string, execut
   return zone.run(execute);
 }
 
-export const compileModule = async <M>(moduleType: Type<M>): Promise<NgModuleFactory<M>> => {
+export const compileModule = async <M>(platform: PlatformImpl, moduleType: Type<M>): Promise<NgModuleFactory<M>> => {
   return await platform.compileModule(moduleType, []);
 };
 
-export const bootstrapModuleFactory = async <M, R>(moduleFactory: NgModuleFactory<M>, execute: ModuleExecute<M, R>): Promise<R> => {
+export const bootstrapWithExecute = async <M, R>(platform: PlatformImpl, moduleFactory: NgModuleFactory<M>, execute: ModuleExecute<M, R>): Promise<R> => {
   const moduleRef = await platform.bootstrapModuleFactory<M>(moduleFactory);
   try {
     return await Promise.resolve(execute(moduleRef));
   }
   finally {
-    moduleRef.destroy();
+    setImmediate(() => moduleRef.destroy());
   }
 };
