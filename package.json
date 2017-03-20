@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -116,8 +116,5 @@
     "source",
     "tsconfig.json",
     "tslint.json"
-  ],
-  "publishConfig": {
-    "registry": "http://localhost:4873/"
-  }
+  ]
 }
