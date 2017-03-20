@@ -1,8 +1,4 @@
-import {
-  NgModuleFactory,
-  NgModuleRef,
-  Type
-} from '@angular/core';
+import {NgModuleFactory, NgModuleRef} from '@angular/core';
 
 import {PlatformImpl} from '../platform';
 
@@ -21,10 +17,6 @@ export const forkZone = <R>(documentTemplate: string, requestUri: string, execut
 
   return zone.run(execute);
 }
-
-export const compileModule = async <M>(platform: PlatformImpl, moduleType: Type<M>): Promise<NgModuleFactory<M>> => {
-  return await platform.compileModule(moduleType, []);
-};
 
 export const bootstrapWithExecute = async <M, R>(platform: PlatformImpl, moduleFactory: NgModuleFactory<M>, execute: ModuleExecute<M, R>): Promise<R> => {
   const moduleRef = await platform.bootstrapModuleFactory<M>(moduleFactory);

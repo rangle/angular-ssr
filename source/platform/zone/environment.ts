@@ -3,7 +3,7 @@ import {Injector, Type} from '@angular/core';
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
 import {PlatformException} from '../../exception';
-import {RuntimeModuleLoader} from '../runtime-loader';
+import {RuntimeModuleLoader} from '../module';
 
 declare const Zone;
 
@@ -56,7 +56,7 @@ Object.defineProperties(environment, {
   },
 });
 
-if (environment.System == null) {
+if (environment.System == null) { // ng cli only
   Object.defineProperties(environment, {
     System: {
       get: () => {

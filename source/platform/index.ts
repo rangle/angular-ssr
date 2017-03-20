@@ -1,6 +1,5 @@
 export * from './collectors';
 export * from './document';
-export * from './http';
 export * from './imports';
 export * from './location';
 export * from './module';
@@ -11,3 +10,4 @@ export * from './sanitizer';
 export * from './styles';
 export * from './zone';
 export * from './factory';
+export * from './http';

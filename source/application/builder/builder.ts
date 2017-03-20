@@ -1,4 +1,4 @@
-import {Injector, NgModuleFactory, PlatformRef} from '@angular/core';
+import {Injector, NgModuleFactory} from '@angular/core';
 
 import {Disposable} from '../../disposable';
 import {RenderOperation, ApplicationStateReader} from '../operation';
@@ -9,18 +9,25 @@ import {PlatformImpl, createServerPlatform} from './../../platform';
 export abstract class ApplicationBuilderBase<V, M> implements Disposable {
   protected operation: Partial<RenderOperation<M, V>> = {};
 
-  protected platform = <PlatformImpl> createServerPlatform([]);
+  private platformImpl: PlatformImpl;
 
   abstract getModuleFactory(): Promise<NgModuleFactory<M>>;
 
-  getPlatform(): PlatformRef {
-    return <PlatformRef> this.platform;
+  protected getPlatform(): PlatformImpl {
+    return <PlatformImpl> createServerPlatform([]);
+  }
+
+  get platform(): PlatformImpl {
+    if (this.platformImpl == null) {
+      this.platformImpl = this.getPlatform();
+    }
+    return this.platformImpl;
   }
 
   dispose(): Promise<void> {
-    if (this.platform) {
-      return this.platform.destroy().then(() => {
-        delete this.platform;
+    if (this.platformImpl) {
+      return this.platformImpl.destroy().then(() => {
+        delete this.platformImpl;
       });
     }
     return Promise.resolve(void 0);
