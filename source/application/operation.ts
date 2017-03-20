@@ -24,7 +24,7 @@ export interface RenderOperation<M, V> {
 
 export interface RenderVariantOperation<M, V> {
   scope: RenderOperation<M, V>;
-  route: Route;
+  uri: string;
   variant?: V;
   transition?: ComposedTransition;
 }

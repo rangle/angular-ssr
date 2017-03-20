@@ -19,63 +19,75 @@ describe('ApplicationFromModule', () => {
     const application = loadApplicationFixtureFromModule(BasicInlineModule);
     application.templateDocument(null);
 
-    return new Promise(async (resolve, reject) => {
-      try {
-        await application.prerender();
-        reject(new Error('Expected a failure'));
-      }
-      catch (exception) {
-        resolve();
-      }
-    });
+    try {
+      return await new Promise(async (resolve, reject) => {
+        try {
+          await application.prerender();
+          reject(new Error('Expected a failure'));
+        }
+        catch (exception) {
+          resolve();
+        }
+      });
+    }
+    finally {
+      application.dispose();
+    }
   });
 
   it('should be able to render a Hello World application with inline template', async () => {
     const module = loadApplicationFixtureFromModule(BasicInlineModule);
+    try {
+      const snapshots = await module.prerender();
 
-    const snapshots = await module.prerender();
-
-    return new Promise((resolve, reject) => {
-      snapshots.subscribe(
-        snapshot => {
-          const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
-          expect(snapshot.exceptions).not.toBeNull();
-          expect(snapshot.exceptions.length).toBe(0);
-          expect(snapshot.variant).toBeUndefined();
-          expect(snapshot.applicationState).toBeUndefined();
-          expect(expr.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
-          resolve();
-        },
-        exception => reject(exception));
-    });
+      return new Promise((resolve, reject) => {
+        snapshots.subscribe(
+          snapshot => {
+            const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
+            expect(snapshot.exceptions).not.toBeNull();
+            expect(snapshot.exceptions.length).toBe(0);
+            expect(snapshot.variant).toBeUndefined();
+            expect(snapshot.applicationState).toBeUndefined();
+            expect(expr.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
+            resolve();
+          },
+          exception => reject(exception));
+      });
+    }
+    finally {
+      module.dispose();
+    }
   });
 
   it('should be able to render a Hello World application with external template', async () => {
     const module = loadApplicationFixtureFromModule(BasicExternalModule);
+    try {
+      const snapshots = await module.prerender();
 
-    const snapshots = await module.prerender();
-
-    return new Promise((resolve, reject) => {
-      snapshots.subscribe(
-        snapshot => {
-          const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
-          expect(snapshot.exceptions).not.toBeNull();
-          expect(snapshot.exceptions.length).toBe(0);
-          expect(snapshot.variant).toBeUndefined();
-          expect(snapshot.applicationState).toBeUndefined();
-          expect(expr.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
-          resolve();
-        },
-        exception => reject(exception));
-     });
+      return new Promise((resolve, reject) => {
+        snapshots.subscribe(
+          snapshot => {
+            const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
+            expect(snapshot.exceptions).not.toBeNull();
+            expect(snapshot.exceptions.length).toBe(0);
+            expect(snapshot.variant).toBeUndefined();
+            expect(snapshot.applicationState).toBeUndefined();
+            expect(expr.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
+            resolve();
+          },
+          exception => reject(exception));
+      });
+    }
+    finally {
+      module.dispose();
+    }
   });
 
   it('should be able to render a Hello World application with external template and SCSS styles', async () => {
     const application = loadApplicationFixtureFromModule(BasicExternalStyledModule);
-
-    const snapshots = await application.prerender();
-
     try {
+      const snapshots = await application.prerender();
+
       await new Promise((resolve, reject) => {
         snapshots.subscribe(
           snapshot => {
@@ -146,9 +158,26 @@ describe('ApplicationFromModule', () => {
     }
   });
 
+  it('can render a specific URI on demand', async () => {
+    const application = loadApplicationFixtureFromModule(BasicRoutedModule);
+    try {
+      const snapshot = await application.renderUri('http://localhost/one');
+      expect(snapshot.uri).toBe('http://localhost/one');
+      expect(snapshot.exceptions.length).toBe(0);
+      expect(snapshot.exceptions).not.toBeNull();
+      expect(snapshot.exceptions.length).toBe(0);
+      expect(snapshot.variant).toBeUndefined();
+      expect(snapshot.applicationState).toBeUndefined();
+      expect(snapshot.renderedDocument).not.toBeNull();
+      expect(/Routed/.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
+    }
+    finally {
+      application.dispose();
+    }
+  });
+
   it('can collect console log statements that happen during application execution', async () => {
     const application = loadApplicationFixtureFromModule(BasicRoutedModule);
-
     try {
       const snapshots = await application.prerender();
 

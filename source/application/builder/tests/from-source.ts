@@ -17,8 +17,7 @@ describe('ApplicationFromSource', () => {
           r => {
             expect(r.exceptions).not.toBeNull();
             expect(r.exceptions.length).toBe(0);
-            expect(r.route).not.toBeNull();
-            expect(r.route.path.length).toBe(0); // route: /
+            expect(r.uri).toBe('http://localhost/');
             expect(r.variant).toBeUndefined();
             expect(r.applicationState).toBeUndefined();
             const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;

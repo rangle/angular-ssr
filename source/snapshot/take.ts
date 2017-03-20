@@ -26,9 +26,9 @@ import {
 } from '../platform';
 
 export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
-  const {variant, route, transition, scope: {bootstrap, postprocessors}} = vop;
+  const {variant, uri, transition, scope: {bootstrap, postprocessors}} = vop;
 
-  const snapshot: Partial<Snapshot<V>> = {variant, route, exceptions: [], console: []};
+  const snapshot: Partial<Snapshot<V>> = {variant, uri, exceptions: [], console: []};
 
   const contextSubscription = subscribeToContext(moduleRef, <Snapshot<any>> snapshot);
 

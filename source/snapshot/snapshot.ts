@@ -1,5 +1,3 @@
-import {Route} from '../route';
-
 import {ConsoleLog} from './console';
 
 export interface Snapshot<V> {
@@ -8,5 +6,5 @@ export interface Snapshot<V> {
   renderedDocument: string;
   variant: V;
   applicationState?;
-  route: Route;
+  uri: string;
 }

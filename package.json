@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -60,6 +60,7 @@
     "@types/codependency": "0.1.1",
     "@types/jasmine": "2.5.41",
     "@types/node-fetch": "^1.6.7",
+    "@types/urijs": "^1.15.31",
     "babel-core": "6.23.1",
     "babel-plugin-module-resolver": "^2.5.0",
     "babel-plugin-transform-strict-mode": "^6.22.0",
@@ -74,6 +75,7 @@
     "scoped-logger": "^0.0.19",
     "source-map-support": "0.4.11",
     "typescript": "~2.2.0",
+    "urijs": "^1.18.9",
     "xhr2": "^0.1.4"
   },
   "devDependencies": {

@@ -1,5 +1,7 @@
 import {RenderOperation, RenderVariantOperation} from '../../operation';
 
+import {routeToUri} from './../../../route/transform';
+
 export const fork = <M, V>(operation: RenderOperation<M, V>): Array<RenderVariantOperation<M, V>> => {
   const operations = new Array<RenderVariantOperation<M, V>>();
 
@@ -9,7 +11,7 @@ export const fork = <M, V>(operation: RenderOperation<M, V>): Array<RenderVarian
       operations.push(
         <RenderVariantOperation<M, V>> {
           scope: operation,
-          route,
+          uri: routeToUri(route),
         });
       continue;
     }
@@ -18,7 +20,7 @@ export const fork = <M, V>(operation: RenderOperation<M, V>): Array<RenderVarian
       operations.push(
         <RenderVariantOperation<M, V>> {
           scope: operation,
-          route,
+          uri: routeToUri(route),
           variant,
           transition,
         });

@@ -6,7 +6,7 @@ import {ApplicationException} from '../../../exception';
 import {ApplicationBuilderBase} from '../builder';
 import {Snapshot, takeSnapshot} from '../../../snapshot';
 import {RenderOperation, RenderVariantOperation} from '../../operation';
-import {Route, renderableRoutes, routeToUri} from '../../../route';
+import {applicationRoutes} from '../../../route';
 import {bootstrapWithExecute, forkZone} from '../../../platform';
 import {fork} from './fork';
 
@@ -21,7 +21,9 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
     operation.moduleFactory = await this.getCachedFactory();
 
     if (operation.routes == null || operation.routes.length === 0) {
-      operation.routes = await renderableRoutes(this.platform, operation.moduleFactory, this.operation.templateDocument);
+      operation.routes = await applicationRoutes(this.platform, operation.moduleFactory, this.operation.templateDocument);
+
+      operation.routes = operation.routes.filter(r => r.path.every(p => p.startsWith(':') === false)); // no parameters
 
       if (operation.routes.length === 0) {
         throw new ApplicationException('No renderable routes were discovered');
@@ -31,18 +33,15 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
     return this.renderToStream(<RenderOperation<M, V>> this.operation);
   }
 
-  async renderRoute(route: Route, variant?: V): Promise<Snapshot<V>> {
+  // Render the application based on the specified URI (must be a complete URI including hostname and scheme)
+  async renderUri(uri: string, variant?: V): Promise<Snapshot<V>> {
     this.validate();
 
     const operation = <RenderOperation<M, V>> this.operation;
 
     operation.moduleFactory = await this.getCachedFactory();
 
-    const vop: RenderVariantOperation<M, V> = {
-      scope: operation,
-      route,
-      variant,
-    };
+    const vop: RenderVariantOperation<M, V> = {scope: operation, uri, variant};
 
     return await this.renderVariant(vop);
   }
@@ -90,16 +89,14 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
 
   protected async renderVariant<M, V>(operation: RenderVariantOperation<M, V>): Promise<Snapshot<V>> {
     const {
-      route,
+      uri,
       scope: {
         templateDocument,
         moduleFactory,
       }
     } = operation;
 
-    const absoluteUri = routeToUri(route);
-
-    return await forkZone(templateDocument, absoluteUri, () =>
+    return await forkZone(templateDocument, uri, () =>
       bootstrapWithExecute<M, Snapshot<V>>(
         this.platform,
         moduleFactory,

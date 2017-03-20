@@ -1,3 +1,5 @@
+import urijs = require('urijs');
+
 import {Route} from './route';
 
 import {RouteException} from '../exception';
@@ -33,4 +35,6 @@ export const routeToUri = (route: Route): string => {
   }
 
   return resultUri;
-}
+};
+
+export const pathFromUri = (uri: string): string => urijs(uri).path();

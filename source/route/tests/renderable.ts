@@ -1,6 +1,6 @@
 import {PlatformImpl} from '../../platform';
 
-import {renderableRoutes} from '../../route';
+import {applicationRoutes, renderableRoutes} from '../../route';
 
 import {
   BasicInlineModule,
@@ -14,7 +14,7 @@ describe('renderable routes', () => {
     try {
       const moduleFactory = await application.getModuleFactory();
 
-      const result = await renderableRoutes(<PlatformImpl> application.getPlatform(), moduleFactory, templateDocument);
+      const result = renderableRoutes(await applicationRoutes(application.platform, moduleFactory, templateDocument));
 
       expect(result.length).toBe(1);
       expect(result[0].path).not.toBeNull();

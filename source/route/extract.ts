@@ -5,7 +5,7 @@ import {PlatformImpl, bootstrapWithExecute, forkZone} from '../platform';
 import {RouteException} from '../exception';
 import {Route} from './route';
 
-export const renderableRoutes = async <M>(platform: PlatformImpl, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
+export const applicationRoutes = async <M>(platform: PlatformImpl, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
   const requestUri = 'http://localhost/';
 
   const routes = await forkZone(templateDocument, requestUri,
@@ -30,7 +30,9 @@ export const extractRoutesFromRouter = (router: Router): Array<Route> => {
 
     return routes.reduce(
       (prev, r) => {
-        const path = parent.concat(r.path ? r.path.split('/') : []);
+        const components = r.path ? r.path.split('/').filter(v => v) : [];
+
+        const path = [...parent, ...components];
 
         return [...prev, {path}, ...flatten(path, r.children)];
       },
@@ -47,4 +49,20 @@ export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Rou
   }
 
   return extractRoutesFromRouter(router);
+};
+
+export const renderableRoutes = (routes: Array<Route>): Array<Route> => {
+  const unrenderable = new Set<Route>();
+
+  for (const r of routes) {
+    for (const segment of r.path) {
+      if (segment.startsWith(':')) {
+        if (r.parameters.has(segment.substring(1)) === false) {
+          unrenderable.add(r);
+        }
+      }
+    }
+  }
+
+  return routes.filter(r => unrenderable.has(r) === false);
 };
