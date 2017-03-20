@@ -152,7 +152,7 @@ export class CompilableProgram implements Disposable {
 
     const generatedModules = await this.generateTemplateCode(compiler, cli);
 
-    const metadataWriter = new MetadataWriterHost(this.compilerHost, this.ng, true);
+    const metadataWriter = new (<any>MetadataWriterHost)(this.compilerHost, this.ng, true);
 
     return [metadataWriter, generatedModules];
   }
@@ -194,9 +194,9 @@ export class CompilableProgram implements Disposable {
 
   private discoverApplicationModule(module: ApplicationModuleDescriptor): ApplicationModuleDescriptor {
     const invalid = () =>
-      module == null ||
-      module.source == null ||
-      module.symbol == null;
+      !module ||
+      !module.source ||
+      !module.symbol;
 
     if (invalid()) {
       module = discoverApplicationModule(this.basePath.toString(), this.program);

@@ -25,17 +25,19 @@ export class ApplicationBuild implements Disposable {
     const source = sourceToNgFactory(module.source);
     const symbol = symbolToNgFactory(module.symbol);
 
-    const candidates = roots.map(r => normalize(join(r.toString(), source)));
+    if (source) {
+      const candidates = roots.map(r => normalize(join(r.toString(), source)));
 
-    for (const candidate of candidates) {
-      const array = this.map.get(candidate);
-      if (array == null) {
-        continue;
-      }
+      for (const candidate of candidates) {
+        const array = this.map.get(candidate);
+        if (array == null) {
+          continue;
+        }
 
-      const ngfactory = array.find(f => /\.ngfactory\.js$/.test(f));
-      if (ngfactory) {
-        return [ngfactory, symbol];
+        const ngfactory = array.find(f => /\.ngfactory\.js$/.test(f));
+        if (ngfactory) {
+          return [ngfactory, symbol];
+        }
       }
     }
 

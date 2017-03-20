@@ -36,12 +36,12 @@ export class HtmlOutput extends Output {
 
     const path = pathFromUri(snapshot.uri);
 
-    const routedPath = pathFromString(path);
+    const routedPath = pathFromString(join(this.path.toString(), path));
     routedPath.mkdir();
 
     const file = fileFromString(join(routedPath.toString(), htmlRoot));
 
-    this.logger.info(`Writing rendered route /${path} to ${file}`);
+    this.logger.info(`Writing rendered route ${path} to ${file}`);
 
     file.create(snapshot.renderedDocument);
   }

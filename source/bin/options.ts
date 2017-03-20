@@ -7,7 +7,6 @@ import {
   PathReference,
   ConfigurationException,
   Project,
-  getTemporaryWorkingPath,
   fileFromString,
   pathFromString,
   tsconfig,
@@ -38,7 +37,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
   const project: Project = {
     basePath: dirname(tsconfig),
     tsconfig,
-    workingPath: getTemporaryWorkingPath(),
+    workingPath: pathFromString(process.cwd()),
     applicationModule: {source, symbol},
   };
 
