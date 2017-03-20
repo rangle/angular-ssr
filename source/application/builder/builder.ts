@@ -24,13 +24,13 @@ export abstract class ApplicationBuilderBase<V, M> implements Disposable {
     return this.platformImpl;
   }
 
-  dispose(): Promise<void> {
-    if (this.platformImpl) {
-      return this.platformImpl.destroy().then(() => {
-        delete this.platformImpl;
-      });
+  dispose() {
+    const platformImpl = this.platformImpl;
+    if (platformImpl) {
+      delete this.platformImpl;
+
+      platformImpl.destroy();
     }
-    return Promise.resolve(void 0);
   }
 
   templateDocument(template: string) {

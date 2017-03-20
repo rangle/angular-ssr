@@ -24,6 +24,6 @@ export const bootstrapWithExecute = async <M, R>(platform: PlatformImpl, moduleF
     return await Promise.resolve(execute(moduleRef));
   }
   finally {
-    setImmediate(() => moduleRef.destroy());
+    moduleRef.destroy();
   }
 };

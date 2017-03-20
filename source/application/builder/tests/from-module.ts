@@ -18,7 +18,6 @@ describe('ApplicationFromModule', () => {
   it('should require a template document in order to render', async () => {
     const application = loadApplicationFixtureFromModule(BasicInlineModule);
     application.templateDocument(null);
-
     try {
       return await new Promise(async (resolve, reject) => {
         try {
@@ -36,11 +35,11 @@ describe('ApplicationFromModule', () => {
   });
 
   it('should be able to render a Hello World application with inline template', async () => {
-    const module = loadApplicationFixtureFromModule(BasicInlineModule);
+    const application = loadApplicationFixtureFromModule(BasicInlineModule);
     try {
-      const snapshots = await module.prerender();
+      const snapshots = await application.prerender();
 
-      return new Promise((resolve, reject) => {
+      return await new Promise((resolve, reject) => {
         snapshots.subscribe(
           snapshot => {
             const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
@@ -55,16 +54,16 @@ describe('ApplicationFromModule', () => {
       });
     }
     finally {
-      module.dispose();
+      application.dispose();
     }
   });
 
   it('should be able to render a Hello World application with external template', async () => {
-    const module = loadApplicationFixtureFromModule(BasicExternalModule);
+    const application = loadApplicationFixtureFromModule(BasicExternalModule);
     try {
-      const snapshots = await module.prerender();
+      const snapshots = await application.prerender();
 
-      return new Promise((resolve, reject) => {
+      return await new Promise((resolve, reject) => {
         snapshots.subscribe(
           snapshot => {
             const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
@@ -79,7 +78,7 @@ describe('ApplicationFromModule', () => {
       });
     }
     finally {
-      module.dispose();
+      application.dispose();
     }
   });
 
@@ -112,7 +111,7 @@ describe('ApplicationFromModule', () => {
 
     const snapshots = await renderModuleFixture(BasicRoutedModule);
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       snapshots.subscribe(
         snapshot => {
           expect(snapshot.exceptions).not.toBeNull();
