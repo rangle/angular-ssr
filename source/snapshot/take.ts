@@ -88,7 +88,7 @@ const subscribeToContext = <M>(moduleRef: NgModuleRef<M>, snapshot: Snapshot<any
 // An application state reader can be either an injectable class or a function
 const conditionalInstantiate = (reader: ApplicationStateReader): StateReaderFunction => {
   if (reader == null) {
-    return injector => Promise.resolve(undefined);
+    return () => Promise.resolve(undefined);
   }
   else if (typeof reader !== 'function') {
     throw new SnapshotException(`A state reader must either be an injectable class or a function, not a ${typeof reader}`);

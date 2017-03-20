@@ -25,21 +25,22 @@ But, in the event that you do have a simple `ng cli` application, you can give `
 
 ```sh
 npm install angular-ssr --save
-npm install -g http-server
+ng build
 ./node_modules/.bin/ng-render
 ```
 
 It should spit out some messages like:
 
 ```
-[info] Writing rendered route / to /Users/bond/proj/dist/index.html 
-[info] Writing rendered route /foo to /Users/bond/proj/dist/cart/index.html 
-[info] Writing rendered route /bar to /Users/bond/proj/dist/confirmation/index.html 
+[info] Writing rendered route / to /Users/bond/proj/dist/index.html
+[info] Writing rendered route /foo to /Users/bond/proj/dist/cart/index.html
+[info] Writing rendered route /bar to /Users/bond/proj/dist/confirmation/index.html
 ```
 
 You can then do `cd dist` and run:
 
 ```sh
+npm install -g http-server
 http-server .
 ```
 
@@ -73,7 +74,7 @@ const dist = join(process.cwd(), 'dist');
 const templateDocument = fileFromString(join(dist, 'index.html'));
 
 if (templateDocument.exists() === false) {
-  throw new Error('dist/index.html must exist because it is used as a SSR template');
+  throw new Error('dist/index.html must exist because it is used as an SSR template');
 }
 
 const application = new ApplicationFromModule(AppModule);
@@ -81,17 +82,17 @@ const application = new ApplicationFromModule(AppModule);
 application.templateDocument(templateDocument.content());
 
 // Pre-render all routes that do not take parameters (angular-ssr will discover automatically)
-const snapshots = await renderer.prerender();
+const prerender = async () => {
+  const snapshots = await renderer.prerender();
 
-snapshots.subscribe(
-  snapshot => {
-    const path = routeToPath(snapshot.route);
+  return snapshots.subscribe(
+    snapshot => {
+      app.get(snapshot.uri,
+        (req, res) => res.send(snapshot.renderedDocument));
+    }).toPromise();
+};
 
-    app.get(path, (req, res) => res.send(snapshot.renderedDocument));
-  },
-  exception => {
-    console.error(`Failed to pre-render route: ${exception}`);
-  });
+prerender();
 
 // On-demand rendering for routes that do take parameters
 app.get('/blog/:postId',

@@ -103,7 +103,7 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
     const traverse = (node: PathImpl, predicate: Predicate<FileReference>): FileReference => {
       return (
         Array.from(node.files(predicate)).find(v => true) ||
-        Array.from(node.directories()).map(v => traverse(v as PathImpl, predicate)).find(v => true));
+        Array.from(node.directories()).map(v => traverse(v as PathImpl, predicate)).find(() => true));
     }
     return traverse(this, path => path.name() === file);
   }

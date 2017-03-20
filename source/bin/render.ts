@@ -11,7 +11,7 @@ import {commandLineToOptions} from './options';
 
 const options = commandLineToOptions();
 
-logger.info(`Rendering application from source (working path: ${options.project.workingPath}`);
+logger.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
 const application = new ApplicationFromSource(options.project);
 application.templateDocument(options.templateDocument);
@@ -25,7 +25,7 @@ const execute = async () => {
     await applicationRenderer.renderTo(output);
   }
   catch (exception) {
-    logger.error(`Failed to render application: ${exception}`);
+    logger.error(`Failed to render application: ${exception.stack || exception.toString()}`);
   }
   finally {
     application.dispose();
