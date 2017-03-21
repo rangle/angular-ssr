@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 
+import './runtime';
+
 import {
   ApplicationRenderer,
   ApplicationFromSource,
@@ -8,8 +10,6 @@ import {
 } from '../index';
 
 import {commandLineToOptions} from './options';
-
-registerTranspiler();
 
 const options = commandLineToOptions();
 
@@ -35,11 +35,3 @@ const execute = async () => {
 };
 
 execute();
-
-function registerTranspiler() {
-  require('babel-register')({
-    only: /\@angular(\\|\/)material/,
-    compact: false,
-    plugins: [require.resolve('es2015-imports-to-commonjs-loose')],
-  });
-}
