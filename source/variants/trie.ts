@@ -25,6 +25,7 @@ export class Trie<V, T> {
 
   insert(variant: V, value: T): TrieNode<T> {
     const keys = Object.keys(variant);
+    keys.sort();
 
     let iterator = this.root;
 
@@ -41,6 +42,7 @@ export class Trie<V, T> {
 
   query(variant: V): T | undefined {
     const keys = Object.keys(variant);
+    keys.sort();
 
     let iterator = this.root;
 

@@ -30,4 +30,17 @@ describe('trie structure', () => {
     expect(q2).not.toBeNull();
     expect(q2.hello).toBe('Bond');
   });
+
+  it('key values with different property order should compare equal', () => {
+    const trie = new Trie<TestVariant, TestValue>();
+
+    const variant1: TestVariant = {foo: 0, bar: 10, baz: 1};
+    const variant2: TestVariant = {bar: 10, baz: 1, foo: 0};
+
+    expect(() => trie.insert(variant1, {hello: 'Chris'})).not.toThrow();
+
+    const result = trie.query(variant2);
+    expect(result).not.toBeNull();
+    expect(result.hello).toBe('Chris');
+  });
 });
