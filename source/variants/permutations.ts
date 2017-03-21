@@ -1,12 +1,9 @@
-import {Injector, ReflectiveInjector, Type} from '@angular/core';
+import {VariantDefinitions} from './variant';
 
-import {Reflector} from '../platform';
-import {Variant, VariantDefinitions} from './variant';
-import {ComposedTransition, StateTransition} from './transition';
-import {TransitionException} from './exception';
+import {composeTransitions} from './compose';
+import {ComposedTransition} from './transition';
 
-export const permutations =
-    <V>(variants: VariantDefinitions): Map<V, ComposedTransition> => {
+export const permutations = <V>(variants: VariantDefinitions): Map<V, ComposedTransition> => {
   const options: {[variant: string]: Array<any>} = {};
 
   for (const k of Object.keys(variants)) {
@@ -16,29 +13,9 @@ export const permutations =
   const combinations = recursivePermutations<V>(options);
 
   const tuples = combinations.map(
-    variant => <[V, ComposedTransition]> [variant, combineTransitions(variants, variant)]);
+    variant => <[V, ComposedTransition]> [variant, composeTransitions(variants, variant)]);
 
   return new Map(tuples);
-};
-
-const combineTransitions = <V>(variants: VariantDefinitions, values: V): ComposedTransition => {
-  const transition: ComposedTransition =
-    injector => {
-      const flattened = Object.keys(variants).map(k => [k, variants[k], values[k]]);
-
-      for (const [key, variant, value] of flattened) {
-        try {
-          const transitioner = conditionalInstantiate(variant);
-
-          transitioner(injector, value);
-        }
-        catch (exception) {
-          throw new TransitionException(exception, key, values);
-        }
-      }
-    };
-
-  return transition;
 };
 
 const recursivePermutations = <V>(options: {[key: string]: Array<any>}): Array<V> => {
@@ -64,22 +41,4 @@ const recursivePermutations = <V>(options: {[key: string]: Array<any>}): Array<V
   };
 
   return transformer(0);
-}
-
-const conditionalInstantiate = <T>(variant: Variant<T>): StateTransition<T> => {
-  const annotations = Reflector.annotations(<Type<any>> variant.transition); // injectable?
-  if (annotations.length > 0) {
-    return instantaiteAndExecute<T>(<Type<any>> variant.transition);
-  }
-  return <StateTransition<T>> variant.transition;
-};
-
-const instantaiteAndExecute = <T>(type: Type<any>): StateTransition<T> => {
-  return (injector: Injector, value: T) => {
-    const childInjector = ReflectiveInjector.resolveAndCreate([type], injector);
-
-    const transitioner = childInjector.get(type);
-
-    return transitioner.execute(value);
-  };
 };

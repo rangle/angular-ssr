@@ -1,6 +1,4 @@
-import {
-  permutations,
-} from '../..';
+import {permutations} from '../permutations';
 
 describe('variant permutations', () => {
   it('should return all permutations of variant options', () => {

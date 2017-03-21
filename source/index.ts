@@ -1,5 +1,6 @@
 import './dependencies';
 export * from './application';
+export * from './exception';
 export * from './filesystem';
 export * from './identifiers';
 export * from './output';
@@ -8,4 +9,3 @@ export * from './route';
 export * from './snapshot';
 export * from './transformation';
 export * from './variants';
-export * from './exception';

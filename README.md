@@ -33,8 +33,8 @@ It should spit out some messages like:
 
 ```
 [info] Writing rendered route / to /Users/bond/proj/dist/index.html
-[info] Writing rendered route /foo to /Users/bond/proj/dist/cart/index.html
-[info] Writing rendered route /bar to /Users/bond/proj/dist/confirmation/index.html
+[info] Writing rendered route /foo to /Users/bond/proj/dist/foo/index.html
+[info] Writing rendered route /bar to /Users/bond/proj/dist/bar/index.html
 ```
 
 You can then do `cd dist` and run:
@@ -97,9 +97,9 @@ prerender();
 // On-demand rendering for routes that do take parameters
 app.get('/blog/:postId',
   async (req, res) => {
-  	try {
+    try {
       const snapshot = await application.renderRoute(req.url); // has internal cache
-  	  res.send(snapshot.renderedDocument);
+      res.send(snapshot.renderedDocument);
     }
     catch (exception) {
       res.send(templateDocument.content()); // fall back on client-side rendering
