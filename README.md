@@ -331,6 +331,38 @@ Both solutions are functionally equivalent.
 
 **Note that your state reader will not be called until your application zone becomes stable**. That is to say, when all macro and microtasks have finished. (For example, if your application has some pending HTTP requests, `angular-ssr` will wait for those to finish before asking your state reader for its state. This ensures that your application has finished initializing itself by the time the state reader is invoked.)
 
+# More details on server-side rendering code
+
+The main contract that you use to define your application in a server context is called [`ApplicationBuilder`](https://github.com/clbond/angular-ssr/blob/master/source/application/builder/builder.ts). It has thorough comments and explains all the ways that you can configure your application when doing server-side rendering.
+
+But `ApplicationBuilder` is an interface. It has three concrete implementations:
+
+* `ApplicationFromModule<V, M>`
+  * If your code has access to the root `@NgModule` of your application, then this is probably the `ApplicationBuilder` that you want to use. It takes a module type and a template HTML document (`dist/index.html`) as its constructor arguments.
+* `ApplicationFromModuleFactory<V>`
+  * If your application code has already been run through `ngc` and produced `.ngfactory.js` files, then you can pass your root `@NgModule`'s NgFactory -- not the module definition itself, but its compilation output -- to `ApplicationFromModuleFactory<V>` and you can skip the template compilation process.
+* `ApplicationFromSource<V>`
+  * You can use this for projects that use `@angular/cli` if you wish to use inplace compilation to generate an `NgModuleFactory` from raw source code. It's fairly unlikely that you will ever use this class: its main purpose is for the implementation of the `ng-render` command.
+
+Other classes of interest are [`DocumentStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-store.ts) and [`DocumentVariantStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-variant-store.ts). You can use these in conjunction with `ApplicationBuilder` to maintain and query a cache of rendered pages.
+
+## `Snapshot<V>`
+
+Another interesting one is [`Snapshot`](https://github.com/clbond/angular-ssr/blob/master/source/snapshot/snapshot.ts). This is the data structure you get back from the server-side rendering process. It takes a type argument that represents the variants your application is aware of, or `void` if you are not using variants.
+
+One thing to note about `Snapshot` is that it contains far more information than just the final rendered document. It has:
+
+* `console: Array<ConsoleLog>`
+  * This is an array of console logs that your application emitted during bootstrap and during the rendering process. It includes errors, infos, warnings, assertions, and anything else that you can emit via `console`.
+* `exceptions: Array<Error>`
+  * This is an array containing any uncaught exceptions that were generated during the bootstrap and rendering process. Generally it is possible to get back a snapshot that has an empty document and at least one exception in `exceptions`, so you should usually check this in your retrieval methods to ensure that everything worked properly. You don't want to send a mangled document to the user.
+* `renderedDocument: string`
+  * This is what you are primarily interested in: the final version of the rendered application HTML. This contains the document you will need to send in your HTTP response.
+* `variant: V`
+  * If you are using [variants](#variants), this describes the particular set of variants that were used to generate this snapshot.
+* `uri: string`
+  * This is the URI that was originally given to the renderer when this snapshot was generated.
+
 # More complete examples
 
 I am in the process of building out some more complete example applications over the next day or two. In the meantime, if you have questions you want answered, you can email me at `cb@clbond.org` or post an issue in this repository and I would be more than happy to answer!

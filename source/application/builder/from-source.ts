@@ -1,15 +1,16 @@
 import {NgModuleFactory} from '@angular/core';
 
-import {CompilableProgram, getCompilableProgram} from './../compiler';
 import {ApplicationRuntimeProject, PlatformImpl, createServerPlatform} from '../../platform';
 import {ApplicationBase} from './impl';
 import {ApplicationModuleDescriptor, Project} from '../project';
+import {CompilableProgram, getCompilableProgram} from './../compiler';
+import {FileReference} from '../../filesystem';
 
 export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
   private program: CompilableProgram;
 
-  constructor(public project: Project) {
-    super();
+  constructor(public project: Project, templateDocument?: FileReference | string) {
+    super(templateDocument);
 
     this.program = getCompilableProgram(project);
   }

@@ -4,6 +4,7 @@ import {Observable, Subject} from 'rxjs';
 
 import {ApplicationException} from '../../../exception';
 import {ApplicationBuilderBase} from '../builder-base';
+import {FileReference, fileFromString} from '../../../filesystem';
 import {Snapshot, takeSnapshot} from '../../../snapshot';
 import {RenderOperation, RenderVariantOperation} from '../../operation';
 import {applicationRoutes} from '../../../route';
@@ -12,6 +13,20 @@ import {fork} from './fork';
 
 export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M> {
   private moduleFactory: NgModuleFactory<M>;
+
+  constructor(templateDocument?: FileReference | string) {
+    super();
+
+    if (templateDocument) {
+      templateDocument = fileFromString(templateDocument);
+
+      if (templateDocument.exists() === false) {
+        throw new ApplicationException(`Your template document does not exist: ${templateDocument.toString()}`);
+      }
+
+      this.templateDocument(templateDocument.content());
+    }
+  }
 
   // Prerender all discovered routes that do not take parameters
   async prerender(): Promise<Observable<Snapshot<V>>> {

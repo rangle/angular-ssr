@@ -7,5 +7,6 @@ export * from './output';
 export * from './platform';
 export * from './route';
 export * from './snapshot';
+export * from './store';
 export * from './transformation';
 export * from './variants';
