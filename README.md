@@ -46,7 +46,9 @@ http-server .
 
 Then when you load the application by hitting `http://localhost:8080`, you should see the pre-rendered document in the initial HTTP response (for each route in your application).
 
-# On-demand server-side rendering and caching
+# Use cases
+
+## On-demand server-side rendering and caching
 
 Let's get this use-case out of the way first, because I think it is likely to be the most common usage of `angular-ssr`.
 
@@ -154,6 +156,127 @@ renderer.renderTo(html)
     console.error('Failed to render due to uncaught exception', exception);
   });
 ```
+
+## Variants
+
+Now we arrive at the most complex use case. Here we wish to do prerendering and demand rendering inside a NodeJS HTTP server, but we also wish to render variants of each page. For example, our application may support multiple languages. `angular-ssr` supports this using a concept called a _variant_. A variant is essentially a key, a set of unique values, and a _transition function_ which can place the application in the specified state.
+
+### Client code
+
+To illustrate, let's again use the example of locales / languages. Your application has multiple languages and you want to support server-side rendering for each of them. The first time someone loads your application, we set the current language selection to the value of `navigator.language` (eg, "en-US"). We set an application cookie using `document.cookie` so that subsequent loads of the application will include as part of the request the language that the user wishes to view the application in. Assume we have some simple code like this somewhere in the application:
+
+```typescript
+import {Component, Injectable, OnInit} from '@angular/core';
+
+@Component({
+  selector: 'app',
+  template: `<locale-selector [value]="localeService.locale" (select)="onLocaleChanged($event)"></locale-selector>`
+})
+export class LocaleSelector implements OnInit {
+  constructor(public localeService: LocaleService) {}
+
+  onLocaleChanged(locale: string) {
+    this.localeService.locale = locale;
+  }
+}
+
+@Injectable()
+export class LocaleService {
+  get locale(): string {
+    return this.extractFromCookie('locale') || (() => {
+      this.setInCookie('locale', navigator.language);
+      return navigator.language;
+    });
+  }
+
+  set locale(locale: string) {
+    this.setInCookie('locale', locale);
+  }
+
+  private getCookies(): Map<string, string> {
+    return new Map<string, string>(document.cookie.split(/; /g).map(c => c.split(/=/)));
+  }
+
+  private extractFromCookie(key: string): string {
+    return this.getCookies().get(key);
+  }
+
+  private setInCookie(key: string, value: string) {
+    const cookies = this.getCookies();
+    cookies.set(key, value);
+
+    document.cookie = Array.from(cookies.entries()).map(([k, v]) => `${k}=${v}`).join('; ');
+  }
+}
+```
+
+Essentially what this code is doing is setting a cookie in two events:
+1. The user loads the application for the first time and there is no cookie, so we set the cookie value to `navigator.language`, to respect their system locale settings.
+2. If the user changes the locale, we update `document.cookie` with the new `locale` setting.
+
+### Server code
+
+The code above means that our HTTP requests will match one of two cases:
+1. The first time the user loads the application, no cookie will be set, in which case we can default to returning the English variant of the server-side rendered app and wait until we have access to `navigator.language` to select the system-correct locale
+2. All subsequent requests will have a `locale` cookie which we can use to determine which language we should return when we are querying our document store.
+
+We can handle this by rendering different _variants_ of our application. Let's assume that our application supports `en-US`, `en-CA` and `fr-FR` locales. This is how we would configure the server:
+
+```typescript
+import {Injector, Injectable} from '@angular/core';
+
+@Injectable()
+export class LocaleTransition {
+  constructor(private localeService: LocaleService) {}
+
+  // This is the bit of code that actually executes the transition to set the locale
+  // to whichever value is being rendered (but value is guaranteed to be one of the
+  // values from the Set we created when we first described the locale variant below).
+  // Note that this class can use the ng dependency injection system to retrieve any
+  // services that it needs in order to execute the state transition.
+  execute(value: string) {
+    this.localeService.locale = value;
+  }
+}
+
+const application = new ApplicationFromModule(AppModule);
+
+application.templateDocument(templateDocument.content());
+
+application.variants({
+  locale: {
+    values: new Set<string>([
+      'en-CA',
+      'en-US',
+      'fr-FR'
+    ]),
+    transition: LocaleTransition
+  }
+});
+
+type ApplicationVariants = {locale: string};
+
+// DocumentVariantStore is a variant-aware special-case of DocumentStore. When you
+// query it, you must provide values for each variant key that we described in the
+// call to variants() above. But in this application, there is only one key: locale.
+const documentStore = new DocumentVariantStore<ApplicationVariants>(application);
+
+app.get('*', async (req, res) => {
+  try {
+    // Remember that we set locale in document.cookie, so all requests after the
+    // first-ever application load will have a locale cookie that we can use to
+    // decide whether to give the user an English or French pre-rendered page.
+    const snapshot = await documentStore.load(req.url, {locale: req.cookies.locale});
+
+    res.send(snapshot.renderedDocument);
+  }
+  catch (exception) {
+    res.send(templateDocument.content()); // fall back on client-side rendering
+  }
+});
+```
+
+Voila! Now whenever the user reloads our application or comes back to it in a few days, we are going to hand them a pre-rendered document that is in the language of their choosing! Simple.
 
 ## More complete examples
 
