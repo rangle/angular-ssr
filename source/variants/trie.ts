@@ -44,8 +44,8 @@ export class Trie<V, T> {
 
     let iterator = this.root;
 
-    for (let i = 0; i < keys.length; ++i) {
-      iterator = iterator.find(variant[keys[i]]);
+    for (const k of keys) {
+      iterator = iterator.find(variant[k]);
       if (iterator == null) {
         break;
       }
