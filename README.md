@@ -1,3 +1,14 @@
+- [Introduction](#introduction)
+- [The simplest possible case: an Angular CLI application with no built-in HTTP server and no need for on-demand rendering](#the-simplest-possible-case-an-angular-cli-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
+- [More complex use cases](#use-cases)
+  - [On-demand server-side rendering and caching](#on-demand-server-side-rendering-and-caching)
+  - [Single-use server-side rendering as part of a build process](#single-use-server-side-rendering-as-part-of-a-build-process)
+  - [Variants](#variants)
+    - [Client code](#client-code)
+    - [Server code](#server-code)
+- [State transfer from server to client](#state-transfer-from-server-to-client)
+- [More complete examples](#more-complete-examples)
+
 # Introduction
 
 The purpose of this library is to allow your application to support server-side rendering of your Angular 4+ applications with minimal code changes and mimimal difficulty. It supports both Angular CLI projects and projects that use custom webpack configurations. It works out of the box with `@angular/material` with no hot-fixes or workarounds! It also requires **zero** changes to your application code: you won't have to create separate `@NgModule`s, one for the server-side rendered application and one for the regular client application. You can just take your Angular code as-is and follow the steps below to get server-side rendering working.
@@ -320,7 +331,7 @@ Both solutions are functionally equivalent.
 
 **Note that your state reader will not be called until your application zone becomes stable**. That is to say, when all macro and microtasks have finished. (For example, if your application has some pending HTTP requests, `angular-ssr` will wait for those to finish before asking your state reader for its state. This ensures that your application has finished initializing itself by the time the state reader is invoked.)
 
-## More complete examples
+# More complete examples
 
 I am in the process of building out some more complete example applications over the next day or two. In the meantime, if you have questions you want answered, you can email me at `cb@clbond.org` or post an issue in this repository and I would be more than happy to answer!
 
