@@ -61,6 +61,7 @@ import 'reflect-metadata';
 
 import {
   ApplicationFromModule,
+  DocumentStore,
   fileFromString,
   routeToPath,
 } from 'angular-ssr';
@@ -83,22 +84,25 @@ application.templateDocument(templateDocument.content());
 
 // Pre-render all routes that do not take parameters (angular-ssr will discover automatically)
 const prerender = async () => {
-  const snapshots = await renderer.prerender();
+  const snapshots = await application.prerender();
 
   return snapshots.subscribe(
     snapshot => {
-      app.get(snapshot.uri,
-        (req, res) => res.send(snapshot.renderedDocument));
-    }).toPromise();
+      app.get(snapshot.uri, (req, res) => res.send(snapshot.renderedDocument));
+    })
+    .toPromise();
 };
 
 prerender();
 
-// On-demand rendering for routes that do take parameters
-app.get('/blog/:postId',
+const documentStore = new DocumentStore(application);
+
+// Demand render and cache all other routes (eg /blog/post/12)
+app.get('*',
   async (req, res) => {
     try {
-      const snapshot = await application.renderRoute(req.url); // has internal cache
+      const snapshot = await documentStore.load(req.url);
+
       res.send(snapshot.renderedDocument);
     }
     catch (exception) {
@@ -146,11 +150,8 @@ const html = new HtmlOutput(pathFromString(dist));
 const renderer = new ApplicationRenderer(application);
 
 renderer.renderTo(html)
-  .then(() => {
-    console.log('Rendering complete');
-  })
   .catch(exception => {
-    console.error('Failed to render', exception);
+    console.error('Failed to render due to uncaught exception', exception);
   });
 ```
 
