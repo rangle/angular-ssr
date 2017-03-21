@@ -1,0 +1,8 @@
+{
+  "name": "angular-ssr-demand-express-example",
+  "version": "1.0.0",
+  "description": "An example application demonstrating how to use angular-ssr with express to do on-demand server-side rendering",
+  "main": "dist-server/index.js",
+  "scripts": {},
+  "license": "BSD-2-Clause"
+}

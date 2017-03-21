@@ -23,9 +23,25 @@ export class TrieNode<T> {
 export class Trie<V, T> {
   private root = new TrieNode<T>(null);
 
+  private keys: Array<string>;
+
+  constructor(prototypical?: V) {
+    if (prototypical) {
+      this.keys = Object.keys(prototypical);
+      this.keys.sort();
+    }
+  }
+
   insert(variant: V, value: T): TrieNode<T> {
     const keys = Object.keys(variant);
     keys.sort();
+
+    if (this.keys == null) {
+      this.keys = keys;
+    }
+    else {
+      this.assert(keys);
+    }
 
     let iterator = this.root;
 
@@ -41,8 +57,14 @@ export class Trie<V, T> {
   }
 
   query(variant: V): T | undefined {
+    if (this.keys == null) {
+      return undefined;
+    }
+
     const keys = Object.keys(variant);
     keys.sort();
+
+    this.assert(keys);
 
     let iterator = this.root;
 
@@ -57,4 +79,18 @@ export class Trie<V, T> {
       ? undefined
       : iterator.value;
   }
+
+  private assert(keys: Array<string>) {
+    const equal = (lhs: Array<string>, rhs: Array<string>): boolean => {
+      if (lhs.length !== rhs.length) {
+        return false;
+      }
+      return lhs.every((item, index) => item === rhs[index]);
+    };
+
+    if (equal(this.keys, keys) === false) {
+      throw new Error(`A variant must always contain the same keys: ${this.keys.join(', ')}`);
+    }
+  }
 }
+

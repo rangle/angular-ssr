@@ -1,7 +1,7 @@
 import {Injector, ReflectiveInjector, Type} from '@angular/core';
 
 import {Reflector} from '../platform';
-import {ComposedTransition, StateTransition} from './transition';
+import {ComposedTransition, StateTransitionFunction} from './transition';
 import {Variant, VariantDefinitions} from './variant';
 import {TransitionException} from '../exception';
 
@@ -25,15 +25,15 @@ export const composeTransitions = <V>(variants: VariantDefinitions, values: V): 
   return transition;
 };
 
-const conditionalInstantiate = <T>(variant: Variant<T>): StateTransition<T> => {
+const conditionalInstantiate = <T>(variant: Variant<T>): StateTransitionFunction<T> => {
   const annotations = Reflector.annotations(<Type<any>> variant.transition); // injectable?
   if (annotations.length > 0) {
     return instantaiteAndExecute<T>(<Type<any>> variant.transition);
   }
-  return <StateTransition<T>> variant.transition;
+  return <StateTransitionFunction<T>> variant.transition;
 };
 
-const instantaiteAndExecute = <T>(type: Type<any>): StateTransition<T> => {
+const instantaiteAndExecute = <T>(type: Type<any>): StateTransitionFunction<T> => {
   return (injector: Injector, value: T) => {
     const childInjector = ReflectiveInjector.resolveAndCreate([type], injector);
 

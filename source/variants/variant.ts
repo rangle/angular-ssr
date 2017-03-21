@@ -1,8 +1,8 @@
 import {Type} from '@angular/core';
 
 import {
-  StateTransitionContract,
   StateTransition,
+  StateTransitionFunction,
 } from './transition';
 
 export interface Variant<T> {
@@ -29,12 +29,10 @@ export interface Variant<T> {
   // transition handler should be one or two lines of code. If you are using @ngrx this class
   // should really just dispatch an action or two, for example.
   //
-  // 2.
-  // A simple function that takes as its argument an NgModuleRef<M> and a variant
-  // value and performs the transition itself. It may request values from the dependency
-  // injector manually, using {@link NgModuleRef.injector}. This is an alternative to
-  // using the useClass construct.
-  transition?: Type<StateTransitionContract<T>> | StateTransition<T>;
+  // 2. A simple function that takes as its argument an NgModuleRef<M> and a variant value and
+  // performs the transition itself. It may request values from the dependency injector manually,
+  // using {@link NgModuleRef.injector}. This is an alternative to using the useClass construct.
+  transition?: Type<StateTransition<T>> | StateTransitionFunction<T>;
 }
 
 export type VariantDefinitions = {[variant: string]: Variant<any>};

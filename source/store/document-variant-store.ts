@@ -22,4 +22,8 @@ export class DocumentVariantStore<V, M> {
 
     return cached;
   }
+
+  reset() {
+    this.map.clear();
+  }
 }

@@ -14,4 +14,8 @@ export class DocumentStore<M> {
     }
     return snapshot;
   }
+
+  reset() {
+    this.map.clear();
+  }
 }

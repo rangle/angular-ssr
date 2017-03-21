@@ -27,6 +27,9 @@ export const diagnosticsToException = (diagnostics: Array<Diagnostic>): string =
 export const assertProgram = (program: Program) => {
   assertDiagnostics(program.getOptionsDiagnostics());
   assertDiagnostics(program.getGlobalDiagnostics());
+  assertDiagnostics(program.getSemanticDiagnostics());
+  assertDiagnostics(program.getSyntacticDiagnostics());
+  assertDiagnostics(program.getDeclarationDiagnostics());
   assertDiagnostics(flatten<Diagnostic>(program.getSourceFiles().map(file => getPreEmitDiagnostics(program, file))));
 };
 

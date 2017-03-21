@@ -1,20 +1,20 @@
 import {permutations} from '../permutations';
 
-describe('variant permutations', () => {
-  it('should return all permutations of variant options', () => {
+describe('variants', () => {
+  it('can return all permutations of variant options', () => {
     type AppVariants = {language: string, production: boolean, anonymous: boolean};
 
     const combinations = permutations<AppVariants>({
       language: {
-        transition: (moduleRef, language: string) => {},
+        transition: (injector, language: string) => {},
         values: ['en-US', 'en-CA', 'fr-FR'],
       },
       production: {
-        transition: (moduleRef, prod: boolean) => {},
+        transition: (injector, prod: boolean) => {},
         values: [true, false]
       },
       anonymous: {
-        transition: (moduleRef, anonymous: boolean) => {},
+        transition: (injector, anonymous: boolean) => {},
         values: [true, false]
       }
     });
@@ -29,7 +29,7 @@ describe('variant permutations', () => {
     expect(keys.filter(s => s.language === 'fr-FR').length).toBe(4);
   });
 
-  it('aggregates variant transitions into one transition function', () => {
+  it('composes variant transitions into one function', () => {
     type AppVariants = {production: boolean, anonymous: boolean};
 
     const combinations = permutations<AppVariants>({
@@ -47,7 +47,6 @@ describe('variant permutations', () => {
 
     for (const [variant, transition] of pairs) {
       const obj: {[index: string]: boolean} = {};
-
       transition(<any> obj);
       expect(obj['anon']).toBe(variant.anonymous);
       expect(obj['prod']).toBe(variant.production);

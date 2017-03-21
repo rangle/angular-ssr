@@ -35,7 +35,7 @@ import {ApplicationModuleDescriptor} from '../project';
 import {ApplicationBuild} from './build';
 import {CompilerException} from '../../exception';
 import {Disposable} from '../../disposable';
-import {assertDiagnostics} from './diagnostics';
+import {assertDiagnostics, assertProgram} from './diagnostics';
 import {discoverApplicationModule} from '../static';
 
 export class CompilableProgram implements Disposable {
@@ -110,6 +110,8 @@ export class CompilableProgram implements Disposable {
   }
 
   private async compile(): Promise<void> {
+    assertProgram(this.program);
+
     this.build = new ApplicationBuild();
 
     const [host, generated] = await this.generateTemplates();
