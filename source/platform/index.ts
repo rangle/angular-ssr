@@ -7,6 +7,5 @@ export * from './platform';
 export * from './render';
 export * from './resource-loader';
 export * from './sanitizer';
-export * from './styles';
 export * from './zone';
 export * from './factory';
