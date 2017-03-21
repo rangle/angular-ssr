@@ -11,8 +11,12 @@ import {htmlRoot} from '../identifiers';
 import {logger as baseLogger} from './logger';
 
 export class HtmlOutput extends Output {
-  constructor(public path: PathReference, private logger?: Logger) {
+  private path: PathReference;
+
+  constructor(path: PathReference | string, private logger?: Logger) {
     super();
+
+    this.path = pathFromString(path);
 
     this.logger = logger || baseLogger;
   }

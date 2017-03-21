@@ -70,14 +70,7 @@ When you build your application, you are outputting two targets: your actual Ang
 Your actual HTTP server code will look something like the following:
 
 ```typescript
-import 'reflect-metadata';
-
-import {
-  ApplicationFromModule,
-  DocumentStore,
-  fileFromString,
-  routeToPath,
-} from 'angular-ssr';
+import {ApplicationFromModule, DocumentStore} from 'angular-ssr';
 
 import {join} from 'path';
 
@@ -85,15 +78,7 @@ import {AppModule} from '../src/app/app.module';
 
 const dist = join(process.cwd(), 'dist');
 
-const templateDocument = fileFromString(join(dist, 'index.html'));
-
-if (templateDocument.exists() === false) {
-  throw new Error('dist/index.html must exist because it is used as an SSR template');
-}
-
-const application = new ApplicationFromModule(AppModule);
-
-application.templateDocument(templateDocument.content());
+const application = new ApplicationFromModule(AppModule, join(dist, 'index.html'));
 
 // Pre-render all routes that do not take parameters (angular-ssr will discover automatically)
 const prerender = async () => {
@@ -111,17 +96,15 @@ prerender();
 const documentStore = new DocumentStore(application);
 
 // Demand render and cache all other routes (eg /blog/post/12)
-app.get('*',
-  async (req, res) => {
-    try {
-      const snapshot = await documentStore.load(req.url);
-
-      res.send(snapshot.renderedDocument);
-    }
-    catch (exception) {
-      res.send(templateDocument.content()); // fall back on client-side rendering
-    }
-  });
+app.get('*', async (req, res) => {
+  try {
+    const snapshot = await documentStore.load(req.url);
+    res.send(snapshot.renderedDocument);
+  }
+  catch (exception) {
+    res.send(templateDocument.content()); // fall back on client-side rendering
+  }
+});
 ```
 
 ## Single-use server-side rendering as part of a build process
@@ -133,14 +116,10 @@ In this case, your code will look similar to the HTTP server code above, but ins
 In this case, your code will look something like this:
 
 ```typescript
-import 'reflect-metadata';
-
 import {
   ApplicationFromModule,
   ApplicationRenderer,
   HtmlOutput,
-  fileFromString,
-  pathFromString
 } from 'angular-ssr';
 
 import {join} from 'path';
@@ -149,16 +128,9 @@ import {AppModule} from '../src/app.module';
 
 const dist = join(process.cwd(), 'dist');
 
-const templateDocument = fileFromString(join(dist, 'index.html'));
-if (templateDocument.exists() === false) {
-  throw new Error('Build output dist/index.html must exist prior to prerender');
-}
+const application = new ApplicationFromModule(ServerModule, join(dist, 'index.html'));
 
-const application = new ApplicationFromModule(ServerModule);
-
-application.templateDocument(templateDocument.content());
-
-const html = new HtmlOutput(pathFromString(dist));
+const html = new HtmlOutput(dist);
 
 const renderer = new ApplicationRenderer(application);
 
@@ -250,9 +222,7 @@ export class LocaleTransition {
   }
 }
 
-const application = new ApplicationFromModule(AppModule);
-
-application.templateDocument(templateDocument.content());
+const application = new ApplicationFromModule(AppModule, templateDocument);
 
 application.variants({
   locale: {
