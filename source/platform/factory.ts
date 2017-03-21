@@ -13,7 +13,6 @@ import {
 } from '@angular/compiler';
 
 import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
-import {PLATFORM_MODULE_PROVIDERS} from './module';
 import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';
 import {PlatformImpl} from './platform';
 import {SanitizerImpl} from './sanitizer';
@@ -38,7 +37,6 @@ export const createServerPlatform =
       },
       {provide: APP_ID, useFactory: generateRandomIdentifier},
       ...PLATFORM_COLLECTOR_PROVIDERS,
-      ...PLATFORM_MODULE_PROVIDERS,
       {provide: PlatformRef, useClass: PlatformImpl},
       {provide: Sanitizer, useClass: SanitizerImpl},
       {provide: CurrentZone, useClass: CurrentZone},

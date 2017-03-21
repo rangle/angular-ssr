@@ -7,6 +7,7 @@ import {
   ErrorHandler,
   Injectable,
   Injector,
+  Inject,
   NgModuleFactory,
   NgModuleRef,
   NgZone,
@@ -33,7 +34,7 @@ export class PlatformImpl implements PlatformRef {
 
   public destroyed = false;
 
-  constructor(public injector: Injector) {}
+  constructor(@Inject(Injector) public injector: Injector) {}
 
   async compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions>) {
     if (nonstandardOptions(compilerOptions)) {

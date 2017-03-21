@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -48,7 +48,7 @@
     "@angular/platform-browser": "<5.0.0",
     "@angular/router": "<5.0.0",
     "@angular/tsc-wrapped": "<5.0.0",
-    "reflect-metadata": ">0.0.0",
+    "reflect-metadata": "^0.1.10",
     "zone.js": "^0.7",
     "typescript": "~2.2.0"
   },
@@ -60,7 +60,6 @@
     "@types/codependency": "0.1.1",
     "@types/jasmine": "2.5.41",
     "@types/node-fetch": "^1.6.7",
-    "@types/resolve-from": "0.0.18",
     "@types/urijs": "^1.15.31",
     "babel-core": "6.23.1",
     "babel-register": "^6.24.0",
@@ -70,8 +69,6 @@
     "es2015-imports-to-commonjs-loose": "^1.0.4",
     "mock-local-storage": "^1.0.2",
     "node-fetch": "^1.6.3",
-    "reflect-metadata": "0.1.9",
-    "resolve-from": "^2.0.0",
     "rimraf": "2.5.4",
     "rxjs": "5.1.0",
     "scoped-logger": "^0.0.19",
@@ -91,6 +88,7 @@
     "@angular/tsc-wrapped": "4.0.0-rc.4",
     "jasmine-core": "2.5.2",
     "jest": "19.0.2",
+    "reflect-metadata": "^0.1.10",
     "ts-jest": "^19.0.0",
     "tslint": "4.4.2",
     "zone.js": "^0.8.2"

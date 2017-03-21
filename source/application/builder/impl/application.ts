@@ -72,8 +72,8 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
       throw new ApplicationException('Template document cannot be an empty string');
     }
 
-    if (markup.toLowerCase().indexOf('<!doctype html>') < 0) {
-      throw new ApplicationException('Template is missing <!doctype html>');
+    if (/<!doctype html>/i.test(markup) === false) {
+      throw new ApplicationException('Template document has no doctype element');
     }
   }
 

@@ -4,5 +4,10 @@
   "description": "An example application demonstrating how to use angular-ssr with koa to do on-demand server-side rendering",
   "main": "dist-server/index.js",
   "scripts": {},
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "@types/koa": "^2.0.39",
+    "angular-ssr": "../..",
+    "koa": "^2.2.0"
+  }
 }

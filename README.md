@@ -1,13 +1,20 @@
 - [Introduction](#introduction)
-- [The simplest possible case: an Angular CLI application with no built-in HTTP server and no need for on-demand rendering](#the-simplest-possible-case-an-angular-cli-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
-- [More complex use cases](#use-cases)
+- [The simplest possible use case](#the-simplest-possible-case-an-angular-cli-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
+  - [Additional examples](#additional-examples)
+- [Use cases](#use-cases)
   - [On-demand server-side rendering and caching](#on-demand-server-side-rendering-and-caching)
   - [Single-use server-side rendering as part of a build process](#single-use-server-side-rendering-as-part-of-a-build-process)
   - [Variants](#variants)
     - [Client code](#client-code)
     - [Server code](#server-code)
 - [State transfer from server to client](#state-transfer-from-server-to-client)
-- [More complete examples](#more-complete-examples)
+- [More details on server-side rendering code](#more-details-on-server-side-rendering-code)
+  - [`Snapshot<V>`](#snapshotv)
+- [Example projects](#example-projects)
+  - [CLI based project that uses `@angular/material`](#cli-based-project-that-uses-angularmaterial)
+  - [On-demand rendering using express](#on-demand-rendering-using-express)
+  - [On-demand rendering using koa](#on-demand-rendering-using-koa)
+- [Comments, queries, or rants](#comments-queries-or-rants)
 
 # Introduction
 
@@ -57,6 +64,12 @@ http-server .
 
 Then when you load the application by hitting `http://localhost:8080`, you should see the pre-rendered document in the initial HTTP response (for each route in your application).
 
+An example application like the one I have just described is available in the [`examples/cli`](https://github.com/clbond/angular-ssr/tree/master/examples/cli) directory. It also uses `@angular/material` to prove that Material works with `angular-ssr`.
+
+## Additional examples
+
+Additional examples are available in the [Examples](#example-projects) section.
+
 # Use cases
 
 ## On-demand server-side rendering and caching
@@ -102,7 +115,7 @@ app.get('*', async (req, res) => {
     res.send(snapshot.renderedDocument);
   }
   catch (exception) {
-    res.send(templateDocument.content()); // fall back on client-side rendering
+    res.send(application.templateDocument()); // fall back on client-side rendering
   }
 });
 ```
@@ -222,7 +235,7 @@ export class LocaleTransition {
   }
 }
 
-const application = new ApplicationFromModule(AppModule, templateDocument);
+const application = new ApplicationFromModule(AppModule, join(process.cwd(), 'dist', 'index.html'));
 
 application.variants({
   locale: {
@@ -252,7 +265,7 @@ app.get('*', async (req, res) => {
     res.send(snapshot.renderedDocument);
   }
   catch (exception) {
-    res.send(templateDocument.content()); // fall back on client-side rendering
+    res.send(application.templateDocument()); // fall back on client-side rendering
   }
 });
 ```
@@ -283,18 +296,20 @@ export class ServerStateReader implements StateReader {
   constructor(private store: Store<AppState>) {}
 
   getState(): Promise<MyState> {
-    return this.store.select(s => s.someState).toPromise();
+    return this.store.select(s => s.someState).take(1).toPromise();
   }
 }
 ```
 
 Note that you can inject any service you wish into your state reader. `angular-ssr` will query the constructor arguments using the ng dependency injector the same way it works in application code. Alternatively, you can supply a function which just accepts a bare `Injector` and you can query the DI yourself:
 
-```
-application.stateReader((injector: Injector) => {
-  const service = injector.get(MyService);
-  return service.getState();
-});
+```typescript
+import {Store} from '@ngrx/store';
+
+application.stateReader(
+  (injector: Injector) => {
+    return injector.get(Store).select(s => s.fooBar).take(1).toPromise();
+  });
 ```
 
 Both solutions are functionally equivalent.
@@ -333,8 +348,20 @@ One thing to note about `Snapshot` is that it contains far more information than
 * `uri: string`
   * This is the URI that was originally given to the renderer when this snapshot was generated.
 
-# More complete examples
+# Example projects
 
-I am in the process of building out some more complete example applications over the next day or two. In the meantime, if you have questions you want answered, you can email me at `cb@clbond.org` or post an issue in this repository and I would be more than happy to answer!
+## CLI based project that uses `@angular/material`
 
-Christopher Bond
+The `examples/cli` folder contains a project that was generated with `ng new`, and which also integrates with `@angular/material`, and uses the `ng-render` command to render itself as part of the build process. This is the simplest possible usage of angular-ssr and covers very basic applications.
+
+## On-demand rendering using express
+
+A project using express and `angular-ssr` lives in the [`examples/demand-express`](https://github.com/clbond/angular-ssr/tree/master/examples/demand-express) directory.
+
+## On-demand rendering using koa
+
+A project using koa and `angular-ssr` lives in the [`examples/demand-koa`](https://github.com/clbond/angular-ssr/tree/master/examples/demand-koa) directory.
+
+# Comments, queries, or rants
+
+Direct your vitriol to chris.bond@rangle.io or post an issue on this GitHub repo!

@@ -17,7 +17,7 @@ import {extractRoutesFromRouter} from '../../../route';
 describe('ApplicationFromModule', () => {
   it('should require a template document in order to render', async () => {
     const application = loadApplicationFixtureFromModule(BasicInlineModule);
-    application.templateDocument(null);
+    application.templateDocument('');
     try {
       return await new Promise(async (resolve, reject) => {
         try {

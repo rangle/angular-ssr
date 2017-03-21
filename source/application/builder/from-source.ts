@@ -1,6 +1,6 @@
 import {NgModuleFactory} from '@angular/core';
 
-import {ApplicationRuntimeProject, PlatformImpl, createServerPlatform} from '../../platform';
+import {ApplicationRuntimeProject, PlatformImpl, RuntimeModuleLoader, createServerPlatform} from '../../platform';
 import {ApplicationBase} from './impl';
 import {ApplicationModuleDescriptor, Project} from '../project';
 import {CompilableProgram, getCompilableProgram} from './../compiler';
@@ -22,9 +22,11 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
   }
 
   protected getPlatform(): PlatformImpl {
-    return <PlatformImpl> createServerPlatform([
+    const platform = createServerPlatform([
       {provide: ApplicationRuntimeProject, useValue: this},
+      {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}
     ]);
+    return platform as PlatformImpl;
   }
 
   async getModuleFactoryFromDescriptor(moduleDescriptor: ApplicationModuleDescriptor) {
