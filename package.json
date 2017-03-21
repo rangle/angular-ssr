@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -93,7 +93,7 @@
     "jest": "19.0.2",
     "ts-jest": "^19.0.0",
     "tslint": "4.4.2",
-    "zone.js": "0.8.4"
+    "zone.js": "^0.8.2"
   },
   "jest": {
     "testEnvironment": "node",
