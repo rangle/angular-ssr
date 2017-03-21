@@ -10,4 +10,3 @@ export * from './sanitizer';
 export * from './styles';
 export * from './zone';
 export * from './factory';
-export * from './http';

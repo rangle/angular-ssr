@@ -1,0 +1,56 @@
+{
+  "project": {
+    "version": "1.0.0-rc.2",
+    "name": "angular-ssr-cli-example"
+  },
+  "apps": [
+    {
+      "root": "src",
+      "outDir": "dist",
+      "assets": [
+        "assets",
+        "favicon.ico"
+      ],
+      "index": "index.html",
+      "main": "main.ts",
+      "polyfills": "polyfills.ts",
+      "test": "test.ts",
+      "tsconfig": "../tsconfig.json",
+      "prefix": "app",
+      "styles": [
+        "styles.css",
+        "node_modules/@angular/material/core/theming/prebuilt/indigo-pink.css"
+      ],
+      "scripts": [],
+      "environmentSource": "environments/environment.ts",
+      "environments": {
+        "dev": "environments/environment.ts",
+        "prod": "environments/environment.prod.ts"
+      }
+    }
+  ],
+  "e2e": {},
+  "lint": [
+    {
+      "files": "src/**/*.ts",
+      "project": "tsconfig.json"
+    }
+  ],
+  "test": {},
+  "defaults": {
+    "styleExt": "css",
+    "prefixInterfaces": false,
+    "inline": {
+      "style": false,
+      "template": false
+    },
+    "spec": {
+      "class": false,
+      "component": true,
+      "directive": true,
+      "module": false,
+      "pipe": true,
+      "service": true
+    }
+  }
+}

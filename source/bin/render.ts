@@ -9,6 +9,8 @@ import {
 
 import {commandLineToOptions} from './options';
 
+registerTranspiler();
+
 const options = commandLineToOptions();
 
 logger.info(`Rendering application from source (working path: ${options.project.workingPath})`);
@@ -33,3 +35,11 @@ const execute = async () => {
 };
 
 execute();
+
+function registerTranspiler() {
+  require('babel-register')({
+    only: /\@angular(\\|\/)material/,
+    compact: false,
+    plugins: [require.resolve('es2015-imports-to-commonjs-loose')],
+  });
+}
