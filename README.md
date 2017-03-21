@@ -278,6 +278,48 @@ app.get('*', async (req, res) => {
 
 Voila! Now whenever the user reloads our application or comes back to it in a few days, we are going to hand them a pre-rendered document that is in the language of their choosing! Simple.
 
+# State transfer from server to client
+
+Many applications may wish to transfer some state from the server to the client as part of application bootstrap. `angular-ssr` makes this easy. Simply tell your `ApplicationBuilder` object about your state reader class or function, and any state returned from it will be made available in a global variable called `bootstrapApplicationState`:
+
+```typescript
+const application = new ApplicationFromModule(AppModule);
+
+application.stateReader(ServerStateReader);
+```
+
+And your `ServerStateReader` class implementation might look like this:
+
+```typescript
+import {Injectable} from '@angular/core';
+
+import {Store} from '@ngrx/store';
+
+import {StateReader} from 'angular-ssr';
+
+@Injectable()
+export class ServerStateReader implements StateReader {
+  constructor(private store: Store<AppState>) {}
+
+  getState(): Promise<MyState> {
+    return this.store.select(s => s.someState).toPromise();
+  }
+}
+```
+
+Note that you can inject any service you wish into your state reader. `angular-ssr` will query the constructor arguments using the ng dependency injector the same way it works in application code. Alternatively, you can supply a function which just accepts a bare `Injector` and you can query the DI yourself:
+
+```
+application.stateReader((injector: Injector) => {
+  const service = injector.get(MyService);
+  return service.getState();
+});
+```
+
+Both solutions are functionally equivalent.
+
+**Note that your state reader will not be called until your application zone becomes stable**. That is to say, when all macro and microtasks have finished. (For example, if your application has some pending HTTP requests, `angular-ssr` will wait for those to finish before asking your state reader for its state. This ensures that your application has finished initializing itself by the time the state reader is invoked.)
+
 ## More complete examples
 
 I am in the process of building out some more complete example applications over the next day or two. In the meantime, if you have questions you want answered, you can email me at `cb@clbond.org` or post an issue in this repository and I would be more than happy to answer!

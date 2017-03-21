@@ -3,7 +3,7 @@ import {NgModuleFactory} from '@angular/core';
 import {Observable, Subject} from 'rxjs';
 
 import {ApplicationException} from '../../../exception';
-import {ApplicationBuilderBase} from '../builder';
+import {ApplicationBuilderBase} from '../builder-base';
 import {Snapshot, takeSnapshot} from '../../../snapshot';
 import {RenderOperation, RenderVariantOperation} from '../../operation';
 import {applicationRoutes} from '../../../route';
