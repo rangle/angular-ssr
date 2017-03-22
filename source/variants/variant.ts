@@ -35,4 +35,4 @@ export interface Variant<T> {
   transition?: Type<StateTransition<T>> | StateTransitionFunction<T>;
 }
 
-export type VariantDefinitions = {[variant: string]: Variant<any>};
+export type VariantsMap = {[variant: string]: Variant<any>};

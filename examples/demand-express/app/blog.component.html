@@ -1,6 +1,6 @@
 <locale-selector></locale-selector>
 <div>
-  <span [ngSwitch]="locale">
+  <span [ngSwitch]="locale | async">
     <span *ngSwitchCase="'en-US'">
       This is blog ID
     </span>

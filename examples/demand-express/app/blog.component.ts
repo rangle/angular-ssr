@@ -1,8 +1,8 @@
-import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
+import {Component} from '@angular/core';
 
 import {ActivatedRoute} from '@angular/router';
 
-import {Observable, Subscription} from 'rxjs';
+import {Observable} from 'rxjs';
 
 import 'rxjs/add/operator/map';
 
@@ -13,25 +13,14 @@ import {LocaleService} from './locale.service';
   templateUrl: './blog.component.html',
   styleUrls: ['./blog.component.css']
 })
-export class BlogComponent implements OnDestroy {
+export class BlogComponent {
   private id: Observable<number>;
 
-  private locale: string;
+  private locale: Observable<string>;
 
-  private subscription: Subscription;
-
-  constructor(changeDetector: ChangeDetectorRef, localeService: LocaleService, route: ActivatedRoute) {
+  constructor(localeService: LocaleService, route: ActivatedRoute) {
     this.id = route.params.map(p => +p['id']);
 
-    this.locale = localeService.locale;
-
-    this.subscription = localeService.subject.subscribe(() => {
-      this.locale = localeService.locale;
-      changeDetector.detectChanges();
-    });
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.locale = localeService.observable();
   }
 }

@@ -12,7 +12,7 @@ import {bootstrapWithExecute, forkZone} from '../../../platform';
 import {composeTransitions} from '../../../variants';
 import {fork} from './fork';
 
-export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M> {
+export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<M> {
   private moduleFactory: NgModuleFactory<M>;
 
   constructor(templateDocument?: FileReference | string) {
@@ -47,18 +47,18 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
       }
     }
 
-    return this.renderToStream(<RenderOperation<M, V>> this.operation);
+    return this.renderToStream(<RenderOperation<M>> this.operation);
   }
 
   // Render the application based on the specified URI (must be a complete URI including hostname and scheme)
   async renderUri(uri: string, variant?: V): Promise<Snapshot<V>> {
     this.validate();
 
-    const operation = <RenderOperation<M, V>> this.operation;
+    const operation = <RenderOperation<M>> this.operation;
 
     operation.moduleFactory = await this.getCachedFactory();
 
-    const transition = composeTransitions(this.variantDefinitions, variant);
+    const transition = composeTransitions(this.operation.variants, variant);
 
     const vop: RenderVariantOperation<M, V> = {scope: operation, uri, variant, transition};
 
@@ -87,7 +87,7 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
     return this.moduleFactory;
   }
 
-  protected renderToStream<M, V>(operation: RenderOperation<M, V>): Observable<Snapshot<V>> {
+  protected renderToStream<M, V>(operation: RenderOperation<M>): Observable<Snapshot<V>> {
     const subject = new Subject<Snapshot<V>>();
 
     const bind = async (suboperation: RenderVariantOperation<M, V>) => {
@@ -99,7 +99,7 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
       }
     };
 
-    const promises = fork(operation).map(suboperation => bind(suboperation));
+    const promises = fork<M, V>(operation).map(suboperation => bind(suboperation));
 
     Promise.all(promises).then(() => subject.complete());
 

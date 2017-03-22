@@ -1,4 +1,5 @@
 import {
+  ApplicationRef,
   Injector,
   NgModuleRef,
   ReflectiveInjector,
@@ -45,6 +46,9 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
     if (transition != null) {
       transition(moduleRef.injector);
     }
+
+    const applicationRef = moduleRef.injector.get(ApplicationRef);
+    applicationRef.tick(); // transition above may have caused changes, force a tick
 
     await waitForZoneToBecomeStable(moduleRef);
 

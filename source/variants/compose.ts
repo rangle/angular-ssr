@@ -2,10 +2,10 @@ import {Injector, ReflectiveInjector, Type} from '@angular/core';
 
 import {Reflector} from '../platform';
 import {ComposedTransition, StateTransitionFunction} from './transition';
-import {Variant, VariantDefinitions} from './variant';
+import {Variant, VariantsMap} from './variant';
 import {TransitionException} from '../exception';
 
-export const composeTransitions = <V>(variants: VariantDefinitions, values: V): ComposedTransition => {
+export const composeTransitions = <V>(variants: VariantsMap, values: V): ComposedTransition => {
   const transition: ComposedTransition =
     injector => {
       const flattened = Object.keys(variants).map(k => [k, variants[k], values[k]]);

@@ -3,11 +3,11 @@ import {Injector, NgModuleFactory} from '@angular/core';
 import {ApplicationBuilder} from './builder';
 import {RenderOperation, ApplicationStateReader} from '../operation';
 import {Route} from '../../route';
-import {VariantDefinitions, permutations} from '../../variants';
+import {VariantsMap} from '../../variants';
 import {PlatformImpl, createServerPlatform} from './../../platform';
 
-export abstract class ApplicationBuilderBase<V, M> implements ApplicationBuilder {
-  protected operation: Partial<RenderOperation<M, V>> = {};
+export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
+  protected operation: Partial<RenderOperation<M>> = {};
 
   private platformImpl: PlatformImpl;
 
@@ -40,13 +40,11 @@ export abstract class ApplicationBuilderBase<V, M> implements ApplicationBuilder
     return this.operation.postprocessors;
   }
 
-  protected variantDefinitions: VariantDefinitions;
-
-  variants(definitions: VariantDefinitions) {
-    if (definitions) {
-      this.variantDefinitions = definitions;
-      this.operation.variants = permutations<V>(definitions);
+  variants(map: VariantsMap) {
+    if (map) {
+      this.operation.variants = map;
     }
+    return this.operation.variants;
   }
 
   routes(routes?: Array<Route>) {

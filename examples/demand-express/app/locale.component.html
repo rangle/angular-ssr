@@ -1,4 +1,4 @@
-<select [value]="locale" [ngModel]="locale" (ngModelChange)="service.locale = $event">
+<select [attr.value]="locale | async" [ngModel]="locale | async" (ngModelChange)="service.locale = $event">
   <option value="en-US">English</option>
   <option value="fr-FR">French</option>
 </select>

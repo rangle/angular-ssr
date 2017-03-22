@@ -1,13 +1,14 @@
 import {RenderOperation, RenderVariantOperation} from '../../operation';
 
-import {routeToUri} from './../../../route/transform';
+import {permutations} from '../../../variants/permutations';
 
-export const fork = <M, V>(operation: RenderOperation<M, V>): Array<RenderVariantOperation<M, V>> => {
+import {routeToUri} from '../../../route/transform';
+
+export const fork = <M, V>(operation: RenderOperation<M>): Array<RenderVariantOperation<M, V>> => {
   const operations = new Array<RenderVariantOperation<M, V>>();
 
   for (const route of operation.routes) {
-    if (operation.variants == null ||
-        operation.variants.size === 0) {
+    if (operation.variants == null || Object.keys(operation.variants).length === 0) {
       operations.push(
         <RenderVariantOperation<M, V>> {
           scope: operation,
@@ -16,7 +17,9 @@ export const fork = <M, V>(operation: RenderOperation<M, V>): Array<RenderVarian
       continue;
     }
 
-    for (const [variant, transition] of Array.from(operation.variants.entries())) {
+    const variants = permutations<V>(operation.variants);
+
+    for (const [variant, transition] of Array.from(variants.entries())) {
       operations.push(
         <RenderVariantOperation<M, V>> {
           scope: operation,

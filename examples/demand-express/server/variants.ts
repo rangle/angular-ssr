@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 
-import {StateTransition, VariantDefinitions} from 'angular-ssr';
+import {StateTransition, VariantsMap} from 'angular-ssr';
 
 import {LocaleService} from '../app/locale.service';
 
@@ -17,7 +17,7 @@ export interface Variants {
   locale: string;
 }
 
-export const variants: VariantDefinitions = {
+export const variants: VariantsMap = {
   locale: {
     values: ['en-US', 'fr-FR'],
     transition: TransitionLocale

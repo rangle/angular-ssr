@@ -1,9 +1,9 @@
-import {VariantDefinitions} from './variant';
+import {VariantsMap} from './variant';
 
 import {composeTransitions} from './compose';
 import {ComposedTransition} from './transition';
 
-export const permutations = <V>(variants: VariantDefinitions): Map<V, ComposedTransition> => {
+export const permutations = <V>(variants: VariantsMap): Map<V, ComposedTransition> => {
   const options: {[variant: string]: Array<any>} = {};
 
   for (const k of Object.keys(variants)) {

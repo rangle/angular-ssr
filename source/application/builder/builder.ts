@@ -3,7 +3,7 @@ import {Injector} from '@angular/core';
 import {ApplicationStateReader} from '../operation';
 import {Disposable} from '../../disposable';
 import {Route} from './../../route/route';
-import {VariantDefinitions} from '../../variants';
+import {VariantsMap} from '../../variants';
 
 export interface ApplicationBuilder extends Disposable {
   // Provide a template HTML document that will be used when rendering this application.
@@ -22,7 +22,7 @@ export interface ApplicationBuilder extends Disposable {
   // Define the variants of this application. For applications that wish to render different
   // variants such as languages or anonymous vs authenticated, you can define those variants
   // here and then query for rendered documents using {@link DocumentVariantStore}
-  variants(definitions?: VariantDefinitions): void;
+  variants(definitions?: VariantsMap): void;
 
   // Provide an optional array of routes that you wish to pre-render. If you do not specify
   // these, angular-ssr will query the router for all routes defined in the application, and

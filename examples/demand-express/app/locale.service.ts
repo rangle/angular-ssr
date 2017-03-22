@@ -1,20 +1,24 @@
 import {Injectable} from '@angular/core';
 
-import {Subject} from 'rxjs';
+import {Observable, ReplaySubject} from 'rxjs';
 
 @Injectable()
 export class LocaleService {
-  subject = new Subject<string>();
+  subject = new ReplaySubject<string>();
 
   constructor() {
-    this.subject.next(this.locale);
+    const initial = () => {
+      return this.extractFromCookie('locale') || (() => {
+        this.locale = navigator.language;
+        return navigator.language;
+      })();
+    }
+
+    this.subject.next(initial());
   }
 
-  get locale(): string {
-    return this.extractFromCookie('locale') || (() => {
-      this.locale = navigator.language;
-      return navigator.language;
-    })();
+  observable(): Observable<string> {
+    return this.subject.asObservable();
   }
 
   set locale(locale: string) {
