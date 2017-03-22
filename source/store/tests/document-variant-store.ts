@@ -1,9 +1,7 @@
 import {DocumentVariantStore} from '../document-variant-store';
 
 describe('DocumentVariantStore', () => {
-  const mockApplication = {
-    renderUri: () => Promise.resolve({a: 1})
-  } as any;
+  const mockApplication = {renderUri: () => Promise.resolve({a: 1})} as any;
 
   interface Variants {foo: boolean, bar: number};
 

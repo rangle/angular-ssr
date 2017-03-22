@@ -1,9 +1,7 @@
 import {DocumentStore} from '../document-store';
 
 describe('DocumentStore', () => {
-  const mockApplication = {
-    renderUri: () => Promise.resolve({a: 1})
-  } as any;
+  const mockApplication = {renderUri: () => Promise.resolve({a: 1})} as any;
 
   it('can never contain more than the size provided in the constructor', async () => {
     const cache = new DocumentStore(mockApplication, 1);

@@ -1,8 +1,8 @@
 import urijs = require('urijs');
 
 import {Route} from './route';
-
 import {RouteException} from '../exception';
+import {baseUri} from '../identifiers';
 
 export const routeToPath = (route: Route): string => {
   const split = route.path.reduce((p, c) => p.concat(c.split('/')), []);
@@ -25,7 +25,7 @@ export const routeToPath = (route: Route): string => {
 };
 
 export const routeToUri = (route: Route): string => {
-  let resultUri = `http://localhost/${routeToPath(route)}`;
+  let resultUri = `${baseUri}${routeToPath(route)}`;
 
   if (route.queryString) {
     if (route.queryString.startsWith('?')) {

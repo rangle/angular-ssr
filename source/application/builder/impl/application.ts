@@ -1,3 +1,5 @@
+import uri = require('url');
+
 import {NgModuleFactory} from '@angular/core';
 
 import {Observable, Subject} from 'rxjs';
@@ -9,6 +11,7 @@ import {Snapshot, takeSnapshot} from '../../../snapshot';
 import {RenderOperation, RenderVariantOperation} from '../../operation';
 import {applicationRoutes} from '../../../route';
 import {bootstrapWithExecute, forkZone} from '../../../platform';
+import {baseUri} from '../../../identifiers';
 import {composeTransitions} from '../../../variants';
 import {fork} from './fork';
 
@@ -29,7 +32,6 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<M> {
     }
   }
 
-  // Prerender all discovered routes that do not take parameters
   async prerender(): Promise<Observable<Snapshot<V>>> {
     this.validate();
 
@@ -38,21 +40,24 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<M> {
     operation.moduleFactory = await this.getCachedFactory();
 
     if (operation.routes == null || operation.routes.length === 0) {
-      operation.routes = await applicationRoutes(this.platform, operation.moduleFactory, this.operation.templateDocument);
+      let routes = await applicationRoutes(this.platform, operation.moduleFactory, this.operation.templateDocument);
 
-      operation.routes = operation.routes.filter(r => r.path.every(p => p.startsWith(':') === false)); // no parameters
+      routes = routes.filter(r => r.path.every(p => p.startsWith(':') === false)); // no parameters allowed
 
-      if (operation.routes.length === 0) {
-        throw new ApplicationException('No renderable routes were discovered');
+      if (routes.length === 0) {
+        return Observable.of();
       }
+
+      operation.routes = routes;
     }
 
     return this.renderToStream(<RenderOperation<M>> this.operation);
   }
 
-  // Render the application based on the specified URI (must be a complete URI including hostname and scheme)
   async renderUri(uri: string, variant?: V): Promise<Snapshot<V>> {
     this.validate();
+
+    uri = resolveToAbsoluteUri(uri);
 
     const operation = <RenderOperation<M>> this.operation;
 
@@ -122,3 +127,26 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<M> {
         moduleRef => takeSnapshot(moduleRef, operation)));
   }
 }
+
+let relativeUriWarning = false;
+
+const resolveToAbsoluteUri = (relativeUri: string): string => {
+  if (relativeUri == null ||
+      relativeUri.length === 0 ||
+      relativeUri === '/') {
+    return baseUri;
+  }
+
+  const resolved = uri.resolve(baseUri, relativeUri);
+
+  if (resolved !== relativeUri) {
+    if (relativeUriWarning === false) {
+      console.warn(`It is best to avoid using relative URIs like ${relativeUri} when requesting render results`);
+      console.warn('The reason is that your application may key its service URIs from "window.location" in some manner');
+      console.warn(`I have resolved this relative URI to ${resolved} and this may impact your application`);
+      relativeUriWarning = true;
+    }
+  }
+
+  return resolved;
+};

@@ -17,12 +17,7 @@ import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';
 import {PlatformImpl} from './platform';
 import {SanitizerImpl} from './sanitizer';
 import {CurrentZone} from './zone';
-
-const generateRandomIdentifier = () => {
-  const character = () => Math.random().toString(36).slice(2)[0];
-
-  return `${character()}${character()}${character()}`;
-};
+import {randomizedApplicationId} from '../identifiers';
 
 export const createServerPlatform =
   createPlatformFactory(platformCoreDynamic, 'nodejs',
@@ -35,8 +30,8 @@ export const createServerPlatform =
         ]},
         multi: true,
       },
-      {provide: APP_ID, useFactory: generateRandomIdentifier},
       ...PLATFORM_COLLECTOR_PROVIDERS,
+      {provide: APP_ID, useFactory: randomizedApplicationId},
       {provide: PlatformRef, useClass: PlatformImpl},
       {provide: Sanitizer, useClass: SanitizerImpl},
       {provide: CurrentZone, useClass: CurrentZone},

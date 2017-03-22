@@ -19,15 +19,11 @@ describe('ApplicationFromModule', () => {
     const application = loadApplicationFixtureFromModule(BasicInlineModule);
     application.templateDocument('');
     try {
-      return await new Promise(async (resolve, reject) => {
-        try {
-          await application.prerender();
-          reject(new Error('Expected a failure'));
-        }
-        catch (exception) {
-          resolve();
-        }
-      });
+      return await application.prerender()
+        .then(() => {
+          throw new Error('Expected a failure');
+        })
+        .catch(() => Promise.resolve(void 0));
     }
     finally {
       application.dispose();
@@ -87,7 +83,7 @@ describe('ApplicationFromModule', () => {
     try {
       const snapshots = await application.prerender();
 
-      await new Promise((resolve, reject) => {
+      return await new Promise((resolve, reject) => {
         snapshots.subscribe(
           snapshot => {
             const expr = /div\[_ngcontent-([^\]]+)\] { background-color: black;/;

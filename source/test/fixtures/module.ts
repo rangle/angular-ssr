@@ -15,13 +15,9 @@ export const loadApplicationFixtureFromModule = <M>(moduleType: Type<M>): Applic
 export const renderModuleFixture = async <M>(moduleType: Type<M>): Promise<Observable<Snapshot<void>>> => {
   const application = loadApplicationFixtureFromModule(moduleType);
   try {
-    application.templateDocument(templateDocument);
-
     return <Observable<Snapshot<any>>> await application.prerender();
   }
   finally {
     application.dispose();
   }
 };
-
-export const randomId = () => Math.random().toString(16).slice(2);

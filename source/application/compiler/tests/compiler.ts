@@ -8,12 +8,14 @@ describe('program compilation', () => {
   let program: CompilableProgram;
 
   beforeAll(() => { // reuse the same compiled program for each test
-    program = getCompilableProgram(
-      getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
+    program = getCompilableProgram(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
   });
 
   afterAll(() => {
-    program.dispose();
+    if (program) {
+      program.dispose();
+      program = null;
+    }
   });
 
   it('can build application-basic-inline into executable NgModuleFactory', async () => {
