@@ -6,10 +6,10 @@ import {Trie} from './trie';
 
 import {defaultCacheSize} from './cache-size';
 
-export class DocumentVariantStore<V, M> {
+export class DocumentVariantStore<V> {
   private cache: LRUMap<string, Trie<V, Snapshot<V>>>;
 
-  constructor(private application: ApplicationBase<V, M>, cacheSize = defaultCacheSize) {
+  constructor(private application: ApplicationBase<V, any>, cacheSize = defaultCacheSize) {
     this.cache = new LRUMap<string, Trie<V, Snapshot<V>>>(cacheSize);
   }
 
