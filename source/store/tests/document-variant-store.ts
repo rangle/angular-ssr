@@ -23,7 +23,6 @@ describe('DocumentVariantStore', () => {
 
     mockApplication.renderUri = () => {throw new Error('Should not be called')};
 
-    debugger;
     expect(await cache.load('http://localhost/2', {foo: false, bar: 2})).toEqual({a:1}); // not recreated, must be cached version
   });
 });
