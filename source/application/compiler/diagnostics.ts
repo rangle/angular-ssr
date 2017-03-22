@@ -4,6 +4,7 @@ import {cwd} from 'process';
 
 import {
   Diagnostic,
+  DiagnosticCategory,
   FormatDiagnosticsHost,
   Program,
   formatDiagnostics,
@@ -34,8 +35,9 @@ export const assertProgram = (program: Program) => {
 };
 
 export const assertDiagnostics = (diagnostics: Array<Diagnostic>) => {
-  if (diagnostics == null || diagnostics.length === 0) {
-    return;
+  diagnostics = (diagnostics || []).filter(d => d.category === DiagnosticCategory.Error);
+
+  if (diagnostics.length > 0) {
+    throw new CompilerException(diagnosticsToException(diagnostics));
   }
-  throw new CompilerException(diagnosticsToException(diagnostics));
 }
