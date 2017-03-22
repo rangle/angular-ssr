@@ -30,3 +30,7 @@ require('babel-register')({
   only: /\@angular(\\|\/)material/,
   plugins: [require.resolve('es2015-imports-to-commonjs-loose')],
 });
+
+require('require-sass')();
+
+require('node-stylus-require').register({extensions: '.styl'});

@@ -5,7 +5,6 @@ import {createAotCompiler} from '@angular/compiler';
 import {
   CompilerHost as AngularCompilerHost,
   CompilerHostContext,
-  NodeCompilerHostContext,
 } from '@angular/compiler-cli';
 
 import {PathMappedCompilerHost} from '@angular/compiler-cli/src/path_mapped_compiler_host';
@@ -35,6 +34,7 @@ import {ApplicationModuleDescriptor} from '../project';
 import {ApplicationBuild} from './build';
 import {CompilerException} from '../../exception';
 import {Disposable} from '../../disposable';
+import {ResourceResolver} from './resource-resolver';
 import {assertDiagnostics, assertProgram} from './diagnostics';
 import {discoverApplicationModule} from '../static';
 
@@ -140,7 +140,7 @@ export class CompilableProgram implements Disposable {
   }
 
   private async generateTemplates(): Promise<[CompilerHost, Array<string>]> {
-    const hostContext = new NodeCompilerHostContext();
+    const hostContext = new ResourceResolver(this.compilerHost);
 
     const compiler = this.compilerFactory(hostContext);
 
