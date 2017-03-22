@@ -16,7 +16,9 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
   }
 
   dispose() {
-    this.program.dispose();
+    if (this.program) {
+      this.program.dispose();
+    }
 
     return super.dispose();
   }

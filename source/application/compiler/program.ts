@@ -101,8 +101,7 @@ export class CompilableProgram implements Disposable {
         await this.compile();
       }
       catch (exception) {
-        this.build.dispose();
-        this.build = undefined;
+        this.dispose();
 
         throw new CompilerException(`Compilation failed: ${exception}`, exception);
       }
