@@ -4,11 +4,15 @@ import url = require('url');
 
 import express = require('express');
 
-import {ApplicationFromModule, DocumentStore} from 'angular-ssr';
+import cookieParser = require('cookie-parser');
+
+import {ApplicationFromModule, DocumentVariantStore} from 'angular-ssr';
 
 import {AppModule} from '../app/app.module';
 
 import {dist, index} from './paths';
+
+import {Variants, variants} from './variants';
 
 const http = express();
 
@@ -16,7 +20,10 @@ http.use(express.static(dist, {index}));
 
 http.use(require('express-blank-favicon'));
 
-const application = new ApplicationFromModule(AppModule, index);
+http.use(cookieParser());
+
+const application = new ApplicationFromModule<Variants, AppModule>(AppModule, index);
+application.variants(variants);
 
 application.prerender()
   .then(snapshots => {
@@ -26,10 +33,10 @@ application.prerender()
       });
   });
 
-const documentStore = new DocumentStore(application);
+const documentStore = new DocumentVariantStore(application);
 
 http.get('*', (request, response) => {
-  documentStore.load(originalUri(request))
+  documentStore.load(originalUri(request), {locale: request.cookies['locale'] || 'en-US'})
     .then(snapshot => {
       response.send(snapshot.renderedDocument);
     })

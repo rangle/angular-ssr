@@ -2,8 +2,6 @@ const {join, resolve} = require('path');
 
 const {CheckerPlugin} = require('awesome-typescript-loader');
 
-const {AotPlugin} = require('@ngtools/webpack');
-
 const loaders = require('./webpack/loaders');
 
 module.exports = {

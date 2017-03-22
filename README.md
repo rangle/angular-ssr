@@ -182,7 +182,7 @@ export class LocaleService {
     return this.extractFromCookie('locale') || (() => {
       this.setInCookie('locale', navigator.language);
       return navigator.language;
-    });
+    })();
   }
 
   set locale(locale: string) {
@@ -190,7 +190,7 @@ export class LocaleService {
   }
 
   private getCookies(): Map<string, string> {
-    return new Map<string, string>(document.cookie.split(/; /g).map(c => c.split(/=/)));
+    return new Map<string, string>(<any> document.cookie.split(/; /g).map(c => c.split(/=/)));
   }
 
   private extractFromCookie(key: string): string {

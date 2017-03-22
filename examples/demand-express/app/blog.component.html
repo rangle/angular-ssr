@@ -1,1 +1,12 @@
-<div>This is blog ID {{id | async}}</div>
+<locale-selector></locale-selector>
+<div>
+  <span [ngSwitch]="locale.locale">
+    <span *ngSwitchCase="'en-US'">
+      This is blog ID
+    </span>
+    <span *ngSwitchCase="'fr-FR'">
+      C'est blog
+    </span>
+  </span>
+  {{id | async}}
+</div>

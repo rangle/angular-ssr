@@ -1,8 +1,3 @@
-exports.ts = {
-  test: /\.ts$/,
-  use: '@ngtools/webpack',
-};
-
 exports.tsjit = {
   test: /\.ts$/,
   use: [
