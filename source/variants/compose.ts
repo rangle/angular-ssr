@@ -8,7 +8,7 @@ import {TransitionException} from '../exception';
 export const composeTransitions = <V>(variants: VariantsMap, values: V): ComposedTransition => {
   const transition: ComposedTransition =
     injector => {
-      const flattened = Object.keys(variants).map(k => [k, variants[k], values[k]]);
+      const flattened = Object.keys(variants || {}).map(k => [k, variants[k], values[k]]);
 
       for (const [key, variant, value] of flattened) {
         try {
