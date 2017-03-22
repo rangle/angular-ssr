@@ -1,21 +1,31 @@
+import {LRUMap} from 'lru_map';
+
 import {ApplicationBase} from '../application';
 import {Snapshot} from '../snapshot';
 
-export class DocumentStore<M> {
-  private map = new Map<string, Snapshot<void>>();
+import {defaultCacheSize} from './cache-size';
 
-  constructor(private application: ApplicationBase<any, M>) {}
+export class DocumentStore<M> {
+  private cache: LRUMap<string, Snapshot<void>>;
+
+  constructor(private application: ApplicationBase<any, M>, cacheSize = defaultCacheSize) {
+    this.cache = new LRUMap<string, Snapshot<void>>(cacheSize);
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
 
   async load(uri: string): Promise<Snapshot<void>> {
-    let snapshot = this.map.get(uri);
+    let snapshot = this.cache.get(uri);
     if (snapshot == null) {
       snapshot = await this.application.renderUri(uri);
-      this.map.set(uri, snapshot);
+      this.cache.set(uri, snapshot);
     }
     return snapshot;
   }
 
   reset() {
-    this.map.clear();
+    this.cache.clear();
   }
 }

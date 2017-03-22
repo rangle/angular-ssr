@@ -1,17 +1,27 @@
+import {LRUMap} from 'lru_map';
+
 import {ApplicationBase} from '../application';
 import {Snapshot} from '../snapshot';
 import {Trie} from './trie';
 
-export class DocumentVariantStore<V, M> {
-  private map = new Map<string, Trie<V, Snapshot<V>>>();
+import {defaultCacheSize} from './cache-size';
 
-  constructor(private application: ApplicationBase<V, M>) {}
+export class DocumentVariantStore<V, M> {
+  private cache: LRUMap<string, Trie<V, Snapshot<V>>>;
+
+  constructor(private application: ApplicationBase<V, M>, cacheSize = defaultCacheSize) {
+    this.cache = new LRUMap<string, Trie<V, Snapshot<V>>>(cacheSize);
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
 
   async load(uri: string, variants: V): Promise<Snapshot<V>> {
-    let snapshots = this.map.get(uri);
+    let snapshots = this.cache.get(uri);
     if (snapshots == null) {
       snapshots = new Trie<V, Snapshot<V>>();
-      this.map.set(uri, snapshots);
+      this.cache.set(uri, snapshots);
     }
 
     let cached = snapshots.query(variants);
@@ -24,6 +34,6 @@ export class DocumentVariantStore<V, M> {
   }
 
   reset() {
-    this.map.clear();
+    this.cache.clear();
   }
 }
