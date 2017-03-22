@@ -4,12 +4,13 @@
   "description": "An example application demonstrating how to use angular-ssr with express to do on-demand server-side rendering",
   "main": "dist-server/index.js",
   "scripts": {
-    "build": "npm-run-all build:client build:server",
+    "build": "npm-run-all --parallel build:client build:server",
     "build:client": "webpack",
     "build:server": "webpack --config webpack-server.config.js",
     "build:client:watch": "webpack --watch",
     "build:server:watch": "webpack --config webpack-server.config.js --watch",
-    "watch": "concurrently -r 'npm run build:client:watch' 'npm run build:server:watch'"
+    "watch": "npm-run-all --parallel build:client:watch build:server:watch'",
+    "start": "node ./dist-server/index.js"
   },
   "license": "BSD-2-Clause",
   "dependencies": {
@@ -32,9 +33,9 @@
     "angular-ssr": "latest",
     "angular2-template-loader": "^0.6.2",
     "awesome-typescript-loader": "^3.1.2",
-    "concurrently": "^3.4.0",
     "css-loader": "^0.27.3",
     "express": "^4.15.2",
+    "express-blank-favicon": "^1.0.1",
     "extract-text-webpack-plugin": "^2.1.0",
     "html-webpack-plugin": "^2.28.0",
     "npm-run-all": "^4.0.2",
