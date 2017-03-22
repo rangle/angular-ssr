@@ -9,6 +9,7 @@ import {Snapshot, takeSnapshot} from '../../../snapshot';
 import {RenderOperation, RenderVariantOperation} from '../../operation';
 import {applicationRoutes} from '../../../route';
 import {bootstrapWithExecute, forkZone} from '../../../platform';
+import {composeTransitions} from '../../../variants';
 import {fork} from './fork';
 
 export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M> {
@@ -57,7 +58,9 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<V, M>
 
     operation.moduleFactory = await this.getCachedFactory();
 
-    const vop: RenderVariantOperation<M, V> = {scope: operation, uri, variant};
+    const transition = composeTransitions(this.variantDefinitions, variant);
+
+    const vop: RenderVariantOperation<M, V> = {scope: operation, uri, variant, transition};
 
     return await this.renderVariant(vop);
   }

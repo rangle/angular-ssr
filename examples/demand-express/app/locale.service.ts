@@ -4,11 +4,15 @@ import {Subject} from 'rxjs';
 
 @Injectable()
 export class LocaleService {
-  subject = new Subject<void>();
+  subject = new Subject<string>();
+
+  constructor() {
+    this.subject.next(this.locale);
+  }
 
   get locale(): string {
     return this.extractFromCookie('locale') || (() => {
-      this.setInCookie('locale', navigator.language);
+      this.locale = navigator.language;
       return navigator.language;
     })();
   }
@@ -16,11 +20,11 @@ export class LocaleService {
   set locale(locale: string) {
     this.setInCookie('locale', locale);
 
-    this.subject.next(void 0);
+    this.subject.next(locale);
   }
 
   private getCookies(): Map<string, string> {
-    return new Map<string, string>(<any> document.cookie.split(/; /g).map(c => c.split(/=/)));
+    return new Map<string, string>(<any> (document.cookie || String()).split(/; /g).map(c => c.split(/=/)));
   }
 
   private extractFromCookie(key: string): string {
@@ -28,9 +32,6 @@ export class LocaleService {
   }
 
   private setInCookie(key: string, value: string) {
-    const cookies = this.getCookies();
-    cookies.set(key, value);
-
     document.cookie = `${key}=${value}`;
   }
 }

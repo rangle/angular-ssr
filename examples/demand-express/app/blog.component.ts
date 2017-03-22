@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
 
 import {ActivatedRoute} from '@angular/router';
 
@@ -13,21 +13,22 @@ import {LocaleService} from './locale.service';
   templateUrl: './blog.component.html',
   styleUrls: ['./blog.component.css']
 })
-export class BlogComponent implements OnInit {
+export class BlogComponent implements OnDestroy {
   private id: Observable<number>;
+
+  private locale: string;
 
   private subscription: Subscription;
 
-  constructor(
-    public locale: LocaleService,
-    private changeDetector: ChangeDetectorRef,
-    route: ActivatedRoute
-  ) {
+  constructor(changeDetector: ChangeDetectorRef, localeService: LocaleService, route: ActivatedRoute) {
     this.id = route.params.map(p => +p['id']);
-  }
 
-  ngOnInit() {
-    this.subscription = this.locale.subject.subscribe(() => this.changeDetector.detectChanges());
+    this.locale = localeService.locale;
+
+    this.subscription = localeService.subject.subscribe(() => {
+      this.locale = localeService.locale;
+      changeDetector.detectChanges();
+    });
   }
 
   ngOnDestroy() {

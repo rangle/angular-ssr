@@ -23,15 +23,8 @@ http.use(require('express-blank-favicon'));
 http.use(cookieParser());
 
 const application = new ApplicationFromModule<Variants, AppModule>(AppModule, index);
-application.variants(variants);
 
-application.prerender()
-  .then(snapshots => {
-    snapshots.subscribe(
-      snapshot => {
-        http.get(snapshot.uri, (req, res) => res.send(snapshot.renderedDocument));
-      });
-  });
+application.variants(variants);
 
 const documentStore = new DocumentVariantStore(application);
 

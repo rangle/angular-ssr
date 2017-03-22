@@ -40,8 +40,11 @@ export abstract class ApplicationBuilderBase<V, M> implements ApplicationBuilder
     return this.operation.postprocessors;
   }
 
+  protected variantDefinitions: VariantDefinitions;
+
   variants(definitions: VariantDefinitions) {
     if (definitions) {
+      this.variantDefinitions = definitions;
       this.operation.variants = permutations<V>(definitions);
     }
   }
