@@ -8,6 +8,8 @@ nohup.out
 
 **/*.orig
 **/*.rej
+**/*.swp
+**/*~
 
 source/**/*.ngfactory.ts
 source/**/*.ngfactory.js
