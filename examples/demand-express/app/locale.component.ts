@@ -7,11 +7,7 @@ import {LocaleService} from './locale.service';
 @Component({
   selector: 'locale-selector',
   templateUrl: './locale.component.html',
-  styles: [
-    `select {
-      margin-bottom: 1em;
-    }`
-  ]
+  styles: [`:host { margin: 2em; }`]
 })
 export class LocaleComponent {
   public locale: Observable<string>;

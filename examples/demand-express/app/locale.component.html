@@ -1,4 +1,8 @@
-<select [attr.value]="locale | async" [ngModel]="locale | async" (ngModelChange)="service.locale = $event">
-  <option value="en-US">English</option>
-  <option value="fr-FR">French</option>
-</select>
+<md-select placeholder="Language" [ngModel]="locale | async" (ngModelChange)="service.locale = $event">
+  <md-option value="en-US">
+    English
+  </md-option>
+  <md-option value="fr-FR">
+    French
+  </md-option>
+</md-select>

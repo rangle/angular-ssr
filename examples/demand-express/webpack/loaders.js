@@ -1,10 +1,6 @@
 exports.tsjit = {
   test: /\.ts$/,
-  use: [
-    'awesome-typescript-loader',
-    'angular2-template-loader',
-    'angular-router-loader',
-  ],
+  use: ['awesome-typescript-loader', 'angular2-template-loader', 'angular-router-loader'],
 };
 
 exports.html = {
@@ -14,9 +10,5 @@ exports.html = {
 
 exports.css = {
   test: /\.css$/,
-  exclude: /node_modules/,
-  use: [
-    'to-string-loader',
-    'css-loader',
-  ],
+  use: ['to-string-loader', 'css-loader'],
 };
