@@ -20,6 +20,12 @@ export class AggregateException extends Exception {
   }
 }
 
+export class NotImplementedException extends Exception {
+  constructor() {
+    super('Not implemented');
+  }
+}
+
 export class ApplicationException extends Exception {}
 export class CompilerException extends Exception {}
 export class ConfigurationException extends Exception {}

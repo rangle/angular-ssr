@@ -2,10 +2,12 @@ import {Snapshot} from '../snapshot';
 
 import {AggregateException, OutputException} from '../exception';
 
-export abstract class Output {
+export abstract class OutputProducer {
   abstract initialize(): Promise<void>;
 
   abstract async write<V>(snapshot: Snapshot<V>): Promise<void>;
+
+  abstract exception(exception: Error): void;
 
   protected assertValid<V>(snapshot: Snapshot<V>) {
     if (snapshot == null) {

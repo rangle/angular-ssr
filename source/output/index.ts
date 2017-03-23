@@ -1,4 +1,4 @@
 export * from './html';
-export * from './ipc';
-export * from './logger';
-export * from './output';
+export * from './interprocess';
+export * from './log';
+export * from './producer';

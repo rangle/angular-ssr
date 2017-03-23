@@ -4,14 +4,12 @@ import {Observable, ReplaySubject} from 'rxjs';
 
 import {CookieService} from './cookie.service';
 
-import {locale} from 'angular-ssr';
-
 @Injectable()
 export class LocaleService {
   subject = new ReplaySubject<string>();
 
   constructor(private cookies: CookieService) {
-    this.update(cookies.get('locale') || navigator.language || locale.fallback);
+    this.update(cookies.get<string>('locale') || navigator.language || 'en-US');
   }
 
   locale(locale?: Observable<string>): Observable<string> {

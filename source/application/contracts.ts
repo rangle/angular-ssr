@@ -1,9 +1,6 @@
-import {Type} from '@angular/core';
+import {Injector, Type} from '@angular/core';
 
-import {
-  StateTransition,
-  StateTransitionFunction,
-} from './transition';
+import {Observable} from 'rxjs/Observable';
 
 export interface Variant<T> {
   // A set describing all the possible values of this variant. For example if this is
@@ -36,3 +33,27 @@ export interface Variant<T> {
 }
 
 export type VariantsMap = {[variant: string]: Variant<any>};
+
+export interface StateReader {
+  getState(): Promise<any> | Observable<any> | any;
+}
+
+export type ApplicationStateReaderFunction = (injector: Injector) => Promise<any>;
+
+export type ApplicationStateReader = Type<StateReader> | ApplicationStateReaderFunction;
+
+export interface Bootstrap {
+  bootstrap(): Observable<void> | Promise<void> | void;
+}
+
+export type ApplicationBootstrapperFunction = (injector: Injector) => Promise<void> | void;
+
+export type ApplicationBootstrapper = Type<Bootstrap> | ApplicationBootstrapperFunction;
+
+export interface StateTransition<T> {
+  execute(value: T): Promise<void> | void;
+}
+
+export type StateTransitionFunction<T> = (injector: Injector, value: T) => Promise<void> | void;
+
+export type ComposedTransition = (injector: Injector) => void;

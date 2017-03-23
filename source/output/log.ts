@@ -4,4 +4,4 @@ import {
   createLogger
 } from 'scoped-logger';
 
-export const logger: Logger = createLogger(String(), [new ConsoleStream()]);
+export const log: Logger = createLogger(String(), [new ConsoleStream()]);

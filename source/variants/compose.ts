@@ -1,9 +1,16 @@
 import {Injector, ReflectiveInjector, Type} from '@angular/core';
 
 import {Reflector} from '../platform';
-import {ComposedTransition, StateTransitionFunction} from './transition';
-import {Variant, VariantsMap} from './variant';
+
 import {TransitionException} from '../exception';
+
+import {
+  ComposedTransition,
+  StateTransition,
+  StateTransitionFunction,
+  Variant,
+  VariantsMap
+} from '../application/contracts';
 
 export const composeTransitions = <V>(variants: VariantsMap, values: V): ComposedTransition => {
   const transition: ComposedTransition =
@@ -12,7 +19,7 @@ export const composeTransitions = <V>(variants: VariantsMap, values: V): Compose
 
       for (const [key, variant, value] of flattened) {
         try {
-          const transitioner = conditionalInstantiate(variant);
+          const transitioner = transitionToFunction(variant);
 
           transitioner(injector, value);
         }
@@ -25,21 +32,19 @@ export const composeTransitions = <V>(variants: VariantsMap, values: V): Compose
   return transition;
 };
 
-const conditionalInstantiate = <T>(variant: Variant<T>): StateTransitionFunction<T> => {
+const transitionToFunction = <T>(variant: Variant<T>): StateTransitionFunction<T> => {
   const annotations = Reflector.annotations(<Type<any>> variant.transition); // injectable?
   if (annotations.length > 0) {
-    return instantaiteAndExecute<T>(<Type<any>> variant.transition);
+    return instantiator(<Type<StateTransition<T>>> variant.transition);
   }
-  return <StateTransitionFunction<T>> variant.transition;
+  return variant.transition as StateTransitionFunction<T>;
 };
 
-const instantaiteAndExecute = <T>(type: Type<any>): StateTransitionFunction<T> => {
+const instantiator = <T>(type: Type<StateTransition<T>>): StateTransitionFunction<T> => {
   return (injector: Injector, value: T) => {
-    const childInjector = ReflectiveInjector.resolveAndCreate([type], injector);
-
-    const transitioner = childInjector.get(type);
-
-    return transitioner.execute(value);
+    const descendantInjector = ReflectiveInjector.resolveAndCreate([type], injector);
+    const transition = descendantInjector.get(type);
+    return transition.execute(value);
   };
 };
 

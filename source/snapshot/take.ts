@@ -1,3 +1,4 @@
+import { composeBootstrap } from './compose';
 import {
   ApplicationRef,
   Injector,
@@ -6,17 +7,12 @@ import {
   Type,
 } from '@angular/core';
 
-import {Subscription} from 'rxjs';
+import {Subscription, Observable} from 'rxjs';
 
 import {SnapshotException} from '../exception';
-
 import {Snapshot} from './snapshot';
-
-import {
-  StateReaderFunction,
-  ApplicationStateReader,
-  RenderVariantOperation,
-} from '../application/operation';
+import {ApplicationStateReader, ApplicationStateReaderFunction, StateReader} from '../application/contracts';
+import {RenderVariantOperation} from '../application/operation';
 
 import {
   ConsoleCollector,
@@ -27,7 +23,7 @@ import {
 } from '../platform';
 
 export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<M, V>): Promise<Snapshot<V>> => {
-  const {variant, uri, transition, scope: {bootstrap, postprocessors}} = vop;
+  const {variant, uri, transition, scope: {stateReader, bootstrappers, postprocessors}} = vop;
 
   const snapshot: Partial<Snapshot<V>> = {variant, uri, exceptions: [], console: []};
 
@@ -39,9 +35,9 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
     // Mark the DOM as loaded and invoke remaining initialization tasks
     container.complete();
 
-    for (const fn of bootstrap || []) {
-      fn(moduleRef.injector);
-    }
+    const bootstrap = composeBootstrap(bootstrappers);
+
+    await bootstrap(moduleRef.injector);
 
     if (transition != null) {
       transition(moduleRef.injector);
@@ -52,12 +48,14 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
 
     await waitForZoneToBecomeStable(moduleRef);
 
-    const stateReader = conditionalInstantiate(vop.scope.stateReader);
+    let applicationState = undefined;
 
-    const applicationState = await stateReader(moduleRef.injector);
+    if (stateReader) {
+      applicationState = await stateReaderToFunction(stateReader)(moduleRef.injector);
 
-    if (applicationState != null) {
-      injectStateIntoDocument(container, applicationState);
+      if (applicationState != null) {
+        injectStateIntoDocument(container, applicationState);
+      }
     }
 
     const renderedDocument = transformDocument(postprocessors || [], (<any>container.document).outerHTML);
@@ -89,29 +87,28 @@ const subscribeToContext = <M>(moduleRef: NgModuleRef<M>, snapshot: Snapshot<any
   }
 };
 
-// An application state reader can be either an injectable class or a function
-const conditionalInstantiate = (reader: ApplicationStateReader): StateReaderFunction => {
-  if (reader == null) {
-    return () => Promise.resolve(undefined);
-  }
-  else if (typeof reader !== 'function') {
-    throw new SnapshotException(`A state reader must either be an injectable class or a function, not a ${typeof reader}`);
-  }
+const stateReaderToFunction = (reader: ApplicationStateReader): ApplicationStateReaderFunction => {
+  const type = reader as Type<StateReader>;
 
-  const type = <Type<any>> reader;
-
-  const annotations = Reflector.annotations(type); // injectable?
-  if (annotations.length > 0) {
-    return (injector: Injector) => {
-      const childInjector = ReflectiveInjector.resolveAndCreate([type], injector);
-
-      const reader = childInjector.get(type);
-
-      return reader.getState();
-    };
+  const annotations = Reflector.annotations(type);
+  if (annotations.length === 0) {
+    return reader as ApplicationStateReaderFunction;
   }
 
-  return <StateReaderFunction> reader;
+  return instantiator(type);
+};
+
+const instantiator = (type: Type<StateReader>): ApplicationStateReaderFunction => {
+  return (injector: Injector) => {
+    const descendantInjector = ReflectiveInjector.resolveAndCreate([type], injector);
+    const reader = descendantInjector.get(type);
+
+    const applicationState = reader.getState();
+
+    return applicationState instanceof Observable
+      ? applicationState.toPromise()
+      : Promise.resolve(applicationState);
+  };
 };
 
 const injectStateIntoDocument = (container: DocumentContainer, applicationState): void => {

@@ -1,13 +1,13 @@
-import {Injector, NgModuleFactory} from '@angular/core';
+import {NgModuleFactory} from '@angular/core';
 
 import {ApplicationBuilder} from './builder';
-import {RenderOperation, ApplicationStateReader} from '../operation';
+import {ApplicationBootstrapper, ApplicationStateReader, VariantsMap} from '../contracts';
+import {RenderOperation} from '../operation';
 import {Route} from '../../route';
-import {VariantsMap} from '../../variants';
 import {PlatformImpl, createServerPlatform} from './../../platform';
 
 export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
-  protected operation: Partial<RenderOperation<M>> = {};
+  protected operation: Partial<RenderOperation<M>> = {bootstrappers: [], postprocessors: []};
 
   private platformImpl: PlatformImpl;
 
@@ -20,21 +20,15 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
     return this.operation.templateDocument;
   }
 
-  bootstrap(fn?: (injector: Injector) => void) {
-    if (fn) {
-      if (this.operation.bootstrap == null) {
-        this.operation.bootstrap = [];
-      }
-      this.operation.bootstrap.push(fn);
+  bootstrap(bootstrapper?: ApplicationBootstrapper) {
+    if (bootstrapper) {
+      this.operation.bootstrappers.push(bootstrapper);
     }
-    return this.operation.bootstrap;
+    return this.operation.bootstrappers;
   }
 
   postprocess(transform?: (html: string) => string) {
     if (transform) {
-      if (this.operation.postprocessors == null) {
-        this.operation.postprocessors = [];
-      }
       this.operation.postprocessors.push(transform);
     }
     return this.operation.postprocessors;

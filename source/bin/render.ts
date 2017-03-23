@@ -6,14 +6,14 @@ import {
   ApplicationRenderer,
   ApplicationFromSource,
   HtmlOutput,
-  logger,
+  log,
 } from '../index';
 
 import {commandLineToOptions} from './options';
 
 const options = commandLineToOptions();
 
-logger.info(`Rendering application from source (working path: ${options.project.workingPath})`);
+log.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
 const application = new ApplicationFromSource(options.project);
 application.templateDocument(options.templateDocument);
@@ -24,10 +24,10 @@ const applicationRenderer = new ApplicationRenderer(application);
 
 const execute = async () => {
   try {
-    await applicationRenderer.renderTo(output);
+    await applicationRenderer.prerenderTo(output);
   }
   catch (exception) {
-    logger.error(`Failed to render application: ${exception.stack || exception.toString()}`);
+    log.error(`Failed to render application: ${exception.toString()}`);
   }
   finally {
     application.dispose();

@@ -1,9 +1,6 @@
-import {Injector} from '@angular/core';
-
-import {ApplicationStateReader} from '../operation';
+import {ApplicationBootstrapper, ApplicationStateReader, VariantsMap} from '../contracts';
 import {Disposable} from '../../disposable';
 import {Route} from './../../route/route';
-import {VariantsMap} from '../../variants';
 
 export interface ApplicationBuilder extends Disposable {
   // Provide a template HTML document that will be used when rendering this application.
@@ -13,11 +10,13 @@ export interface ApplicationBuilder extends Disposable {
   // by webpack as part of the build process.
   templateDocument(template?: string): string;
 
-  // Provide optional bootstrap functions that have access to the application root injector.
-  // You can query this injector for whatever services you need in order to apply your
-  // special server-side bootstrapping. Bootstrap code that is common to both server and
-  // client should be placed elsewhere, in a @Component or an @NgModule.
-  bootstrap(fn?: (injector: Injector) => void): Array<(injector: Injector) => void>;
+  // Provide optional bootstrap classes or functions. If you provide a class type, that type
+  // will be instantiated by the dependency injector in the context of a running application.
+  // If you provide a function, we will call the function with an application di injector.
+  // Bootstrap methods should be specialized things that you only have to bootstrap on the
+  // server. Generic bootstrap or initialization code belongs in the application code, not
+  // in the server.
+  bootstrap(bootstrapper: ApplicationBootstrapper): Array<ApplicationBootstrapper>;
 
   // Define the variants of this application. For applications that wish to render different
   // variants such as languages or anonymous vs authenticated, you can define those variants

@@ -2,23 +2,21 @@ import {join} from 'path';
 
 import {Logger} from 'scoped-logger';
 
-import {Output} from './output';
+import {OutputProducer} from './producer';
 import {OutputException} from '../exception';
 import {PathReference, fileFromString, pathFromString} from '../filesystem';
 import {Snapshot} from '../snapshot';
+import {index} from '../identifiers';
+import {log} from './log';
 import {pathFromUri} from '../route';
-import {htmlRoot} from '../identifiers';
-import {logger as baseLogger} from './logger';
 
-export class HtmlOutput extends Output {
+export class HtmlOutput extends OutputProducer {
   private path: PathReference;
 
-  constructor(path: PathReference | string, private logger?: Logger) {
+  constructor(path: PathReference | string, private logger: Logger = log) {
     super();
 
     this.path = pathFromString(path);
-
-    this.logger = logger || baseLogger;
   }
 
   initialize(): Promise<void> {
@@ -38,15 +36,24 @@ export class HtmlOutput extends Output {
   async write<V>(snapshot: Snapshot<V>): Promise<void> {
     this.assertValid(snapshot);
 
-    const path = pathFromUri(snapshot.uri);
+    const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), index));
 
-    const routedPath = pathFromString(join(this.path.toString(), path));
-    routedPath.mkdir();
-
-    const file = fileFromString(join(routedPath.toString(), htmlRoot));
-
-    this.logger.info(`Writing rendered route ${path} to ${file}`);
+    this.logger.info(`Rendered route ${pathFromUri(snapshot.uri)} to ${file} `);
 
     file.create(snapshot.renderedDocument);
+
+    return Promise.resolve(void 0);
+  }
+
+  exception(exception: Error) {
+    this.logger.error(`Fatal exception encountered: ${exception.toString()}`);
+  }
+
+  private routedPathFromSnapshot<V>(snapshot: Snapshot<V>) {
+    const routedPath = pathFromString(join(this.path.toString(), pathFromUri(snapshot.uri)));
+
+    routedPath.mkdir();
+
+    return routedPath;
   }
 }

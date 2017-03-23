@@ -1,3 +1,5 @@
+![CircleCI](https://img.shields.io/circleci/project/github/clbond/angular-ssr.svg) ![Code Coverage](https://img.shields.io/coveralls/clbond/angular-ssr.svg) ![npm](https://img.shields.io/npm/v/angular-ssr.svg)
+
 - [Introduction](#introduction)
 - [The simplest possible use case](#the-simplest-possible-case-an-angular-cli-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
   - [Additional examples](#additional-examples)
@@ -25,6 +27,7 @@ There are two ways you can use `angular-ssr`:
 	* It will use `tsconfig.json` and some other configuration elements to compile your application to a temporary directory and load the resulting JavaScript code (application code + `.ngfactory.js` files) into memory.
 	* It will query your router configuration and collect all your application routes into a flattened array (eg. `/`, `/foo`, `/bar`)
 	* For each of the discovered routes, it will instantiate your application and render that route to a static `.html` file in `dist` (or, if you specified an alternate output directory using `--output`, it will write the files there). It instantiates the application using the existing `dist/index.html` file that was produced as part of your normal application build as a template. The pre-rendered content will be inserted into that template and written out as a new `.html` file based on the route: e.g., `/foo/index.html`.
+	* The drawback to this approach is that the content is generated at build time, so if your routes contain some dynamic data that needs to be rendered on the server, you will instead need to [write a simple HTTP server using express and koa and do on-demand server-side rendering](#on-demand-server-side-rendering-and-caching).
 2. If your application has custom webpack configurations and loaders, you probably will not be able to use `ng-render`. But that's alright. It just means that you will have to build a separate webpack program output: either a NodeJS HTTP server, or a NodeJS application whose sole purpose is to do prerendering. You will follow these rough steps:
 	* Install `angular-ssr` as a dependency: `npm install angular-ssr --save`
 	* If you already have multiple webpack configs (one for server and one for client), then you can skip down to the next section and begin writing code to interface with `angular-ssr`.
