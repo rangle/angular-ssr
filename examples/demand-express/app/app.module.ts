@@ -9,6 +9,7 @@ import {BlogComponent} from './blog.component';
 import {RootComponent} from './root.component';
 import {LocaleComponent} from './locale.component';
 
+import {CookieService} from './cookie.service';
 import {LocaleService} from './locale.service';
 
 @NgModule({
@@ -28,6 +29,7 @@ import {LocaleService} from './locale.service';
     LocaleComponent
   ],
   providers: [
+    CookieService,
     LocaleService
   ],
   bootstrap: [RootComponent]

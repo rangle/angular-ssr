@@ -2,41 +2,33 @@ import {Injectable} from '@angular/core';
 
 import {Observable, ReplaySubject} from 'rxjs';
 
+import {CookieService} from './cookie.service';
+
+import {locale} from 'angular-ssr';
+
 @Injectable()
 export class LocaleService {
   subject = new ReplaySubject<string>();
 
-  constructor() {
-    const initial = () => {
-      return this.extractFromCookie('locale') || (() => {
-        this.locale = navigator.language;
-        return navigator.language;
-      })();
+  constructor(private cookies: CookieService) {
+    this.update(cookies.get('locale') || navigator.language || locale.fallback);
+  }
+
+  locale(locale?: Observable<string>): Observable<string> {
+    if (locale) {
+      const subscription = locale.subscribe(
+        value => {
+          this.update(value);
+
+          subscription.unsubscribe();
+        });
     }
-
-    this.subject.next(initial());
+    return this.subject;
   }
 
-  observable(): Observable<string> {
-    return this.subject.asObservable();
-  }
+  private update(value: string) {
+    this.subject.next(value);
 
-  set locale(locale: string) {
-    this.setInCookie('locale', locale);
-
-    this.subject.next(locale);
-  }
-
-  private getCookies(): Map<string, string> {
-    return new Map<string, string>(<any> (document.cookie || String()).split(/; /g).map(c => c.split(/=/)));
-  }
-
-  private extractFromCookie(key: string): string {
-    return this.getCookies().get(key);
-  }
-
-  private setInCookie(key: string, value: string) {
-    document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/;`;
-    document.cookie = `${key}=${value}; path=/;`;
+    this.cookies.set('locale', value);
   }
 }

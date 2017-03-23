@@ -13,6 +13,6 @@ export class LocaleComponent {
   public locale: Observable<string>;
 
   constructor(public service: LocaleService) {
-    this.locale = service.observable();
+    this.locale = service.locale();
   }
 }
