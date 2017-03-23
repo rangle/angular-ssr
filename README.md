@@ -276,8 +276,10 @@ We can handle this by rendering different _variants_ of our application. Let's a
 ```typescript
 import {Injector, Injectable} from '@angular/core';
 
+import {StateTransition} from 'angular-ssr';
+
 @Injectable()
-export class LocaleTransition {
+export class LocaleTransition implements StateTransition<string> {
   constructor(private localeService: LocaleService) {}
 
   // This is the bit of code that actually executes the transition to set the locale
@@ -286,7 +288,7 @@ export class LocaleTransition {
   // Note that this class can use the ng dependency injection system to retrieve any
   // services that it needs in order to execute the state transition.
   execute(value: string) {
-    this.localeService.locale = value;
+    this.localeService.locale(value);
   }
 }
 
@@ -326,6 +328,8 @@ app.get('*', async (req, res) => {
 ```
 
 Voila! Now whenever the user reloads our application or comes back to it in a few days, we are going to hand them a pre-rendered document that is in the language of their choosing! Simple.
+
+The example in `examples/demand-express` has working code that implements what was just described. Give it a shot!
 
 # State transfer from server to client
 
