@@ -75,7 +75,7 @@ export class CompilableProgram implements Disposable {
 
     const [resolvedModule, symbol] = this.build.resolve(roots, module);
     if (resolvedModule == null) {
-      throw new CompilerException(`Cannot find a module matching the name ${module.source} with a symbol ${module.symbol}`);
+      throw new CompilerException(`Cannot find an build emission ngfactory matching the name ${module.source} with a symbol ${module.symbol}`);
     }
 
     const loadedModule = require(resolvedModule);
