@@ -1,12 +1,8 @@
-import {ErrorHandler, Provider} from '@angular/core';
+import {ErrorHandler, Provider, ɵConsole as Console} from '@angular/core';
 
 import {ConsoleCollector} from './console';
 
 import {ExceptionCollector} from './exceptions';
-
-import {privateCoreImplementation} from './../imports';
-
-const {ɵConsole: Console} = privateCoreImplementation();
 
 export const PLATFORM_COLLECTOR_PROVIDERS: Array<Provider> = [
   {provide: ConsoleCollector, useClass: ConsoleCollector},

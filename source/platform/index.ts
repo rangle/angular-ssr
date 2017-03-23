@@ -1,6 +1,5 @@
 export * from './collectors';
 export * from './document';
-export * from './imports';
 export * from './location';
 export * from './module';
 export * from './platform';
