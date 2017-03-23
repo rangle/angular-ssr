@@ -25,7 +25,7 @@ export class DocumentVariantStore<V> {
     }
 
     let cached = snapshots.query(variants);
-    if (cached === undefined) {
+    if (cached == null) {
       cached = await this.application.renderUri(uri, variants);
       snapshots.insert(variants, cached);
     }

@@ -1,6 +1,6 @@
 import {Predicate} from '../predicate';
 
-import {FilesystemType} from './type';
+import {FileType} from './type';
 
 export interface FilesystemBase {
   // The name of this item (just the name)
@@ -10,15 +10,13 @@ export interface FilesystemBase {
   parent(): PathReference;
 
   // The type of path this is (symbolic link, etc.)
-  type(): FilesystemType;
+  type(): FileType;
 
   // Does this path exist?
   exists(): boolean;
 }
 
 export interface FileReference extends FilesystemBase {
-  dereference(): FileReference;
-
   // Create or overwrite the file with this content
   create(content: string): void;
 
@@ -30,8 +28,6 @@ export interface FileReference extends FilesystemBase {
 }
 
 export interface PathReference extends FilesystemBase {
-  dereference(): PathReference;
-
   // Get the immediate descendant child directories
   directories(predicate?: RegExp | Predicate<PathReference>): Set<PathReference>;
 
@@ -43,4 +39,7 @@ export interface PathReference extends FilesystemBase {
 
   // Recursive create of each component of the path (if nonexistent)
   mkdir(): void;
+
+  // Remove or fail silently
+  unlink(): void;
 }

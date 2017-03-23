@@ -4,7 +4,7 @@ import {getCompilableProgram} from '../factory';
 
 import {CompilableProgram} from '../program';
 
-describe('program compilation', () => {
+describe('CompilableProgram', () => {
   let program: CompilableProgram;
 
   beforeAll(() => { // reuse the same compiled program for each test

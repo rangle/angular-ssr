@@ -1,10 +1,4 @@
-import {join} from 'path';
-
-import {tmpdir} from 'os';
-
-import {pathFromString, PathReference} from '../filesystem';
-
-import {randomId} from '../identifiers';
+import {PathReference} from '../filesystem';
 
 export interface ApplicationModuleDescriptor {
   source: string;
@@ -17,9 +11,3 @@ export interface Project {
   workingPath?: PathReference;
   applicationModule?: ApplicationModuleDescriptor;
 }
-
-export const getTemporaryWorkingPath = (): PathReference => {
-  const path = pathFromString(join(tmpdir(), randomId()));
-  path.mkdir();
-  return path;
-};

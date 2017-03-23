@@ -1,8 +1,8 @@
 import {basename} from 'path';
 
-import {PathReference, FilesystemBase} from './contracts';
+import {PathReference, FilesystemBase} from '../contracts';
 
-import {FilesystemType} from './type';
+import {FileType, typeFromPath} from '../type';
 
 export abstract class FilesystemBaseImpl implements FilesystemBase {
   constructor(protected sourcePath: string) {}
@@ -15,7 +15,7 @@ export abstract class FilesystemBaseImpl implements FilesystemBase {
     return basename(this.sourcePath);
   }
 
-  type(): FilesystemType {
-    return new FilesystemType(this.sourcePath);
+  type(): FileType {
+    return typeFromPath(this.sourcePath);
   }
 }

@@ -1,9 +1,13 @@
+
+import {tmpdir} from 'os';
+
 import {dirname, join} from 'path';
+
+import {randomId} from '../identifiers';
 
 import {PathReference, FileReference} from './contracts';
 
-import {FileImpl} from './file';
-import {PathImpl} from './path';
+import {FileImpl, PathImpl} from './impl';
 
 export const pathFromString = (sourcePath: PathReference | string): PathReference => {
   if (typeof sourcePath === 'string') {
@@ -29,3 +33,9 @@ export const absolutePath = (basePath: string | PathReference, subpath: string) 
 
 export const absoluteFile = (basePath: string | PathReference, subpath: string) =>
   fileFromString(makeAbsolute(basePath.toString(), subpath));
+
+export const pathFromRandomId = (): PathReference => {
+  const path = pathFromString(join(tmpdir(), randomId()));
+  path.mkdir();
+  return path;
+};

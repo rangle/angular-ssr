@@ -76,7 +76,7 @@ const tsconfigFromRoot = (fromRoot: PathReference): string => {
     throw new ConfigurationException(`Root path does not exist: ${fromRoot}`);
   }
 
-  if (fromRoot.type().is(FileType.File)) {
+  if (fromRoot.type() === FileType.File) {
     return fromRoot.toString();
   }
 
