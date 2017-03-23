@@ -14,10 +14,13 @@
   "scripts": {
     "prebuild": "rimraf build",
     "build": "tsc",
+    "build-cli": "cd examples/cli && npm install && npm run build",
+    "build-express": "cd examples/demand-express && npm install && npm run build",
+    "build-examples": "npm-run-all --parallel build-cli build-express",
     "watch": "tsc --watch",
     "pretest": "npm run lint && npm run build",
     "lint": "tslint --project tsconfig.json --type-check",
-    "test": "jest --maxWorkers 64",
+    "test": "jest --maxWorkers 64 --coverage=true",
     "test:watch": "jest --watch"
   },
   "repository": {
@@ -73,6 +76,7 @@
     "mock-local-storage": "^1.0.2",
     "node-fetch": "^1.6.3",
     "node-stylus-require": "^1.1.0",
+    "npm-run-all": "^4.0.2",
     "require-sass": "^1.0.4",
     "rimraf": "2.5.4",
     "rxjs": "5.1.0",
