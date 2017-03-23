@@ -31,4 +31,18 @@ Object.assign(global, {MutationObserver: MutationObserverImpl});
 
 Object.assign(global, {CSS: null});
 
+const navigatorImpl = {
+  get userAgent() {
+    return 'Chrome';
+  },
+  get language() {
+    return 'en-US';
+  },
+  get cookieEnabled() {
+    return false;
+  }
+};
+
+Object.assign(global, {navigator: navigatorImpl});
+
 require('mock-local-storage');

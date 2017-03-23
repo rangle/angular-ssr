@@ -21,6 +21,6 @@ export class BlogComponent {
   constructor(localeService: LocaleService, route: ActivatedRoute) {
     this.id = route.params.map(p => +p['id']);
 
-    this.locale = localeService.observable();
+    this.locale = localeService.locale();
   }
 }

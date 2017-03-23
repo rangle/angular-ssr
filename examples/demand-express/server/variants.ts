@@ -9,7 +9,7 @@ export class TransitionLocale implements StateTransition<string> {
   constructor(private service: LocaleService) {}
 
   execute(locale: string) {
-    this.service.locale = locale;
+    this.service.locale(locale);
   }
 }
 

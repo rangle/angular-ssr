@@ -12,14 +12,9 @@ export class LocaleService {
     this.update(cookies.get<string>('locale') || navigator.language || 'en-US');
   }
 
-  locale(locale?: Observable<string>): Observable<string> {
+  locale(locale?: string): Observable<string> {
     if (locale) {
-      const subscription = locale.subscribe(
-        value => {
-          this.update(value);
-
-          subscription.unsubscribe();
-        });
+      this.update(locale);
     }
     return this.subject;
   }
