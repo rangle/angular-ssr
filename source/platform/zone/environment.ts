@@ -1,4 +1,4 @@
-import {Injector, Type} from '@angular/core';
+import {LOCALE_ID, Injector} from '@angular/core';
 
 import {PlatformLocation} from '@angular/common';
 
@@ -35,29 +35,44 @@ const getFromMap = <T>(token): T => {
 
 export const baseConsole = console;
 
-const fromInjectable = <R, T>(token: Type<T> | any, getter?: (value: T) => R): T | R => {
-  const object = getFromMap<T>(token);
+const fromInjectable = <R>(token, getter?: (value) => R): R => {
+  const object = getFromMap(token);
   if (object) {
     if (getter) {
       return getter(object);
     }
-    return object;
+    return object as R;
   }
   return undefined;
 };
 
 Object.defineProperties(environment, {
   console: {
-    get: () => fromInjectable<ConsoleCollector, ConsoleCollector>(ConsoleCollector) || baseConsole,
-  },
-  window: {
-    get: () => fromInjectable<Window, DocumentContainer>(DocumentContainer, c => c.window),
+    get: () => fromInjectable<ConsoleCollector>(ConsoleCollector) || baseConsole,
   },
   document: {
-    get: () => fromInjectable<Document, DocumentContainer>(DocumentContainer, c => c.document),
+    get: () => fromInjectable<Document>(DocumentContainer, c => c.document),
   },
   location: {
-    get: () => fromInjectable<PlatformLocation, PlatformLocation>(PlatformLocation),
+    get: () => fromInjectable<PlatformLocation>(PlatformLocation),
+  },
+  window: {
+    get: () => fromInjectable<Window>(DocumentContainer, c => c.window),
+  },
+  navigator: {
+    get: () => {
+      return {
+        get userAgent() {
+          return 'Chrome';
+        },
+        get language() {
+          return fromInjectable<string>(LOCALE_ID) || 'en-US';
+        },
+        get cookieEnabled() {
+          return false;
+        }
+      };
+    }
   }
 });
 
@@ -65,7 +80,7 @@ if (environment.System == null) { // ng cli only
   Object.defineProperties(environment, {
     System: {
       get: () => {
-        const loader = fromInjectable<RuntimeModuleLoader, RuntimeModuleLoader>(RuntimeModuleLoader);
+        const loader = fromInjectable<RuntimeModuleLoader>(RuntimeModuleLoader);
         if (loader) {
           return {
             import: (moduleId: string) => loader.load(moduleId)
