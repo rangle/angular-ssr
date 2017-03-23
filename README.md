@@ -178,40 +178,92 @@ export class LocaleSelector implements OnInit {
     this.localeService.locale = locale;
   }
 }
+```
+
+```typescript
+import {Injectable} from '@angular/core';
+
+import {Observable, ReplaySubject} from 'rxjs';
 
 @Injectable()
 export class LocaleService {
-  get locale(): string {
-    return this.extractFromCookie('locale') || (() => {
-      this.setInCookie('locale', navigator.language);
-      return navigator.language;
-    })();
+  subject = new ReplaySubject<string>();
+
+  constructor(private cookies: CookieService) {
+    this.update(cookies.get<string>('locale') || navigator.language || 'en-US');
   }
 
-  set locale(locale: string) {
-    this.setInCookie('locale', locale);
+  locale(locale?: string): Observable<string> {
+    if (locale) {
+      this.update(locale);
+    }
+    return this.subject;
   }
 
-  private getCookies(): Map<string, string> {
-    return new Map<string, string>(<any> document.cookie.split(/; /g).map(c => c.split(/=/)));
+  private update(value: string) {
+    this.subject.next(value);
+
+    this.cookies.set('locale', value);
+  }
+}
+```
+
+```typescript
+export type CookieValue = string | number;
+
+@Injectable()
+export class CookieService {
+  get map(): Map<string, CookieValue> {
+    if (!document.cookie) {
+      return new Map<string, string>();
+    }
+
+    const components = document.cookie.split(/(;\s?)/g);
+
+    const tuples = components.map(
+      (pair: string): [string, CookieValue] => {
+        const [key, value] = pair.split(/=/);
+
+        return /^([\d+])$/.test(value)
+          ? [key, parseInt(value, 10)];
+          : [key, value];
+      });
+
+    return new Map<string, CookieValue>(tuples);
   }
 
-  private extractFromCookie(key: string): string {
-    return this.getCookies().get(key);
+  get<T>(key: string): T {
+    return this.map.get(key) as any;
   }
 
-  private setInCookie(key: string, value: string) {
-    const cookies = this.getCookies();
-    cookies.set(key, value);
+  set(key: string, value: CookieValue) {
+    this.delete(key);
 
-    document.cookie = Array.from(cookies.entries()).map(([k, v]) => `${k}=${v}`).join('; ');
+    document.cookie = `${key}=${value.toString()}; path=/; domain=${location.hostname};`;
+  }
+
+  delete(key: string) {
+    const criterion: Array<[string, string | number]> = [
+      ['expires', 'Thu, 01 Jan 1970 00:00:01 GMT'],
+      ['path', '/'],
+      ['domain', location.hostname],
+      ['max-age', 0]
+    ];
+
+    while (criterion.length > 0) {
+      const serialized = criterion.map(([k, v]) => `${k}=${v}`).join('; ');
+
+      document.cookie = `${key}=;${serialized ? ' ' + serialized : String()}`.trim();
+
+      criterion.pop();
+    }
   }
 }
 ```
 
 Essentially what this code is doing is setting a cookie in two events:
 1. The user loads the application for the first time and there is no cookie, so we set the cookie value to `navigator.language`, to respect their system locale settings.
-2. If the user changes the locale, we update `document.cookie` with the new `locale` setting.
+2. If the user changes the locale, we update `document.cookie` with the new `locale` setting. Then subsequent HTTP requests will include a correct `locale` value, and we can use that to determine whether to serve them an English or a French page.
 
 ### Server code
 
