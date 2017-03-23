@@ -1,4 +1,4 @@
-<md-select placeholder="Language" [ngModel]="locale | async" (ngModelChange)="service.locale = $event">
+<md-select placeholder="Language" [ngModel]="locale | async" (ngModelChange)="service.locale($event)">
   <md-option value="en-US">
     English
   </md-option>

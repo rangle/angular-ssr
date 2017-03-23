@@ -1,5 +1,7 @@
 import {Injector, Type} from '@angular/core';
 
+import {PlatformLocation} from '@angular/common';
+
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
 import {PlatformException} from '../../exception';
@@ -54,6 +56,9 @@ Object.defineProperties(environment, {
   document: {
     get: () => fromInjectable<Document, DocumentContainer>(DocumentContainer, c => c.document),
   },
+  location: {
+    get: () => fromInjectable<PlatformLocation, PlatformLocation>(PlatformLocation),
+  }
 });
 
 if (environment.System == null) { // ng cli only

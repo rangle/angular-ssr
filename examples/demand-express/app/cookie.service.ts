@@ -43,11 +43,12 @@ export class CookieService {
       ['max-age', 0]
     ];
 
-    do {
+    while (criterion.length > 0) {
       const serialized = criterion.map(([k, v]) => `${k}=${v}`).join('; ');
 
-      document.cookie = `${key}=; ${serialized}`.trim();
+      document.cookie = `${key}=;${serialized ? ' ' + serialized : String()}`.trim();
+
+      criterion.pop();
     }
-    while (criterion.pop());
   }
 }
