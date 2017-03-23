@@ -9,3 +9,7 @@ checkout:
     - npm install
     - npm run build
     - npm run build-examples
+
+test:
+  post:
+    - cp -r coverage $CIRCLE_ARTIFACTS
