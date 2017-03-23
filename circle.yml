@@ -13,3 +13,4 @@ checkout:
 test:
   post:
     - cp -r coverage $CIRCLE_ARTIFACTS
+    - ./bin/coverage.sh
