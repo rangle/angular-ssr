@@ -24,3 +24,5 @@ source/**/*.js.map
 npm-debug.*
 
 .DS_Store
+
+yarn.lock
