@@ -1,7 +1,6 @@
 import {
   APP_ID,
   COMPILER_OPTIONS,
-  Sanitizer,
   PlatformRef,
   Provider,
   createPlatformFactory,
@@ -15,7 +14,6 @@ import {
 import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
 import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';
 import {PlatformImpl} from './platform';
-import {SanitizerImpl} from './sanitizer';
 import {CurrentZone} from './zone';
 import {randomizedApplicationId} from '../identifiers';
 
@@ -33,6 +31,5 @@ export const createServerPlatform =
       ...PLATFORM_COLLECTOR_PROVIDERS,
       {provide: APP_ID, useFactory: randomizedApplicationId},
       {provide: PlatformRef, useClass: PlatformImpl},
-      {provide: Sanitizer, useClass: SanitizerImpl},
       {provide: CurrentZone, useClass: CurrentZone},
     ));

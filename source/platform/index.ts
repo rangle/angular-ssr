@@ -1,3 +1,4 @@
+export * from './bootstrap';
 export * from './collectors';
 export * from './document';
 export * from './location';
@@ -5,6 +6,5 @@ export * from './module';
 export * from './platform';
 export * from './render';
 export * from './resource-loader';
-export * from './sanitizer';
 export * from './zone';
 export * from './factory';

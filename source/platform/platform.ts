@@ -1,10 +1,7 @@
 import {
-  ApplicationInitStatus,
-  ApplicationRef,
   Compiler,
   CompilerFactory,
   CompilerOptions,
-  ErrorHandler,
   Injectable,
   Injector,
   Inject,
@@ -17,18 +14,19 @@ import {
 
 import {PlatformException} from '../exception';
 
+import {array} from '../transformation';
+
+import {bootstrapModule} from './bootstrap';
+
 import {createPlatformInjector} from './injector';
 
-import {
-  mapZoneToInjector,
-  waitForZoneToBecomeStable,
-} from './zone';
+import {mapZoneToInjector, waitForZoneToBecomeStable} from './zone';
 
 @Injectable()
 export class PlatformImpl implements PlatformRef {
   private compiler: Compiler;
 
-  private compiledModules = new Map<string, NgModuleFactory<any>>();
+  private compiledModules = new Map<Type<any>, NgModuleFactory<any>>();
 
   private references = new Set<NgModuleRef<any>>();
 
@@ -37,30 +35,20 @@ export class PlatformImpl implements PlatformRef {
   constructor(@Inject(Injector) public injector: Injector) {}
 
   async compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions>) {
-    if (nonstandardOptions(compilerOptions)) {
-      // We cannot use our cached compiler or cached modules if the compilation options
-      // have changed. The majority of callers of this method are not going to be giving
-      // compilerOptions, so this is an unusual path for the code to take and is not
-      // necessary to optimize with caching.
-      const compiler = this.getCompiler(compilerOptions);
-      try {
-        const {ngModuleFactory} = await compiler.compileModuleAndAllComponentsAsync(moduleType);
-        return ngModuleFactory;
-      }
-      finally {
-        compiler.clearCache();
-      }
+    if (specializedCompilerOptions(compilerOptions)) {
+      throw new PlatformException('Do not pass compiler options to compileModule because it defeats caching');
     }
 
-    if (this.compiledModules.has(moduleType.name) === false) {
-      const compiler = this.getCompiler(compilerOptions);
+    let cached = this.compiledModules.get(moduleType);
+    if (cached == null) {
+      const compiler = this.getCompiler();
 
-      const moduleFactory = await compiler.compileModuleAsync(moduleType);
+      cached = await compiler.compileModuleAsync(moduleType);
 
-      this.compiledModules.set(moduleType.name, moduleFactory);
+      this.compiledModules.set(moduleType, cached);
     }
 
-    return this.compiledModules.get(moduleType.name);
+    return cached;
   }
 
   async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []): Promise<NgModuleRef<M>> {
@@ -84,70 +72,21 @@ export class PlatformImpl implements PlatformRef {
       this.references.delete(moduleRef);
     });
 
-    await this.completeBootstrap(zone, moduleRef);
+    await bootstrapModule(zone, moduleRef).then(() => this.references.add(moduleRef));
 
     await waitForZoneToBecomeStable(moduleRef);
 
     return moduleRef;
   }
 
-  private getCompiler(compilerOptions: CompilerOptions | Array<CompilerOptions>): Compiler {
-    const create = () => {
+  private getCompiler(compilerOptions?: CompilerOptions | Array<CompilerOptions>): Compiler {
+    if (this.compiler == null) {
       const compilerFactory: CompilerFactory = this.injector.get(CompilerFactory);
 
-      return compilerFactory.createCompiler(Array.isArray(compilerOptions) ? compilerOptions : [compilerOptions]);
-    };
-
-    if (compilerOptions != null) {
-      return create();
+      this.compiler = compilerFactory.createCompiler(array(compilerOptions || {}));
     }
-    else {
-      if (this.compiler == null) {
-        this.compiler = create();
-      }
-      return this.compiler;
-    }
-  }
 
-  private completeBootstrap<M>(zone: NgZone, moduleRef: NgModuleRef<M>): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      const exceptionHandler: ErrorHandler = moduleRef.injector.get(ErrorHandler);
-
-      zone.onError.subscribe(
-        exception => {
-          exceptionHandler.handleError(exception);
-          reject(exception);
-        });
-
-      const applicationInit = moduleRef.injector.get(ApplicationInitStatus, null);
-      if (applicationInit == null) {
-        throw new PlatformException(`Your application module ${moduleRef.instance.constructor} does not import ApplicationModule, but it must`);
-      }
-
-      applicationInit.donePromise.then(() => {
-        const applicationRef = moduleRef.injector.get(ApplicationRef);
-
-        const {bootstrapFactories, instance: {ngDoBootstrap}} = <any> moduleRef;
-        if (bootstrapFactories.length > 0) {
-          for (const component of bootstrapFactories) {
-            applicationRef.bootstrap(component);
-          }
-        }
-        else if (typeof ngDoBootstrap === 'function') {
-          ngDoBootstrap.bind(moduleRef.instance)(applicationRef);
-        }
-        else {
-          throw new PlatformException(`Module declares neither bootstrap nor ngDoBootstrap`);
-        }
-
-        this.references.add(moduleRef);
-
-        resolve();
-      })
-      .catch(exception => {
-        reject(exception);
-      });
-    });
+    return this.compiler;
   }
 
   async destroy() {
@@ -168,6 +107,11 @@ export class PlatformImpl implements PlatformRef {
         });
       }
 
+      if (this.compiler) {
+        this.compiler.clearCache();
+        this.compiler = null;
+      }
+
       this.compiledModules.clear();
     }
   }
@@ -177,7 +121,7 @@ export class PlatformImpl implements PlatformRef {
   }
 }
 
-const nonstandardOptions = (compilerOptions: CompilerOptions | Array<CompilerOptions>) => {
+const specializedCompilerOptions = (compilerOptions: CompilerOptions | Array<CompilerOptions>) => {
   if (compilerOptions) {
     if (Array.isArray(compilerOptions)) {
       return compilerOptions.length > 0;
