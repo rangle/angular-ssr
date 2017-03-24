@@ -47,7 +47,6 @@ export interface RenderOperation<M> {
 export interface RenderVariantOperation<M, V> {
   scope: RenderOperation<M>;       /// parent render scope
   uri: string;                     /// an absolute URI including protocol and hostname
-  locale?: string;                 /// optional locale (navigator.language will return this value to the application)
   variant?: V;                     /// variant options for this render operation
   transition?: ComposedTransition; /// variant transition function composed from {@link VariantMap} and {@link variant}
 }

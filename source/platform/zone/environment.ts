@@ -56,9 +56,6 @@ Object.defineProperties(environment, {
   location: {
     get: () => fromInjectable<PlatformLocation>(PlatformLocation),
   },
-  window: {
-    get: () => fromInjectable<Window>(DocumentContainer, c => c.window),
-  },
   navigator: {
     get: () => {
       return {
@@ -73,7 +70,10 @@ Object.defineProperties(environment, {
         }
       };
     }
-  }
+  },
+  window: {
+    get: () => fromInjectable<Window>(DocumentContainer, c => c.window),
+  },
 });
 
 if (environment.System == null) { // ng cli only
