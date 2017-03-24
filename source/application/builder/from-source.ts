@@ -15,27 +15,40 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
     this.program = getCompilableProgram(project);
   }
 
-  dispose() {
-    if (this.program) {
-      this.program.dispose();
-    }
-
-    return super.dispose();
-  }
-
-  protected instantiatePlatform(): PlatformImpl {
-    const platform = createServerPlatform([
-      {provide: ApplicationRuntimeProject, useValue: this},
-      {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}
-    ]);
-    return platform as PlatformImpl;
-  }
-
   async getModuleFactoryFromDescriptor(moduleDescriptor: ApplicationModuleDescriptor) {
     return await this.program.loadModule(moduleDescriptor, false);
   }
 
   async getModuleFactory(): Promise<NgModuleFactory<any>> {
     return await this.program.loadModule(this.project.applicationModule, true);
+  }
+
+  dispose() {
+    if (this.program) {
+      this.program.dispose();
+    }
+
+    if (this.platformRef) {
+      this.platformRef.destroy();
+      this.platformRef = null;
+    }
+
+    return super.dispose();
+  }
+
+  private platformRef: PlatformImpl;
+
+  protected get platform(): PlatformImpl {
+    if (this.platformRef == null) {
+      this.platformRef = this.instantiatePlatform();
+    }
+    return this.platformRef;
+  }
+
+  private instantiatePlatform(): PlatformImpl {
+    return createServerPlatform([
+      {provide: ApplicationRuntimeProject, useValue: this},
+      {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}
+    ]) as PlatformImpl;
   }
 }

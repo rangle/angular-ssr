@@ -25,8 +25,8 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
       throw new PlatformException(`Your application module ${description} does not import ApplicationModule, but it must`);
     }
 
-    return applicationInit.donePromise.then(() => {
-      const applicationRef = moduleRef.injector.get(ApplicationRef);
+    applicationInit.donePromise.then(() => {
+      const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
 
       const {bootstrapFactories, instance: {ngDoBootstrap}} = <any> moduleRef;
 
@@ -34,13 +34,17 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
         for (const component of bootstrapFactories) {
           applicationRef.bootstrap(component);
         }
+        resolve();
       }
       else if (typeof ngDoBootstrap === 'function') {
-        ngDoBootstrap.bind(moduleRef.instance)(applicationRef);
+        const bootstrapResult = ngDoBootstrap.bind(moduleRef.instance)(applicationRef);
+
+        Promise.resolve(bootstrapResult).then(() => resolve()).catch(exception => reject(exception));
       }
       else {
-        throw new PlatformException(`Module declares neither bootstrap nor ngDoBootstrap: ${description}`);
+        reject(new PlatformException(`Module declares neither bootstrap nor ngDoBootstrap: ${description}`));
       }
-    });
+    })
+    .catch(exception => reject(exception));
   });
 };

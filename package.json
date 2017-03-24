@@ -20,7 +20,7 @@
     "watch": "tsc --watch",
     "pretest": "npm run lint && npm run build",
     "lint": "tslint --project tsconfig.json --type-check",
-    "test": "jest --maxWorkers=64 --coverage=true",
+    "test": "jest --coverage=true",
     "test:watch": "jest --watch"
   },
   "repository": {

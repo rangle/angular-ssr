@@ -35,8 +35,10 @@ export class PlatformImpl implements PlatformRef {
   constructor(@Inject(Injector) public injector: Injector) {}
 
   async compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions>) {
+    const compiler = this.getCompiler(compilerOptions);
+
     if (specializedCompilerOptions(compilerOptions)) {
-      throw new PlatformException('Do not pass compiler options to compileModule because it defeats caching');
+      return await compiler.compileModuleAsync(moduleType);
     }
 
     let cached = this.compiledModules.get(moduleType);
@@ -74,19 +76,25 @@ export class PlatformImpl implements PlatformRef {
 
     await bootstrapModule(zone, moduleRef).then(() => this.references.add(moduleRef));
 
-    await waitForZoneToBecomeStable(moduleRef);
-
     return moduleRef;
   }
 
   private getCompiler(compilerOptions?: CompilerOptions | Array<CompilerOptions>): Compiler {
-    if (this.compiler == null) {
+    const createCompiler = () => {
       const compilerFactory: CompilerFactory = this.injector.get(CompilerFactory);
 
-      this.compiler = compilerFactory.createCompiler(array(compilerOptions || {}));
-    }
+      return compilerFactory.createCompiler(array(compilerOptions || {}));
+    };
 
-    return this.compiler;
+    if (specializedCompilerOptions(compilerOptions)) {
+      return createCompiler();
+    }
+    else {
+      if (this.compiler == null) {
+        this.compiler = createCompiler();
+      }
+      return this.compiler;
+    }
   }
 
   async destroy() {

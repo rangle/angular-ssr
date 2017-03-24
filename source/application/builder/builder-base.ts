@@ -6,10 +6,10 @@ import {RenderOperation} from '../operation';
 import {Route} from '../../route';
 import {PlatformImpl, createServerPlatform} from './../../platform';
 
+const basePlatform = createServerPlatform();
+
 export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
   protected operation: Partial<RenderOperation<M>> = {bootstrappers: [], postprocessors: []};
-
-  private platformImpl: PlatformImpl;
 
   abstract getModuleFactory(): Promise<NgModuleFactory<M>>;
 
@@ -55,23 +55,9 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
     return this.operation.stateReader;
   }
 
-  get platform(): PlatformImpl {
-    if (this.platformImpl == null) {
-      this.platformImpl = this.instantiatePlatform();
-    }
-    return this.platformImpl;
+  protected get platform(): PlatformImpl {
+    return basePlatform as PlatformImpl;
   }
 
-  dispose() {
-    const platformImpl = this.platformImpl;
-    if (platformImpl) {
-      delete this.platformImpl;
-
-      platformImpl.destroy();
-    }
-  }
-
-  protected instantiatePlatform(): PlatformImpl {
-    return createServerPlatform([]) as PlatformImpl;
-  }
+  dispose() {}
 }
