@@ -23,7 +23,7 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
     return super.dispose();
   }
 
-  protected getPlatform(): PlatformImpl {
+  protected instantiatePlatform(): PlatformImpl {
     const platform = createServerPlatform([
       {provide: ApplicationRuntimeProject, useValue: this},
       {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}

@@ -55,13 +55,9 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
     return this.operation.stateReader;
   }
 
-  protected getPlatform(): PlatformImpl {
-    return <PlatformImpl> createServerPlatform([]);
-  }
-
   get platform(): PlatformImpl {
     if (this.platformImpl == null) {
-      this.platformImpl = this.getPlatform();
+      this.platformImpl = this.instantiatePlatform();
     }
     return this.platformImpl;
   }
@@ -73,5 +69,9 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
 
       platformImpl.destroy();
     }
+  }
+
+  protected instantiatePlatform(): PlatformImpl {
+    return createServerPlatform([]) as PlatformImpl;
   }
 }

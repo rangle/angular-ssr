@@ -11,6 +11,9 @@ export interface RenderOperation<M> {
   // HTML returned from the first HTTP request.
   templateDocument: string;
 
+  // Will this render operation execute in production mode or development mode?
+  production: boolean;
+
   // A precompiled NgModuleFactory<M> which can be used to instantiate applications
   moduleFactory: NgModuleFactory<M>;
 

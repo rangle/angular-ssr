@@ -1,51 +1,37 @@
 import './vendor';
 
-import url = require('url');
-
 import express = require('express');
 
-import cookieParser = require('cookie-parser');
+import {enableProdMode} from '@angular/core';
 
 import {ApplicationFromModule, DocumentVariantStore} from 'angular-ssr';
 
 import {AppModule} from '../app/app.module';
 
-import {dist, index} from './paths';
-
-import {Variants, variants} from './variants';
+import {absoluteUri, configure, listen} from './http';
+import {index} from './paths';
+import {variants, Variants} from './variants';
 
 const http = express();
 
-http.use(express.static(dist, {index}));
+configure(http);
 
-http.use(require('express-blank-favicon'));
-
-http.use(cookieParser());
+enableProdMode();
 
 const application = new ApplicationFromModule<Variants, AppModule>(AppModule, index);
 
 application.variants(variants);
 
-const documentStore = new DocumentVariantStore(application);
+const documentStore = new DocumentVariantStore(application); // has default lru cache size
 
 http.get('*', (request, response) => {
-  documentStore.load(originalUri(request), {locale: request.cookies['locale'] || 'en-US'})
+  documentStore.load(absoluteUri(request), {locale: request.cookies['locale'] || 'en-US'})
     .then(snapshot => {
       response.send(snapshot.renderedDocument);
     })
     .catch(exception => {
-      response.sendFile(index); // fall back on client document
+      response.send(application.templateDocument()); // fall back on client document
     });
 });
 
-const originalUri = (request: express.Request): string => {
-  return url.format({
-    protocol: request.protocol,
-    host: request.get('host'),
-    pathname: request.originalUrl
-  });
-}
-
-const port = process.env.PORT || 8080;
-
-http.listen(port, () => console.log(`Site available at http://localhost:${port}/blog/1 (or try other blog ID numbers to see demand loading in action)`));
+listen(http).then(port => console.log(`Load http://localhost:${port}/blog/1 (or try other blog ID numbers to see demand loading)`));
