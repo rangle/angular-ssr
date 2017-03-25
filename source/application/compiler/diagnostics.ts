@@ -22,15 +22,13 @@ export const diagnosticsToException = (diagnostics: Array<Diagnostic>): string =
     getNewLine: (): string => EOL,
   };
 
-  return formatDiagnostics(diagnostics, host);
+  return `Your application failed to compile (to resolve, run tsc from ${cwd()} and resolve these errors: ${formatDiagnostics(diagnostics, host)})`;
 };
 
 export const assertProgram = (program: Program) => {
   assertDiagnostics(program.getOptionsDiagnostics());
-  assertDiagnostics(program.getGlobalDiagnostics());
   assertDiagnostics(program.getSemanticDiagnostics());
   assertDiagnostics(program.getSyntacticDiagnostics());
-  assertDiagnostics(program.getDeclarationDiagnostics());
   assertDiagnostics(flatten<Diagnostic>(program.getSourceFiles().map(file => getPreEmitDiagnostics(program, file))));
 };
 

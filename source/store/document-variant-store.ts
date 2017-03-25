@@ -21,12 +21,14 @@ export class DocumentVariantStore<V> {
     let snapshots = this.cache.get(uri);
     if (snapshots == null) {
       snapshots = new Trie<V, Snapshot<V>>();
+
       this.cache.set(uri, snapshots);
     }
 
     let cached = snapshots.query(variants);
     if (cached == null) {
       cached = await this.application.renderUri(uri, variants);
+
       snapshots.insert(variants, cached);
     }
 

@@ -1,8 +1,12 @@
-import {ApplicationBootstrapper, ApplicationStateReader, VariantsMap} from '../contracts';
+import {PlatformRef} from '@angular/core';
+
+import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
 import {Disposable} from '../../disposable';
 import {Route} from './../../route/route';
 
 export interface ApplicationBuilder extends Disposable {
+  readonly platform: PlatformRef;
+
   // Provide a template HTML document that will be used when rendering this application.
   // In almost all cases this will be the build output file `dist/index.html`, not the
   // source index.html. This is because this file should include everything that is necessary
@@ -37,5 +41,5 @@ export interface ApplicationBuilder extends Disposable {
   // has some kind of placeholder which you wish to replace with some code or text. These
   // postprocessing functions will be called in order and each successive transform will receive
   // as its argument the result of the prior postprocessor.
-  postprocess(transform?: (html: string) => string): Array<(html: string) => string>;
+  postprocess(transform?: Postprocessor): Array<Postprocessor>;
 }

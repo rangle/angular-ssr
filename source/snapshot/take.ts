@@ -11,8 +11,9 @@ import {Subscription, Observable} from 'rxjs';
 
 import {SnapshotException} from '../exception';
 import {Snapshot} from './snapshot';
-import {ApplicationStateReader, ApplicationStateReaderFunction, StateReader} from '../application/contracts';
+import {ApplicationStateReader, ApplicationStateReaderFunction, Postprocessor, StateReader} from '../application/contracts';
 import {RenderVariantOperation} from '../application/operation';
+import {timeouts} from '../identifiers';
 
 import {
   ConsoleCollector,
@@ -46,7 +47,7 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
     const applicationRef = moduleRef.injector.get(ApplicationRef);
     applicationRef.tick(); // transition above may have caused changes, force a tick
 
-    await waitForZoneToBecomeStable(moduleRef);
+    await waitForZoneToBecomeStable(moduleRef, timeouts.application.bootstrap);
 
     let applicationState = undefined;
 
@@ -58,7 +59,9 @@ export const takeSnapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderV
       }
     }
 
-    const renderedDocument = transformDocument(postprocessors || [], (<any>container.document).outerHTML);
+    transformDocument(postprocessors, container.document);
+
+    const renderedDocument = (<{outerHTML?}> container.document).outerHTML;
 
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }
@@ -134,9 +137,28 @@ const injectStateIntoDocument = (container: DocumentContainer, applicationState)
   document.head.appendChild(script);
 };
 
-const transformDocument = (processors: Array<(html: string) => string>, document: string): string => {
+const transformDocument = (processors: Array<Postprocessor>, document: Document & {outerHTML?: string}) => {
   for (const processor of processors) {
-    document = processor(document);
+    switch (processor.length) {
+      case 1:
+        processor(document);
+        break;
+      case 2:
+        const result = processor(document, document.outerHTML);
+        switch (typeof result) {
+          case 'string':
+            document.outerHTML = result as string;
+            break;
+          default:
+            if (result != null) {
+              throw new SnapshotException(`Invalid postprocessor result type: ${typeof result}`);
+            }
+            break;
+        }
+        break;
+      default:
+        throw new SnapshotException(`A postprocessor function must accept one or two arguments, not ${processor.length}`);
+    }
   }
   return document;
 };

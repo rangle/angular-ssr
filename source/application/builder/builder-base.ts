@@ -1,7 +1,7 @@
 import {NgModuleFactory} from '@angular/core';
 
 import {ApplicationBuilder} from './builder';
-import {ApplicationBootstrapper, ApplicationStateReader, VariantsMap} from '../contracts';
+import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
 import {RenderOperation} from '../operation';
 import {Route} from '../../route';
 import {PlatformImpl, createServerPlatform} from './../../platform';
@@ -12,6 +12,10 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
   protected operation: Partial<RenderOperation<M>> = {bootstrappers: [], postprocessors: []};
 
   abstract getModuleFactory(): Promise<NgModuleFactory<M>>;
+
+  get platform(): PlatformImpl {
+    return basePlatform as PlatformImpl;
+  }
 
   templateDocument(template?: string) {
     if (template != null) {
@@ -27,7 +31,7 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
     return this.operation.bootstrappers;
   }
 
-  postprocess(transform?: (html: string) => string) {
+  postprocess(transform?: Postprocessor) {
     if (transform) {
       this.operation.postprocessors.push(transform);
     }
@@ -53,10 +57,6 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
       this.operation.stateReader = stateReader;
     }
     return this.operation.stateReader;
-  }
-
-  protected get platform(): PlatformImpl {
-    return basePlatform as PlatformImpl;
   }
 
   dispose() {}

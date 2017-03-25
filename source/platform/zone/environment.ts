@@ -1,3 +1,5 @@
+import 'zone.js';
+
 import {LOCALE_ID, Injector} from '@angular/core';
 
 import {PlatformLocation} from '@angular/common';

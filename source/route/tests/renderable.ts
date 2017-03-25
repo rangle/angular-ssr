@@ -1,5 +1,3 @@
-import {PlatformImpl} from '../../platform';
-
 import {applicationRoutes, renderableRoutes} from '../../route';
 
 import {
@@ -9,13 +7,15 @@ import {
   templateDocument
 } from '../../test/fixtures';
 
-describe('renderable routes', () => {
+describe('renderableRoutes', () => {
   it('discovers a single route (/) for an NgModule that does not use the router', async () => {
     const application = loadApplicationFixtureFromModule(BasicInlineModule);
     try {
       const moduleFactory = await application.getModuleFactory();
 
-      const result = renderableRoutes(await applicationRoutes(application.platform, moduleFactory, templateDocument));
+      const routes = await applicationRoutes(application.platform, moduleFactory, templateDocument);
+
+      const result = renderableRoutes(routes);
 
       expect(result.length).toBe(1);
       expect(result[0].path).toEqual([]);

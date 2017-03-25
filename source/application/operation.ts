@@ -1,8 +1,13 @@
 import {NgModuleFactory} from '@angular/core';
 
-import {ApplicationBootstrapper, ApplicationStateReader} from './contracts';
+import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor} from './contracts';
 import {ComposedTransition, VariantsMap} from './contracts';
 import {Route} from '../route';
+
+// A render operation is an operation that forks into multiple concurrent suboperations,
+// which are represented with RenderVariantOperation<V, M>. Each route and variant
+// permutation will cause a separate parallel render operation and each of them instantiate
+// their own instance of the application.
 
 export interface RenderOperation<M> {
   // This is an HTML document containing the index.html build output of the application.
@@ -10,9 +15,6 @@ export interface RenderOperation<M> {
   // tags so that it will boot the client application after rendering the prerendered
   // HTML returned from the first HTTP request.
   templateDocument: string;
-
-  // Will this render operation execute in production mode or development mode?
-  production: boolean;
 
   // A precompiled NgModuleFactory<M> which can be used to instantiate applications
   moduleFactory: NgModuleFactory<M>;
@@ -44,12 +46,12 @@ export interface RenderOperation<M> {
   // A chain of postprocessors that transform rendered HTML documents in some way. They will
   // be executed in order of definition, and each transform will receive as its argument the
   // results of the previous transformation.
-  postprocessors: Array<(html: string) => string>;
+  postprocessors: Array<Postprocessor>;
 }
 
 export interface RenderVariantOperation<M, V> {
   scope: RenderOperation<M>;       /// parent render scope
   uri: string;                     /// an absolute URI including protocol and hostname
-  variant?: V;                     /// variant options for this render operation
   transition?: ComposedTransition; /// variant transition function composed from {@link VariantMap} and {@link variant}
+  variant?: V;                     /// variant options for this render operation
 }

@@ -75,7 +75,7 @@ export class CompilableProgram implements Disposable {
 
     const [resolvedModule, symbol] = this.build.resolve(roots, module);
     if (resolvedModule == null) {
-      throw new CompilerException(`Cannot find an build emission ngfactory matching the name ${module.source} with a symbol ${module.symbol}`);
+      throw new CompilerException(`Cannot find a generated NgFactory matching the name ${module.source} with a symbol ${module.symbol}`);
     }
 
     const loadedModule = require(resolvedModule);
@@ -89,6 +89,10 @@ export class CompilableProgram implements Disposable {
   }
 
   dispose() {
+    this.program = undefined;
+
+    this.compilerHost = undefined;
+
     if (this.build) {
       this.build.dispose();
       this.build = undefined;

@@ -13,24 +13,20 @@ import {
 } from '@angular/core';
 
 import {PlatformException} from '../exception';
-
 import {array} from '../transformation';
-
 import {bootstrapModule} from './bootstrap';
-
 import {createPlatformInjector} from './injector';
-
 import {mapZoneToInjector, waitForZoneToBecomeStable} from './zone';
 
 @Injectable()
 export class PlatformImpl implements PlatformRef {
   private compiler: Compiler;
 
-  private compiledModules = new Map<Type<any>, NgModuleFactory<any>>();
+  private readonly compiledModules = new Map<Type<any>, NgModuleFactory<any>>();
 
-  private references = new Set<NgModuleRef<any>>();
+  private readonly references = new Set<NgModuleRef<any>>();
 
-  public destroyed = false;
+  private destroyers = new Array<() => void>();
 
   constructor(@Inject(Injector) public injector: Injector) {}
 
@@ -97,23 +93,37 @@ export class PlatformImpl implements PlatformRef {
     }
   }
 
-  async destroy() {
-    if (this.destroyed === false) {
-      this.destroyed = true;
+  onDestroy(callback: () => void) {
+    if (this.destroyed) {
+      throw new PlatformException(`It does not make sense to register an onDestroy handler after destroy has already taken place`);
+    }
+    this.destroyers.push(callback);
+  }
 
-      for (const module of Array.from(this.references)) {
-        // We want to avoid destroying a module that is in the middle of some asynchronous
-        // operations, because the handlers for those operations are likely to blow up in
-        // spectacular ways if their entire execution context has been ripped out from under
-        // them. So we wait for the zone associated with the module to become stable before
-        // we attempt to dispose of it.
-        waitForZoneToBecomeStable(module).then(() => {
-          try {
+  get destroyed(): boolean {
+    return this.destroyers == null;
+  }
+
+  async destroy() {
+    if (this.destroyers != null) {
+      const destroyers = this.destroyers.slice();
+
+      this.destroyers = undefined;
+
+      // We want to avoid destroying a module that is in the middle of some asynchronous
+      // operations, because the handlers for those operations are likely to blow up in
+      // spectacular ways if their entire execution context has been ripped out from under
+      // them. So we wait for the zone associated with the module to become stable before
+      // we attempt to dispose of it. But in practice we will probably never wait because
+      // we already waited for zone stability on startup.
+      const promises = Array.from(this.references).map(
+        module => waitForZoneToBecomeStable(module, 1500)
+          .then(() => {
             module.destroy();
-          }
-          catch (exception) {}
-        });
-      }
+          })
+          .catch(exception => Promise.resolve(void 0)));
+
+      Promise.all(promises).then(() => destroyers.forEach(handler => handler()));
 
       if (this.compiler) {
         this.compiler.clearCache();
@@ -123,10 +133,6 @@ export class PlatformImpl implements PlatformRef {
       this.compiledModules.clear();
     }
   }
-
-  onDestroy(callback: () => void) {
-    throw new PlatformException('Not implemented');
-  }
 }
 
 const specializedCompilerOptions = (compilerOptions: CompilerOptions | Array<CompilerOptions>) => {
@@ -134,7 +140,7 @@ const specializedCompilerOptions = (compilerOptions: CompilerOptions | Array<Com
     if (Array.isArray(compilerOptions)) {
       return compilerOptions.length > 0;
     }
-    return true;
+    return Object.keys(compilerOptions).length > 0;
   }
   return false;
 };

@@ -36,9 +36,7 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
     return super.dispose();
   }
 
-  private platformRef: PlatformImpl;
-
-  protected get platform(): PlatformImpl {
+  get platform(): PlatformImpl {
     if (this.platformRef == null) {
       this.platformRef = this.instantiatePlatform();
     }
@@ -51,4 +49,6 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
       {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}
     ]) as PlatformImpl;
   }
+
+  private platformRef: PlatformImpl;
 }

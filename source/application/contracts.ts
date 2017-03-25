@@ -41,3 +41,10 @@ export interface StateTransition<T> {
 export type StateTransitionFunction<T> = (injector: Injector, value: T) => Promise<void> | void;
 
 export type ComposedTransition = (injector: Injector) => void;
+
+// A postprocessor is used to manipulate the DOM prior to completion of serialization. It accepts
+// the document object for the application being rendered, and a string representing the rendered
+// document. You can either manipulate document using DOM APIs or you can return a string that
+// will represent the new version of the rendered document. If you return void, it is assumed that
+// you did your processing by manipulating the document object.
+export type Postprocessor = (document: Document, html?: string) => void | string;

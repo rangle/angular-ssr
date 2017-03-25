@@ -1,3 +1,5 @@
+import {NgZone} from '@angular/core';
+
 import {ApplicationFromSource} from '../from-source';
 
 import {templateDocument, getApplicationProject} from '../../../test/fixtures';
@@ -9,19 +11,23 @@ describe('ApplicationFromSource', () => {
     try {
       const snapshots = await application.prerender();
 
-      return await new Promise((resolve, reject) => {
-        snapshots.subscribe(
-          r => {
-            expect(r.exceptions).not.toBeNull();
-            expect(r.exceptions.length).toBe(0);
-            expect(r.uri).toBe('http://localhost/');
-            expect(r.variant).toBeUndefined();
-            expect(r.applicationState).toBeUndefined();
-            const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
-            expect(expr.test(r.renderedDocument)).toBeTruthy();
-            resolve();
-          },
-          exception => reject(exception));
+      const ngzone = new NgZone({});
+
+      await ngzone.runOutsideAngular(() => {
+        return new Promise((resolve, reject) => {
+          snapshots.subscribe(
+            r => {
+              expect(r.exceptions).not.toBeNull();
+              expect(r.exceptions.length).toBe(0);
+              expect(r.uri).toBe('http://localhost/');
+              expect(r.variant).toBeUndefined();
+              expect(r.applicationState).toBeUndefined();
+              const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
+              expect(expr.test(r.renderedDocument)).toBeTruthy();
+              resolve();
+            },
+            exception => reject(exception));
+        });
       });
     }
     finally {
@@ -34,13 +40,18 @@ describe('ApplicationFromSource', () => {
     application.templateDocument(templateDocument);
     try {
       const snapshot = await application.renderUri('http://localhost/one');
-      expect(snapshot.exceptions).not.toBeNull();
-      expect(snapshot.exceptions.length).toBe(0);
-      expect(snapshot.uri).toBe('http://localhost/one');
-      expect(snapshot.variant).toBeUndefined();
-      expect(snapshot.applicationState).toBeUndefined();
-      const expr = /<application ng-version="([^"]+)"><router-outlet><\/router-outlet><basic-lazy-component ng-version="([^"]+)">Lazy loaded component!<\/basic-lazy-component><\/application>/;
-      expect(expr.test(snapshot.renderedDocument)).toBeTruthy();
+
+      const ngzone = new NgZone({});
+
+      ngzone.runOutsideAngular(() => {
+        expect(snapshot.exceptions).not.toBeNull();
+        expect(snapshot.exceptions.length).toBe(0);
+        expect(snapshot.uri).toBe('http://localhost/one');
+        expect(snapshot.variant).toBeUndefined();
+        expect(snapshot.applicationState).toBeUndefined();
+        const expr = /<application ng-version="([^"]+)"><router-outlet><\/router-outlet><basic-lazy-component ng-version="([^"]+)">Lazy loaded component!<\/basic-lazy-component><\/application>/;
+        expect(expr.test(snapshot.renderedDocument)).toBeTruthy();
+      });
     }
     finally {
       application.dispose();

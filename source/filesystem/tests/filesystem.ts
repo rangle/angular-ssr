@@ -1,7 +1,6 @@
 import {join} from 'path';
 
 import {FileType} from '../type';
-import {PathReference} from '../contracts';
 import {fileFromString, pathFromString, pathFromRandomId} from '../factories';
 import {randomId} from '../../identifiers';
 

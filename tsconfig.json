@@ -20,9 +20,9 @@
     "outDir": "build"
   },
   "exclude": [
-    "examples",
     "build",
+    "examples",
     "node_modules",
-    "source/**/tests/*.ts"
+    "source/**/tests"
   ]
 }

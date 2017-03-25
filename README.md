@@ -16,6 +16,7 @@
   - [CLI based project that uses `@angular/material`](#cli-based-project-that-uses-angularmaterial)
   - [On-demand rendering using express](#on-demand-rendering-using-express)
   - [On-demand rendering using koa](#on-demand-rendering-using-koa)
+- [FAQ](#faq)
 - [Comments, queries, or rants](#comments-queries-or-rants)
 
 # Introduction
@@ -420,6 +421,18 @@ A project using express and `angular-ssr` lives in the [`examples/demand-express
 ## On-demand rendering using koa
 
 A project using koa and `angular-ssr` lives in the [`examples/demand-koa`](https://github.com/clbond/angular-ssr/tree/master/examples/demand-koa) directory.
+
+# FAQ
+
+1. Do I have to create separate modules for client and server?
+	* No. You can use your existing root module even if it imports `BrowserModule`, `BrowserAnimationsModule` or any other such imports.
+2. Can I send HTTP requests when the application is running on the server? Do I have to import a different `HttpModule`?
+	* Yes, you can use the HTTP libraries in any way that you normally would. But if you want to avoid requesting the same data on both the server and the client, I would suggest that you make use of the state transfer feature to transmit this data to the client from the server. This way the client does not need to make a duplicate request to retrieve the same data that the server already got.
+3. Can I use `document` or `window`? What if I am using a library that accesses `document` or `window`?
+	* While it is generally inadvisable to access `document` and `window` from inside an Angular application, I recognize that real-world applications often use libraries that manipulate or query the DOM in some way or another. Therefore, you can access and manipulate `document` and `window` from an angular-ssr application running on the server. Each rendering context gets its own instance of `document` and `window` and using these objects should generally not produce any issues.
+	* However, it is important to note that while your application will have access to `document` and `window` on the server, **any operations designed to get the pixel size or location of any particular elements is likely to fail or return all zeros**. This is because there is no rendering happening in the process. You are given a working DOM implementation, but that doesn't make it a browser. So adding, removing and manipulating DOM elements is OK, but if you are trying to query the size of certain elements, that is not a strategy that is going to work on code running on the server. You must avoid that, but mostly everything else is fair game.
+4. Can I use jQuery plugins?
+	* For the most part, yes, but again with the caveat that anything which tries to query pixel sizes is going to fail or return zeros. Generally speaking it is **best to avoid jQuery plugins in Angular 4 applications**, but you can probably still make it work with `angular-ssr`.
 
 # Comments, queries, or rants
 

@@ -1,24 +1,20 @@
 import {getApplicationProject} from '../../../test/fixtures';
 
-import {getCompilableProgram} from '../factory';
+import {CompilableProgram} from './../program';
 
-import {CompilableProgram} from '../program';
+import {getCompilableProgram} from '../factory';
 
 describe('CompilableProgram', () => {
   let program: CompilableProgram;
 
-  beforeAll(() => { // reuse the same compiled program for each test
+  beforeAll(() => {
     program = getCompilableProgram(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
   });
 
-  afterAll(() => {
-    if (program) {
-      program.dispose();
-      program = null;
-    }
-  });
+  afterAll(() => setImmediate(() => program.dispose()));
 
   it('can build application-basic-inline into executable NgModuleFactory', async () => {
+    const program = getCompilableProgram(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
     const module = await program.loadModule({
       source: 'source/test/fixtures/application-basic-inline',
       symbol: 'BasicInlineModule',
@@ -29,6 +25,7 @@ describe('CompilableProgram', () => {
   });
 
   it('can build application-basic-external into executable NgModuleFactory', async () => {
+    const program = getCompilableProgram(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
     const module = await program.loadModule({
       source: 'source/test/fixtures/application-basic-external',
       symbol: 'BasicExternalModule'
@@ -39,6 +36,7 @@ describe('CompilableProgram', () => {
   });
 
   it('can build application-routed into executable NgModuleFactory', async () => {
+    const program = getCompilableProgram(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
     const module = await program.loadModule({
       source: 'source/test/fixtures/application-routed',
       symbol: 'BasicRoutedModule'
