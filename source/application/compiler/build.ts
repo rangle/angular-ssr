@@ -39,6 +39,10 @@ export class ApplicationBuild implements Disposable {
           return [ngfactory, symbol];
         }
       }
+
+      console.warn(`Unable to match the module ${module.source} with the ngc compiled output files`);
+      console.warn('Module candidates', candidates);
+      console.warn('Compiled output files', this.map);
     }
 
     return [null, null];
