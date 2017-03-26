@@ -1,6 +1,6 @@
 import {SourceFile} from 'typescript';
 
-import {join, normalize} from 'path';
+import {join, sep} from 'path';
 
 import {Disposable} from '../../disposable';
 import {PathReference, fileFromString} from '../../filesystem';
@@ -26,7 +26,11 @@ export class ApplicationBuild implements Disposable {
     const symbol = symbolToNgFactory(module.symbol);
 
     if (source) {
-      const candidates = roots.map(r => normalize(join(r.toString(), source)));
+      const candidates = flatten<string>(roots.map(r => [
+        join(r.toString(), source),
+        join(r.toString(), source.replace(/\//g, sep)),
+        join(r.toString(), source.replace(/\\/, '/'))
+      ]));
 
       for (const candidate of candidates) {
         const array = this.map.get(candidate);

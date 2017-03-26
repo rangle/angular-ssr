@@ -7,7 +7,7 @@ import {
   SyntaxKind,
 } from 'typescript';
 
-import {dirname, relative, resolve, sep} from 'path';
+import {dirname, relative, resolve} from 'path';
 
 import {ApplicationModuleDescriptor} from './../project';
 
@@ -118,11 +118,8 @@ const defactory = (identifier: string) => identifier.replace(/NgFactory/, String
 
 const isExternal = (file: SourceFile): boolean => /(\\|\/)node_modules(\\|\/)/.test(file.fileName);
 
-const relativeImportPath = (basePath: string, filename: string, relativePath: string) => {
-  relativePath = relativePath.replace(/\//g, sep);
-
-  return relative(basePath, resolve(dirname(filename), relativePath));
-};
+const relativeImportPath = (basePath: string, filename: string, relativePath: string) =>
+  relative(basePath, resolve(dirname(filename), relativePath));
 
 const formatCandidates = (candidates: Array<ApplicationModuleDescriptor>) => candidates.map(m => `${m.symbol} in ${m.source}`).join(', and ');
 
