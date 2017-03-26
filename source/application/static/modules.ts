@@ -18,11 +18,11 @@ import {DiscoveryException} from '../../exception';
 import {
   bootstrap,
   bootstrapFactory,
-  ngModuleDecorator
-} from '../../identifiers';
+  ngModule
+} from '../../static';
 
 export const discoverApplicationModule = (basePath: string, program: Program): ApplicationModuleDescriptor => {
-  const expression = new RegExp(`(\.${bootstrap}|\.${bootstrapFactory}|\@${ngModuleDecorator})`);
+  const expression = new RegExp(`(\.${bootstrap}|\.${bootstrapFactory}|${ngModule})`);
 
   const candidates = new Array<ApplicationModuleDescriptor>();
 

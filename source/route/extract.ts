@@ -4,7 +4,7 @@ import {Router, Route as RouteDefinition} from '@angular/router';
 import {PlatformImpl, bootstrapWithExecute, forkZone} from '../platform';
 import {RouteException} from '../exception';
 import {Route} from './route';
-import {baseUri} from '../identifiers';
+import {baseUri} from '../static';
 
 export const applicationRoutes = async <M>(platform: PlatformImpl, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
   const routes = await forkZone(templateDocument, baseUri,

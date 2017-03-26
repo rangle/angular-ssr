@@ -1,9 +1,9 @@
 import {NgModuleFactory} from '@angular/core';
 
 import {ApplicationRuntimeProject, PlatformImpl, RuntimeModuleLoader, createServerPlatform} from '../../platform';
-import {ApplicationBase} from './impl';
+import {ApplicationBase} from './impl/application';
 import {ApplicationModuleDescriptor, Project} from '../project';
-import {CompilableProgram, getCompilableProgram} from './../compiler';
+import {CompilableProgram, getCompilableProgram} from '../compiler';
 import {FileReference} from '../../filesystem';
 
 export class ApplicationFromSource<V> extends ApplicationBase<V, any> {

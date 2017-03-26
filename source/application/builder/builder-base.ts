@@ -9,12 +9,19 @@ import {PlatformImpl, createServerPlatform} from './../../platform';
 const basePlatform = createServerPlatform();
 
 export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
-  protected operation: Partial<RenderOperation<M>> = {bootstrappers: [], postprocessors: []};
+  protected operation: Partial<RenderOperation<M>> = {};
 
   abstract getModuleFactory(): Promise<NgModuleFactory<M>>;
 
   get platform(): PlatformImpl {
     return basePlatform as PlatformImpl;
+  }
+
+  preboot(enabled?: boolean) {
+    if (enabled != null) {
+      this.operation.preboot = enabled;
+    }
+    return this.operation.preboot;
   }
 
   templateDocument(template?: string) {
@@ -52,7 +59,7 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
     return this.operation.routes;
   }
 
-  stateReader(stateReader?: ApplicationStateReader) {
+  stateReader<R>(stateReader?: ApplicationStateReader<R>) {
     if (stateReader) {
       this.operation.stateReader = stateReader;
     }

@@ -6,7 +6,7 @@ import {OutputProducer} from './producer';
 import {OutputException} from '../exception';
 import {PathReference, fileFromString, pathFromString} from '../filesystem';
 import {Snapshot} from '../snapshot';
-import {index} from '../identifiers';
+import {index} from '../static';
 import {log} from './log';
 import {pathFromUri} from '../route';
 

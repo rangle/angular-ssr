@@ -3,7 +3,7 @@ import {tmpdir} from 'os';
 
 import {dirname, join} from 'path';
 
-import {randomId} from '../identifiers';
+import {randomId} from '../static';
 
 import {PathReference, FileReference} from './contracts';
 

@@ -2,7 +2,7 @@ import './dependencies';
 export * from './application';
 export * from './exception';
 export * from './filesystem';
-export * from './identifiers';
+export * from './static';
 export * from './output';
 export * from './platform';
 export * from './route';

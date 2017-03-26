@@ -1,7 +1,5 @@
 import {Injector, Type} from '@angular/core';
 
-import {Observable} from 'rxjs/Observable';
-
 // There are three essential concepts that are defined in this file: variant state transitions,
 // bootstrappers, and application state readers. Each of these can be one of two things: either
 // a class decorated with @Injectable() that accepts some services in its constructor, or a
@@ -18,16 +16,16 @@ export interface Variant<T> {
 
 export type VariantsMap = {[variant: string]: Variant<any>};
 
-export interface StateReader {
-  getState(): Promise<any> | Observable<any> | any;
+export interface StateReader<R> {
+  getState(): Promise<R>;
 }
 
-export type ApplicationStateReaderFunction = (injector: Injector) => Promise<any>;
+export type ApplicationStateReaderFunction<R> = (injector: Injector) => Promise<any>;
 
-export type ApplicationStateReader = Type<StateReader> | ApplicationStateReaderFunction;
+export type ApplicationStateReader<R> = Type<StateReader<R>> | ApplicationStateReaderFunction<R>;
 
 export interface Bootstrap {
-  bootstrap(): Observable<void> | Promise<void> | void;
+  bootstrap(): Promise<void> | void;
 }
 
 export type ApplicationBootstrapperFunction = (injector: Injector) => Promise<void> | void;
@@ -40,7 +38,7 @@ export interface StateTransition<T> {
 
 export type StateTransitionFunction<T> = (injector: Injector, value: T) => Promise<void> | void;
 
-export type ComposedTransition = (injector: Injector) => void;
+export type ComposedTransition = (injector: Injector) => Promise<void>;
 
 // A postprocessor is used to manipulate the DOM prior to completion of serialization. It accepts
 // the document object for the application being rendered, and a string representing the rendered

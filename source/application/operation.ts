@@ -7,7 +7,8 @@ import {Route} from '../route';
 // A render operation is an operation that forks into multiple concurrent suboperations,
 // which are represented with RenderVariantOperation<V, M>. Each route and variant
 // permutation will cause a separate parallel render operation and each of them instantiate
-// their own instance of the application.
+// their own instance of the application. This is an internal contract, not part of the
+// public API
 
 export interface RenderOperation<M> {
   // This is an HTML document containing the index.html build output of the application.
@@ -38,7 +39,7 @@ export interface RenderOperation<M> {
   // so it has access to all providers and services in the application. If it is not decorated,
   // it must be a function that just accepts a reference to the Injector instance itself,
   // which it can use to query services and providers.
-  stateReader: ApplicationStateReader;
+  stateReader: ApplicationStateReader<any>;
 
   // Optional function to execute during application initialization.
   bootstrappers: Array<ApplicationBootstrapper>;
@@ -47,6 +48,9 @@ export interface RenderOperation<M> {
   // be executed in order of definition, and each transform will receive as its argument the
   // results of the previous transformation.
   postprocessors: Array<Postprocessor>;
+
+  // Is preboot integration enabled?
+  preboot: boolean;
 }
 
 export interface RenderVariantOperation<M, V> {

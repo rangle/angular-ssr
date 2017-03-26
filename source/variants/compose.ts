@@ -1,54 +1,27 @@
-import {Injector, ReflectiveInjector, Type} from '@angular/core';
-
-import {Reflector} from '../platform';
-
-import {TransitionException} from '../exception';
-
 import {
   ComposedTransition,
-  StateTransition,
-  StateTransitionFunction,
   Variant,
-  VariantsMap
+  VariantsMap,
 } from '../application/contracts';
 
+import {typeToInjectorFunction} from '../transformation';
+
 export const composeTransitions = <V>(variants: VariantsMap, values: V): ComposedTransition => {
-  const transition: ComposedTransition =
-    injector => {
-      const flattened = Object.keys(variants || {}).map(k => [k, variants[k], values[k]]);
+  return (injector) => {
+    if (variants == null || Object.keys(variants).length === 0) {
+      return Promise.resolve();
+    }
 
-      for (const [key, variant, value] of flattened) {
-        try {
-          const transitioner = transitionToFunction(variant);
+    const promises = new Array<Promise<void>>();
 
-          transitioner(injector, value);
-        }
-        catch (exception) {
-          throw new TransitionException(formatException(key, values, exception), exception);
-        }
-      }
-    };
+    for (const [, v, value] of Object.keys(variants).map(k => [k, variants[k], values[k]])) {
+      const variant: Variant<V> = v;
 
-  return transition;
-};
+      const fn = typeToInjectorFunction(variant.transition, t => t.execute(value));
 
-const transitionToFunction = <T>(variant: Variant<T>): StateTransitionFunction<T> => {
-  const annotations = Reflector.annotations(<Type<any>> variant.transition); // injectable?
-  if (annotations.length > 0) {
-    return instantiator(<Type<StateTransition<T>>> variant.transition);
-  }
-  return variant.transition as StateTransitionFunction<T>;
-};
+      promises.push(Promise.resolve(fn(injector, value)));
+    }
 
-const instantiator = <T>(type: Type<StateTransition<T>>): StateTransitionFunction<T> => {
-  return (injector: Injector, value: T) => {
-    const descendantInjector = ReflectiveInjector.resolveAndCreate([type], injector);
-    const transition = descendantInjector.get(type);
-    return transition.execute(value);
+    return <Promise<any>> Promise.all(promises);
   };
 };
-
-const stringify = object => JSON.stringify(object, null, 2);
-
-const formatException = (key: string, values, exception: Error) =>
-  `Variant transition exception: ${key} (variants: ${stringify(values)}): ${exception.toString()}`;

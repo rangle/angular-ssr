@@ -38,5 +38,4 @@ export class RendererException extends Exception {}
 export class ResourceException extends Exception {}
 export class RouteException extends Exception {}
 export class SnapshotException extends Exception {}
-export class TransitionException extends Exception {}
 export class TranspileException extends Exception {}

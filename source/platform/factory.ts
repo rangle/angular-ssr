@@ -15,7 +15,7 @@ import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
 import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';
 import {PlatformImpl} from './platform';
 import {CurrentZone} from './zone';
-import {randomizedApplicationId} from '../identifiers';
+import {randomizedApplicationId} from '../static';
 
 export const createServerPlatform =
   createPlatformFactory(platformCoreDynamic, 'nodejs',

@@ -7,11 +7,11 @@ import {Observable, Subject} from 'rxjs';
 import {ApplicationException} from '../../../exception';
 import {ApplicationBuilderBase} from '../builder-base';
 import {FileReference, fileFromString} from '../../../filesystem';
-import {Snapshot, takeSnapshot} from '../../../snapshot';
+import {Snapshot, snapshot} from '../../../snapshot';
 import {RenderOperation, RenderVariantOperation} from '../../operation';
 import {applicationRoutes} from '../../../route';
 import {bootstrapWithExecute, forkZone} from '../../../platform';
-import {baseUri} from '../../../identifiers';
+import {baseUri} from '../../../static';
 import {composeTransitions} from '../../../variants';
 import {fork} from './fork';
 
@@ -120,11 +120,10 @@ export abstract class ApplicationBase<V, M> extends ApplicationBuilderBase<M> {
       }
     } = operation;
 
-    return await forkZone(templateDocument, uri, () =>
-      bootstrapWithExecute<M, Snapshot<V>>(
-        this.platform,
-        moduleFactory,
-        moduleRef => takeSnapshot(moduleRef, operation)));
+    const instantiate = () =>
+      bootstrapWithExecute<M, Snapshot<V>>(this.platform, moduleFactory, ref => snapshot(ref, operation));
+
+    return await forkZone(templateDocument, uri, instantiate);
   }
 }
 

@@ -2,7 +2,7 @@ import urijs = require('urijs');
 
 import {Route} from './route';
 import {RouteException} from '../exception';
-import {baseUri} from '../identifiers';
+import {baseUri} from '../static';
 
 export const routeToPath = (route: Route): string => {
   const split = route.path.reduce((p, c) => p.concat(c.split('/')), []);

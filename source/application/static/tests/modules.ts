@@ -13,7 +13,7 @@ import {discoverApplicationModule} from '../modules';
 
 import {pathFromRandomId} from '../../../filesystem';
 
-import {randomId} from './../../../identifiers';
+import {randomId} from './../../../static';
 
 describe('static analysis', () => {
   it('can discover root application module', () => {

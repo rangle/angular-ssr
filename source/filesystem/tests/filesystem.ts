@@ -2,7 +2,7 @@ import {join} from 'path';
 
 import {FileType} from '../type';
 import {fileFromString, pathFromString, pathFromRandomId} from '../factories';
-import {randomId} from '../../identifiers';
+import {randomId} from '../../static';
 
 describe('filesystem', () => {
   it('can create a file with text content', () => {

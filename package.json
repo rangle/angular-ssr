@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.0.72",
+  "version": "0.0.73",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -56,7 +56,8 @@
     "typescript": ">=2.1.0"
   },
   "optionalPeerDependencies": {
-    "@ngrx/store": "^2.2.1"
+    "@ngrx/store": "^2.2.1",
+    "preboot": "4.5.2"
   },
   "dependencies": {
     "@types/babel-core": "6.7.14",
@@ -97,6 +98,7 @@
     "jasmine-core": "2.5.2",
     "jest": "^19.0.2",
     "mocha": "^3.2.0",
+    "preboot": "^4.5.2",
     "reflect-metadata": "^0.1.10",
     "tslint": "4.4.2",
     "typescript": ">=2.2.0",

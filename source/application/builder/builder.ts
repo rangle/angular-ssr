@@ -35,7 +35,7 @@ export interface ApplicationBuilder extends Disposable {
   // Provide an optional state reader function which can query application services or ngrx
   // and return that state to the client, so that it will be available in a global variable
   // called bootstrapApplicationState. This is how you do state transfer in angular-ssr.
-  stateReader(stateReader?: ApplicationStateReader): ApplicationStateReader;
+  stateReader<R>(stateReader?: ApplicationStateReader<R>): ApplicationStateReader<R>;
 
   // Apply optional postprocessing of rendered documents. For example, perhaps your index.html
   // has some kind of placeholder which you wish to replace with some code or text. These
