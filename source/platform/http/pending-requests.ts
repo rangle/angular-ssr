@@ -1,8 +1,10 @@
 import {Injectable} from '@angular/core';
 
-import {Observable, Subject} from 'rxjs';
+import {Observable, ReplaySubject} from 'rxjs';
 
-const pending = new Subject<number>();
+const pending = new ReplaySubject<number>();
+
+pending.next(0);
 
 const XmlHttpRequest = require('xhr2');
 
