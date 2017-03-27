@@ -1,7 +1,7 @@
 {
   "rules": {
     "adjacent-overload-signatures": true,
-    "ban": [true, ["setInterval"], ["setTimeout"]],
+    "ban": [true, ["setInterval"]],
     "member-access": false,
     "quotemark": [true, "single", "avoid-escape"],
     "no-eval": true,
