@@ -16,7 +16,7 @@ import {PlatformException} from '../exception';
 import {array} from '../transformation';
 import {bootstrapModule} from './bootstrap';
 import {createPlatformInjector} from './injector';
-import {mapZoneToInjector, waitForZoneToBecomeStable} from './zone';
+import {mapZoneToInjector, waitForApplicationToBecomeStable} from './zone';
 
 @Injectable()
 export class PlatformImpl implements PlatformRef {
@@ -117,7 +117,7 @@ export class PlatformImpl implements PlatformRef {
       // we attempt to dispose of it. But in practice we will probably never wait because
       // we already waited for zone stability on startup.
       const promises = Array.from(this.references).map(
-        module => waitForZoneToBecomeStable(module, 1500)
+        module => waitForApplicationToBecomeStable(module, 1500)
           .then(() => {
             module.destroy();
           })

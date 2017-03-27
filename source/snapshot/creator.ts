@@ -5,7 +5,7 @@ import {Subscription} from 'rxjs';
 import {ApplicationBootstrapperFunction, ApplicationBootstrapper, ApplicationStateReader, ComposedTransition, Postprocessor} from '../application/contracts';
 import {typeToInjectorFunction} from '../transformation';
 import {ConsoleLog} from './console';
-import {ConsoleCollector, DocumentContainer, ExceptionCollector, waitForZoneToBecomeStable} from '../platform';
+import {ConsoleCollector, DocumentContainer, ExceptionCollector, waitForApplicationToBecomeStable} from '../platform';
 import {RenderVariantOperation} from '../application/operation';
 import {SnapshotException} from '../exception';
 import {Snapshot} from './snapshot';
@@ -30,7 +30,7 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
 
     await executeBootstrap(moduleRef, bootstrappers, transition);
 
-    await waitForZoneToBecomeStable(moduleRef, timeouts.application.bootstrap);
+    await waitForApplicationToBecomeStable(moduleRef, timeouts.application.bootstrap);
 
     const applicationState = await injectState(moduleRef, stateReader, container.document)
 
