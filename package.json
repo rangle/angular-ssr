@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.0.77",
+  "version": "0.0.78",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -74,6 +74,7 @@
     "domino": "https://github.com/clbond/domino/archive/1.0.32.tar.gz",
     "es2015-imports-to-commonjs-loose": "^1.0.4",
     "lru_map": "^0.3.3",
+    "mkdir-recursive": "^0.3.0",
     "mock-local-storage": "^1.0.2",
     "node-stylus-require": "^1.1.0",
     "npm-run-all": "^4.0.2",

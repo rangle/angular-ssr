@@ -1,6 +1,5 @@
 import {
   existsSync,
-  mkdirSync,
   readdirSync,
   unlinkSync
 } from 'fs';
@@ -10,8 +9,9 @@ import {
   normalize,
   resolve,
   join,
-  sep
 } from 'path';
+
+const {mkdirSync} = require('mkdir-recursive');
 
 import {FileReference, PathReference} from '../contracts';
 import {FileImpl} from './file';
@@ -54,21 +54,11 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
   }
 
   mkdir() {
-    const aggregator = new Array<string>();
-
-    for (const component of this.toString().split(/[\\\/]/g).filter(v => v)) {
-      aggregator.push(component);
-
-      const current = `${sep}${aggregator.join(sep)}`;
-
-      if (existsSync(current) === false) {
-        mkdirSync(current);
-      }
-      else {
-        if (typeFromPath(current) !== FileType.Directory) {
-          throw new FilesystemException(`Path is not a directory: ${current}`);
-        }
-      }
+    try {
+      mkdirSync(this.toString());
+    }
+    catch (exception) {
+      throw new FilesystemException(`Failed to create path: ${this.toString()}`);
     }
   }
 

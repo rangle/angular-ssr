@@ -29,7 +29,10 @@ export class ApplicationBuild implements Disposable {
       const candidates = flatten<string>(roots.map(r => [
         join(r.toString(), source),
         join(r.toString(), source.replace(/\//g, sep)),
-        join(r.toString(), source.replace(/\\/, '/'))
+        join(r.toString(), source.replace(/\\/g, '/')),
+        `${r.toString()}/${source}`,
+        `${r.toString()}/${source}`.replace(/\//g, sep),
+        `${r.toString()}/${source}`.replace(/\\/g, '/')
       ]));
 
       for (const candidate of candidates) {
