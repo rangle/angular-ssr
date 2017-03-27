@@ -28,11 +28,15 @@ export const mapZoneToInjector = (injector: Injector): () => void => {
 };
 
 const getFromMap = <T>(token): T => {
-  const injector = map.get(Zone.current);
-  if (injector == null) {
-    return null;
+  let iterator = Zone.current;
+  while (iterator) {
+    const injector = map.get(iterator);
+    if (injector) {
+      return injector.get(token);
+    }
+    iterator = iterator._parent;
   }
-  return injector.get(token);
+  return null;
 };
 
 export const baseConsole = console;
