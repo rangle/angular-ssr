@@ -33,6 +33,9 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
 
   bootstrap(bootstrapper?: ApplicationBootstrapper) {
     if (bootstrapper) {
+      if (this.operation.bootstrappers == null) {
+        this.operation.bootstrappers = [];
+      }
       this.operation.bootstrappers.push(bootstrapper);
     }
     return this.operation.bootstrappers;
