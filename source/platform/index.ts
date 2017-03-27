@@ -1,6 +1,7 @@
 export * from './bootstrap';
 export * from './collectors';
 export * from './document';
+export * from './http';
 export * from './location';
 export * from './module';
 export * from './platform';

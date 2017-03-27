@@ -32,6 +32,8 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
 
     await waitForApplicationToBecomeStable(moduleRef, timeouts.application.bootstrap);
 
+    moduleRef.injector.get(ApplicationRef).tick();
+
     const applicationState = await injectState(moduleRef, stateReader, container.document)
 
     transformDocument(postprocessors, container.document);

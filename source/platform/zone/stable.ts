@@ -1,10 +1,14 @@
 import {ApplicationRef, NgModuleRef} from '@angular/core';
 
+import {PendingRequests} from '../http/pending-requests';
+
 export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef<M>, timeout?: number): Promise<void> => {
   const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
 
+  const requests: PendingRequests = moduleRef.injector.get(PendingRequests);
+
   return new Promise<void>(resolve => {
-    applicationRef.isStable
+    applicationRef.isStable.combineLatest(requests.requestsPending, (stable, pending) => stable === true && pending === 0)
       .takeWhile(v => v === true)
       .take(1)
       .timeout(timeout)
