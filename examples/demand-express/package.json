@@ -10,7 +10,7 @@
     "build:client:watch": "webpack --watch",
     "build:server:watch": "webpack --config webpack-server.config.js --watch",
     "watch": "npm-run-all --parallel build:client:watch build:server:watch",
-    "start": "node ./dist-server/index.js"
+    "start": "nodemon ./dist-server/index.js"
   },
   "license": "BSD-2-Clause",
   "dependencies": {
@@ -40,6 +40,7 @@
     "extract-text-webpack-plugin": "^2.1.0",
     "hammerjs": "^2.0.8",
     "html-webpack-plugin": "^2.28.0",
+    "nodemon": "^1.11.0",
     "npm-run-all": "^4.0.2",
     "raw-loader": "^0.5.1",
     "reflect-metadata": "^0.1.10",
