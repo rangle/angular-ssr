@@ -16,10 +16,14 @@ export class LocationImpl implements PlatformLocation, OnDestroy {
   private destruction = new Array<() => void>();
 
   constructor(
-    @Inject(RequestUri) requestUri: string,
+    @Inject(RequestUri) private requestUri: string,
     private documentContainer: DocumentContainer
   ) {
     this.documentContainer.document.location.assign(requestUri);
+  }
+
+  get href(): string {
+    return this.requestUri;
   }
 
   getBaseHrefFromDOM(): string {
