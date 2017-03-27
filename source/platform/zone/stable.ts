@@ -2,6 +2,8 @@ import {ApplicationRef, NgModuleRef} from '@angular/core';
 
 import {PendingRequests} from '../http/pending-requests';
 
+import 'rxjs/add/operator/combineLatest';
+
 export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef<M>, timeout?: number): Promise<void> => {
   const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
 

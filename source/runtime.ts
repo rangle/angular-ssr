@@ -31,4 +31,8 @@ Object.assign(global, {MutationObserver: MutationObserverImpl});
 
 Object.assign(global, {CSS: null});
 
+// These will be overwritten with the zone mapper
+Object.assign(global, {document: {}});
+Object.assign(global, {window: global});
+
 require('mock-local-storage');

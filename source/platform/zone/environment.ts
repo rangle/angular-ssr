@@ -6,16 +6,11 @@ import {PlatformLocation} from '@angular/common';
 
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
-import {PlatformException} from '../../exception';
 import {RuntimeModuleLoader} from '../module';
 
 declare const Zone;
 
 const environment = <any> global;
-if (environment.window != null ||
-    environment.document != null) {
-  throw new PlatformException('Executing outside a browser, but window and document are non-null!');
-}
 
 const map = new Map<any, Injector>();
 
