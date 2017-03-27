@@ -82,7 +82,7 @@ const tsconfigFromRoot = (fromRoot: PathReference): string => {
 
   const candidates = [fromRoot, ...Array.from(fromRoot.directories())]
     .map(d => join(d.toString(), tsconfig))
-    .filter(c => /(e2e|test)/.test(c) === false);
+    .filter(c => /e2e/.test(c) === false);
 
   const matchingFile = candidates.map(fileFromString).find(c => c.exists());
   if (matchingFile) {
