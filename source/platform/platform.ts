@@ -62,7 +62,7 @@ export class PlatformImpl implements PlatformRef {
 
     const moduleRef = moduleFactory.create(injector);
 
-    const unmap = mapZoneToInjector(moduleRef.injector);
+    const unmap = mapZoneToInjector(Zone.current, moduleRef.injector);
 
     moduleRef.onDestroy(() => {
       unmap();

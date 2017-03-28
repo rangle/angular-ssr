@@ -1,4 +1,6 @@
-import {Injector, Type} from '@angular/core';
+import 'zone.js';
+
+import {Injector, InjectionToken, Type} from '@angular/core';
 
 const map = new Map<Zone, Injector>();
 
@@ -18,7 +20,7 @@ export const zoneToInjector = (zone: Zone) => {
   return undefined;
 }
 
-export const injectableFromZone = <T>(zone: Zone, token: Type<T>): T => {
+export const injectableFromZone = <T>(zone: Zone, token: Type<T> | InjectionToken<T> | Function): T => {
   const injector = zoneToInjector(zone);
   if (injector) {
     return injector.get(token, null);

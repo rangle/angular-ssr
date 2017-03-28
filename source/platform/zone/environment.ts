@@ -1,61 +1,47 @@
-import 'zone.js';
-
-import {LOCALE_ID, Injector} from '@angular/core';
+import {LOCALE_ID} from '@angular/core';
 
 import {PlatformLocation} from '@angular/common';
 
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
+import {PlatformException} from './../../exception';
 import {RuntimeModuleLoader} from '../module';
-
 import {bootWindow} from '../../runtime/dom';
+import {injectableFromZone} from './injector-map';
 
-declare const Zone;
+if (typeof window !== 'undefined' || typeof document !== 'undefined') {
+  throw new PlatformException('Executing in a NodeJS environment but window and document are non-null!');
+}
 
-const map = new Map<any, Injector>();
-
-export const mapZoneToInjector = (injector: Injector): () => void => {
-  const currentZone = Zone.current;
-
-  map.set(currentZone, injector);
-
-  return () => map.delete(currentZone);
-};
-
-const getFromMap = <T>(token): T => {
-  let iterator = Zone.current;
-  while (iterator) {
-    const injector = map.get(iterator);
-    if (injector) {
-      return injector.get(token);
-    }
-    iterator = iterator._parent;
-  }
-  return null;
-};
+if (typeof Zone === 'undefined') {
+  throw new PlatformException(`You must import zone.js into this process (Zone is undefined)`);
+}
 
 export const baseConsole = console;
 
-const fromInjectable = <R>(token, getter?: (value) => R): R => {
-  const object = getFromMap(token);
-  if (object) {
-    if (getter) {
-      return getter(object);
-    }
-    return object as R;
-  }
-  return undefined;
-};
-
 Object.defineProperties(global, {
   console: {
-    get: () => fromInjectable<ConsoleCollector>(ConsoleCollector) || baseConsole,
+    get: () => {
+      return injectableFromZone(Zone.current, ConsoleCollector) || baseConsole;
+    }
   },
   document: {
-    get: () => fromInjectable<Document>(DocumentContainer, c => c.document) || bootWindow.document,
+    get: () => {
+      const doc = injectableFromZone(Zone.current, DocumentContainer);
+      if (doc) {
+        return doc.document;
+      }
+      return bootWindow.document;
+    }
   },
   location: {
-    get: () => fromInjectable<PlatformLocation>(PlatformLocation) || bootWindow.location,
+    get: () => {
+      const location = injectableFromZone(Zone.current, PlatformLocation);
+      if (location) {
+        return location;
+      }
+      return bootWindow.location;
+    }
   },
   navigator: {
     get: () => {
@@ -64,7 +50,11 @@ Object.defineProperties(global, {
           return 'Chrome';
         },
         get language() {
-          return fromInjectable<string>(LOCALE_ID) || 'en-US';
+          const locale = injectableFromZone(Zone.current, LOCALE_ID);
+          if (locale) {
+            return locale;
+          }
+          return 'en-US';
         },
         get cookieEnabled() {
           return false;
@@ -73,7 +63,13 @@ Object.defineProperties(global, {
     }
   },
   window: {
-    get: () => fromInjectable<Window>(DocumentContainer, c => c.window) || bootWindow,
+    get: () => {
+      const w = injectableFromZone(Zone.current, DocumentContainer);
+      if (w) {
+        return w.window;
+      }
+      return bootWindow;
+    }
   },
 });
 
@@ -81,11 +77,9 @@ if (global['System'] == null) { // ng cli only
   Object.defineProperties(global, {
     System: {
       get: () => {
-        const loader = fromInjectable<RuntimeModuleLoader>(RuntimeModuleLoader);
+        const loader = injectableFromZone(Zone.current, RuntimeModuleLoader);
         if (loader) {
-          return {
-            import: (moduleId: string) => loader.load(moduleId)
-          };
+          return {import: (moduleId: string) => loader.load(moduleId)};
         }
         return undefined;
       }
