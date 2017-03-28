@@ -1,10 +1,11 @@
 ![CircleCI](https://img.shields.io/circleci/project/github/clbond/angular-ssr.svg) ![Code Coverage](https://img.shields.io/coveralls/clbond/angular-ssr.svg) ![npm](https://img.shields.io/npm/v/angular-ssr.svg)
 
 - [Introduction](#introduction)
-- [The simplest possible use case](#the-simplest-possible-case-an-angular-cli-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
+- [The simplest possible case](#the-simplest-possible-case-an-angular-cli-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
   - [Additional examples](#additional-examples)
 - [Use cases](#use-cases)
   - [On-demand server-side rendering and caching](#on-demand-server-side-rendering-and-caching)
+    - [Caching](#caching)
   - [Single-use server-side rendering as part of a build process](#single-use-server-side-rendering-as-part-of-a-build-process)
   - [Variants](#variants)
     - [Client code](#client-code)
@@ -110,6 +111,12 @@ const prerender = async () => {
 
 prerender();
 
+// Note: You do not have to use the DocumentStore. DocumentStore is just a very simple LRU cache
+// implementation that sits on top of the application that you provide to it. If you do not wish
+// to cache the rendering results, you can just call application.renderUri directly. Likewise, if
+// you have some other caching system that you wish to use, there is nothing stopping you from doing
+// so. The implementation of DocumentStore is just basically a call to renderUri and then caching
+// the result.
 const documentStore = new DocumentStore(application);
 
 // Demand render and cache all other routes (eg /blog/post/12)
@@ -123,6 +130,25 @@ app.get('*', async (req, res) => {
   }
 });
 ```
+
+### Caching
+
+The caching implementations in `angular-ssr` are completely optional and are not integral to the product in any way. They all share the same basic implementation:
+
+```typescript
+  async load(uri: string): Promise<Snapshot<void>> {
+    let snapshot = this.cache.get(uri);
+    if (snapshot == null) {
+      snapshot = await this.application.renderUri(uri);
+      this.cache.set(uri, snapshot);
+    }
+    return snapshot;
+  }
+```
+
+So if you want to roll your own caching solution, or just not cache anything, you are absolutely free to do so. Just call `application.renderUri` and you will get a freshly rendered document each time.
+
+The `DocumentStore` and `DocumentVariantStore` are just simple fixed-size LRU cache implementations (but again, are completely optional).
 
 ## Single-use server-side rendering as part of a build process
 

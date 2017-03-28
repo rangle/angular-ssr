@@ -14,7 +14,7 @@ import {
 import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
 import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';
 import {PlatformImpl} from './platform';
-import {CurrentZone} from './zone';
+import {ZoneProperties} from './zone';
 import {randomizedApplicationId} from '../static';
 
 export const createServerPlatform =
@@ -31,5 +31,5 @@ export const createServerPlatform =
       ...PLATFORM_COLLECTOR_PROVIDERS,
       {provide: APP_ID, useFactory: randomizedApplicationId},
       {provide: PlatformRef, useClass: PlatformImpl},
-      {provide: CurrentZone, useClass: CurrentZone},
+      {provide: ZoneProperties, useClass: ZoneProperties},
     ));
