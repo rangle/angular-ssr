@@ -12,6 +12,6 @@ export class RuntimeModuleLoader {
     if (this.application == null) {
       throw new ApplicationException('You cannot use the RuntimeModuleLoader with no ApplicationRuntimeProject provided');
     }
-    return this.application.getModuleFactoryFromDescriptor({source: moduleId, symbol: null}, false);
+    return this.application.getModule({source: moduleId, symbol: null}, false);
   }
 }

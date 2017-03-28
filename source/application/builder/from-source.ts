@@ -15,7 +15,7 @@ export class ApplicationFromSource<V> extends ApplicationBase<V, any> {
     this.program = getCompilableProgram(project);
   }
 
-  async getModuleFactoryFromDescriptor(moduleDescriptor: ApplicationModuleDescriptor) {
+  async getModule(moduleDescriptor: ApplicationModuleDescriptor) {
     return await this.program.loadModule(moduleDescriptor, false);
   }
 

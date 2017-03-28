@@ -210,34 +210,21 @@ export class LocaleService {
 ```
 
 ```typescript
-export type CookieValue = string | number;
-
 @Injectable()
 export class CookieService {
   get map(): Map<string, CookieValue> {
-    if (!document.cookie) {
-      return new Map<string, string>();
-    }
+    const components = (document.cookie || String()).split(/(;\s?)/g);
 
-    const components = document.cookie.split(/(;\s?)/g);
+    const tuples = components.map(pair => [string, string] <any> pair.split(/=/));
 
-    const tuples = components.map(
-      (pair: string): [string, CookieValue] => {
-        const [key, value] = pair.split(/=/);
-
-        return /^([\d+])$/.test(value)
-          ? [key, parseInt(value, 10)];
-          : [key, value];
-      });
-
-    return new Map<string, CookieValue>(tuples);
+    return new Map<string, string>(tuples);
   }
 
   get<T>(key: string): T {
     return this.map.get(key) as any;
   }
 
-  set(key: string, value: CookieValue) {
+  set(key: string, value: string) {
     this.delete(key);
 
     document.cookie = `${key}=${value.toString()}; path=/; domain=${location.hostname};`;

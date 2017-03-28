@@ -8,9 +8,9 @@ import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
 import {RuntimeModuleLoader} from '../module';
 
-declare const Zone;
+import {bootWindow} from '../../runtime/dom';
 
-const environment = <any> global;
+declare const Zone;
 
 const map = new Map<any, Injector>();
 
@@ -47,15 +47,15 @@ const fromInjectable = <R>(token, getter?: (value) => R): R => {
   return undefined;
 };
 
-Object.defineProperties(environment, {
+Object.defineProperties(global, {
   console: {
     get: () => fromInjectable<ConsoleCollector>(ConsoleCollector) || baseConsole,
   },
   document: {
-    get: () => fromInjectable<Document>(DocumentContainer, c => c.document),
+    get: () => fromInjectable<Document>(DocumentContainer, c => c.document) || bootWindow.document,
   },
   location: {
-    get: () => fromInjectable<PlatformLocation>(PlatformLocation),
+    get: () => fromInjectable<PlatformLocation>(PlatformLocation) || bootWindow.location,
   },
   navigator: {
     get: () => {
@@ -73,12 +73,12 @@ Object.defineProperties(environment, {
     }
   },
   window: {
-    get: () => fromInjectable<Window>(DocumentContainer, c => c.window),
+    get: () => fromInjectable<Window>(DocumentContainer, c => c.window) || bootWindow,
   },
 });
 
-if (environment.System == null) { // ng cli only
-  Object.defineProperties(environment, {
+if (global['System'] == null) { // ng cli only
+  Object.defineProperties(global, {
     System: {
       get: () => {
         const loader = fromInjectable<RuntimeModuleLoader>(RuntimeModuleLoader);

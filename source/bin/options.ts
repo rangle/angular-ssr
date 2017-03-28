@@ -55,6 +55,11 @@ export const commandLineToOptions = (): CommandLineOptions => {
 
   const output = pathFromString(outputString);
 
+  if (options['ipc']) {
+    console.error('IPC mode is not implemented yet');
+    process.exit(1);
+  }
+
   return {output, project, templateDocument: template.content()};
 };
 
