@@ -1,3 +1,8 @@
 dist
 node_modules
 yarn.lock
+
+src/**/*.js
+src/**/*.js.map
+src/**/*.ngfactory.ts
+src/**/*.shim.ngstyle.ts
