@@ -5,11 +5,12 @@ export const timeouts = {
     // application zone to become stable. If this takes more than a hundred milliseconds it can have
     // serious negative impacts on the performance of on-demamd rendering. But we must also account
     // for the fact that many applications make HTTP requests on startup and can result, in certain
-    // network congestion scenarios, of latency associated with these requests, which in turn boosts
+    // network congestion scenarios, in latency associated with these requests, which in turn boosts
     // the amount of time it takes the application to bootstrap on the server. If you really want
     // to, you can adjust this value in your application: but again I would suggest that if you are
-    // even hitting this number in the first place, there is something really wrong with the way
-    // your application is running and you should do some investigation and debugging into that issue.
+    // even coming close to hitting this number in the first place, there is something really wrong
+    // with the way your application is running and you should do some investigation and debugging
+    // into that issue. You should try to aim for a rendering time of under 100ms.
     bootstrap: 5000,
   }
 }

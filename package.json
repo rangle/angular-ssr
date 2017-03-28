@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.0.96",
+  "version": "0.0.97",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -98,8 +98,6 @@
     "jasmine": "^2.5.3",
     "jasmine-core": "2.5.2",
     "jest": "^19.0.2",
-    "mocha": "^3.2.0",
-    "preboot": "^4.5.2",
     "reflect-metadata": "^0.1.10",
     "tslint": "4.4.2",
     "typescript": ">=2.2.0",

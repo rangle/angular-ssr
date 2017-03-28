@@ -2,6 +2,7 @@ import {NgModuleFactory} from '@angular/core';
 
 import {ApplicationBuilder} from './builder';
 import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
+import {ApplicationException} from '../../exception';
 import {RenderOperation} from '../operation';
 import {Route} from '../../route';
 import {PlatformImpl, createServerPlatform} from './../../platform';
@@ -19,6 +20,9 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
 
   preboot(enabled?: boolean) {
     if (enabled != null) {
+      if (enabled) {
+        throw new ApplicationException('preboot support is not implemented');
+      }
       this.operation.preboot = enabled;
     }
     return this.operation.preboot;
