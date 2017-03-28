@@ -1,4 +1,4 @@
-import {ApplicationRef, NgModuleRef} from '@angular/core';
+import {ApplicationRef, NgModuleRef, NgZone} from '@angular/core';
 
 import {PendingRequests} from '../http/pending-requests';
 
@@ -6,6 +6,8 @@ import {Observable} from 'rxjs/Rx';
 
 export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef<M>, timeout?: number): Promise<void> => {
   const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
+
+  const ngZone: NgZone = moduleRef.injector.get(NgZone);
 
   const requests: PendingRequests = moduleRef.injector.get(PendingRequests);
 
@@ -28,7 +30,8 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
       resolve();
     }
 
-    observable.combineLatest(requests.requestsPending, (stable, pending) => stable === true && pending === 0)
+    observable.combineLatest(requests.requestsPending,
+        (appStable, pending) => (appStable === true || ngZone.isStable === true) && pending === 0)
       .takeWhile(v => v === true)
       .take(1)
       .subscribe(finish);
