@@ -98,42 +98,44 @@ const dist = join(process.cwd(), 'dist');
 
 const application = new ApplicationFromModule(AppModule, join(dist, 'index.html'));
 
-// Pre-render all routes that do not take parameters (angular-ssr will discover automatically)
+// Pre-render all routes that do not take parameters (angular-ssr will discover automatically).
+// This is completely optional and may not make sense for your application if even parameterless
+// routes contain dynamic content. If you don't want prerendering, skip to the next block of code
 const prerender = async () => {
   const snapshots = await application.prerender();
 
-  return snapshots.subscribe(
+  snapshots.subscribe(
     snapshot => {
       app.get(snapshot.uri, (req, res) => res.send(snapshot.renderedDocument));
-    })
-    .toPromise();
+    });
 };
 
 prerender();
 
-// Note: You do not have to use the DocumentStore. DocumentStore is just a very simple LRU cache
-// implementation that sits on top of the application that you provide to it. If you do not wish
-// to cache the rendering results, you can just call application.renderUri directly. Likewise, if
-// you have some other caching system that you wish to use, there is nothing stopping you from doing
-// so. The implementation of DocumentStore is just basically a call to renderUri and then caching
-// the result.
-const documentStore = new DocumentStore(application);
-
-// Demand render and cache all other routes (eg /blog/post/12)
-app.get('*', async (req, res) => {
-  try {
-    const snapshot = await documentStore.load(req.url);
-    res.send(snapshot.renderedDocument);
-  }
-  catch (exception) {
-    res.send(application.templateDocument()); // fall back on client-side rendering
-  }
+// Demand render all other routes (eg /blog/post/12)
+app.get('*', (req, res) => {
+  application.renderUri(absoluteUri(req))
+    .then(snapshot => {
+      res.send(snapshot.renderedDocument);
+    })
+    .catch(exception => {
+      console.error(`Failed to render ${req.url}`, exception);
+      res.send(application.templateDocument()); // fall back on client-side rendering
+    });
 });
+
+export const absoluteUri = (request: express.Request): string => {
+  return url.format({
+    protocol: request.protocol,
+    host: request.get('host'),
+    pathname: request.originalUrl
+  });
+};
 ```
 
 ### Caching
 
-The caching implementations in `angular-ssr` are completely optional and are not integral to the product in any way. They all share the same basic implementation:
+The caching implementations in `angular-ssr` are completely optional and are not integral to the product in any way. The library provides two caching implementations: one that is variant-aware (`DocumentVariantStore`) and one that is not (`DocumentStore`). They are both fixed-size LRU caches that default to 65k items but can accept different sizes in their constructors. But they are very simple abstractions that just sit atop `application.renderUri()` and there is absolutely no requirement that you use them. They all share the same basic implementation:
 
 ```typescript
   async load(uri: string): Promise<Snapshot<void>> {
@@ -146,9 +148,9 @@ The caching implementations in `angular-ssr` are completely optional and are not
   }
 ```
 
-So if you want to roll your own caching solution, or just not cache anything, you are absolutely free to do so. Just call `application.renderUri` and you will get a freshly rendered document each time.
+These cache implementations are being considered for removal or deprecation because they are not appropriate for most applications.
 
-The `DocumentStore` and `DocumentVariantStore` are just simple fixed-size LRU cache implementations (but again, are completely optional).
+If you want to roll your own caching solution, or just not cache anything, you are absolutely free to do so. Just call `application.renderUri` and you will get a freshly rendered document each time. After that, you can cache it or not cache it or do whatever you want with it. Caching is not an integral part of the library; `DocumentStore` and `DocumentVariantStore` are provided mostly as examples of how to implement basic caching.
 
 ## Single-use server-side rendering as part of a build process
 
