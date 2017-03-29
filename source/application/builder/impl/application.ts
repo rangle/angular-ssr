@@ -1,4 +1,5 @@
 import uri = require('url');
+import chalk = require('chalk');
 
 import {NgModuleFactory} from '@angular/core';
 
@@ -140,9 +141,9 @@ const resolveToAbsoluteUri = (relativeUri: string): string => {
 
   if (resolved !== relativeUri) {
     if (relativeUriWarning === false) {
-      console.warn(`It is best to avoid using relative URIs like ${relativeUri} when requesting render results`);
-      console.warn('The reason is that your application may key its service URIs from "window.location" in some manner');
-      console.warn(`I have resolved this relative URI to ${resolved} and this may impact your application`);
+      console.warn(chalk.yellow(`It is best to avoid using relative URIs like ${relativeUri} when requesting render results`));
+      console.warn(chalk.yellow('The reason is that your application may key its service URIs from "window.location" in some manner'));
+      console.warn(chalk.yellow(`I have resolved this relative URI to ${resolved} and this may impact your application`));
       relativeUriWarning = true;
     }
   }
