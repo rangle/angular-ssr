@@ -1,4 +1,5 @@
 import {ApplicationRef, NgModuleRef, NgZone} from '@angular/core';
+import chalk = require('chalk');
 
 import {PendingRequests} from '../http/pending-requests';
 
@@ -17,9 +18,9 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
     let timer;
     if (timeout) {
       timer = setTimeout(() => {
-        console.warn(`Timed out while waiting for NgZone to become stable after ${timeout}ms! This is a serious performance problem!`);
-        console.warn('This likely means that your application is stuck in an endless loop of change detection or some other pattern of misbehaviour');
-        console.warn('In a normal application, a zone becomes stable very quickly');
+        console.warn(chalk.yellow(`Timed out while waiting for NgZone to become stable after ${timeout}ms! This is a serious performance problem!`));
+        console.warn(chalk.yellow('This likely means that your application is stuck in an endless loop of change detection or some other pattern of misbehaviour'));
+        console.warn(chalk.yellow('In a normal application, a zone becomes stable very quickly'));
         resolve();
       },
       timeout);

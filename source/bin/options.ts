@@ -1,4 +1,5 @@
 import commander = require('commander');
+import chalk = require('chalk');
 
 import {dirname, join} from 'path';
 
@@ -56,7 +57,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
   const output = pathFromString(outputString);
 
   if (options['ipc']) {
-    console.error('IPC mode is not implemented yet');
+    console.error(chalk.red('IPC mode is not implemented yet'));
     process.exit(1);
   }
 
@@ -66,7 +67,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
 const parseCommandLine = () => {
   return commander
     .version(version)
-    .description('Prerender Angular applications')
+    .description(chalk.green('Prerender Angular applications'))
     .option('-p, --project <path>', 'Path to tsconfig.json file or project root (if tsconfig.json lives in the root)', process.cwd())
     .option('-t, --template <path>', 'HTML template document', 'dist/index.html')
     .option('-m, --module <path>', 'Path to root application module TypeScript file')
@@ -94,5 +95,5 @@ const tsconfigFromRoot = (fromRoot: PathReference): string => {
     return matchingFile.toString();
   }
 
-  throw new ConfigurationException(`Cannot find tsconfig in ${fromRoot}`);
+  throw new ConfigurationException(chalk.red(`Cannot find tsconfig in ${fromRoot}`));
 };
