@@ -16,8 +16,7 @@ import {extractRoutesFromRouter} from '../../../route';
 
 describe('ApplicationFromModule', () => {
   it('should require a template document in order to render', async () => {
-    const application = loadApplicationFixtureFromModule(BasicInlineModule);
-    application.templateDocument('');
+    const application = loadApplicationFixtureFromModule(BasicInlineModule, builder => builder.templateDocument(String()));
     try {
       return await application.prerender()
         .then(() => {
@@ -125,15 +124,17 @@ describe('ApplicationFromModule', () => {
   });
 
   it('should be able to transmit state from the server to the client in the prerendered document', async () => {
-    const application = loadApplicationFixtureFromModule(BasicRoutedModule);
-    try {
-      application.stateReader(
-        injector => {
-          const router = injector.get(Router);
-          const routes = extractRoutesFromRouter(router);
-          return Promise.resolve(routes.map(r => r.path));
-        });
+    const application = loadApplicationFixtureFromModule(BasicRoutedModule,
+      builder => {
+        builder.stateReader(
+          injector => {
+            const router = injector.get(Router);
+            const routes = extractRoutesFromRouter(router);
+            return Promise.resolve(routes.map(r => r.path));
+          });
+      });
 
+    try {
       const snapshots = await application.prerender();
 
       return await new Promise((resolve, reject) => {

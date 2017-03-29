@@ -46,3 +46,22 @@ export type ComposedTransition = (injector: Injector) => Promise<void>;
 // will represent the new version of the rendered document. If you return void, it is assumed that
 // you did your processing by manipulating the document object.
 export type Postprocessor = (document: Document, html?: string) => void | string;
+
+export interface EventSelector {
+  selector: string;
+  events: Array<string>;
+  keyCodes?: Array<number>;
+  preventDefault?: boolean;
+  freeze?: boolean;
+  action?: (node: Node, event: Event) => void;
+  noReplay?: boolean;
+}
+
+export type PrebootRoot = {appRoot: string | Array<string>} | {serverClientRoot: Array<{clientSelector: string, serverSelector: string}>};
+
+export type PrebootConfiguration = PrebootRoot & {
+  eventSelectors?: Array<EventSelector>;
+  buffer?: boolean;
+  uglify?: boolean;
+  noInlineCache?: boolean;
+};

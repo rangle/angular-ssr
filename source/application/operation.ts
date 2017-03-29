@@ -1,7 +1,12 @@
-import {NgModuleFactory} from '@angular/core';
+import {
+  ApplicationBootstrapper,
+  ApplicationStateReader,
+  ComposedTransition,
+  Postprocessor,
+  PrebootConfiguration,
+  VariantsMap
+} from './contracts';
 
-import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor} from './contracts';
-import {ComposedTransition, VariantsMap} from './contracts';
 import {Route} from '../route';
 
 // A render operation is an operation that forks into multiple concurrent suboperations,
@@ -10,15 +15,12 @@ import {Route} from '../route';
 // their own instance of the application. This is an internal contract, not part of the
 // public API
 
-export interface RenderOperation<M> {
+export interface RenderOperation {
   // This is an HTML document containing the index.html build output of the application.
   // We inject the rendered content into this document, but it must still contain <script>
   // tags so that it will boot the client application after rendering the prerendered
   // HTML returned from the first HTTP request.
   templateDocument: string;
-
-  // A precompiled NgModuleFactory<M> which can be used to instantiate applications
-  moduleFactory: NgModuleFactory<M>;
 
   // An optional array of routes to render concurrently
   routes: Array<Route>;
@@ -49,12 +51,12 @@ export interface RenderOperation<M> {
   // results of the previous transformation.
   postprocessors: Array<Postprocessor>;
 
-  // Is preboot integration enabled?
-  preboot: boolean;
+  // Optional preboot configuration, if preboot integration is desired
+  preboot: PrebootConfiguration;
 }
 
-export interface RenderVariantOperation<M, V> {
-  scope: RenderOperation<M>;       /// parent render scope
+export interface RenderVariantOperation<V> {
+  scope: RenderOperation;       /// parent render scope
   uri: string;                     /// an absolute URI including protocol and hostname
   transition?: ComposedTransition; /// variant transition function composed from {@link VariantMap} and {@link variant}
   variant?: V;                     /// variant options for this render operation

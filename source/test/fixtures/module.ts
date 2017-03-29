@@ -2,14 +2,17 @@ import {Type} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {ApplicationFromModule} from '../../application';
+import {Application, ApplicationBuilder, ApplicationBuilderFromModule} from '../../application';
 import {Snapshot} from '../../snapshot';
 import {templateDocument} from './document';
 
-export const loadApplicationFixtureFromModule = <M>(moduleType: Type<M>): ApplicationFromModule<{}, M> => {
-  const application = new ApplicationFromModule(moduleType);
-  application.templateDocument(templateDocument);
-  return application;
+export const loadApplicationFixtureFromModule = <M>(moduleType: Type<M>, fn?: (builder: ApplicationBuilder) => void): Application<{}, M> => {
+  const builder = new ApplicationBuilderFromModule(moduleType);
+  builder.templateDocument(templateDocument);
+  if (fn) {
+    fn(builder);
+  }
+  return builder.build();
 };
 
 export const renderModuleFixture = async <M>(moduleType: Type<M>): Promise<Observable<Snapshot<void>>> => {

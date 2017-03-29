@@ -1,36 +1,31 @@
-import {NgModuleFactory} from '@angular/core';
-
+import {Application} from './application';
 import {ApplicationBuilder} from './builder';
-import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
-import {ApplicationException} from '../../exception';
+import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, PrebootConfiguration, VariantsMap} from '../contracts';
 import {RenderOperation} from '../operation';
 import {Route} from '../../route';
-import {PlatformImpl, createServerPlatform} from './../../platform';
-
-const basePlatform = createServerPlatform();
+import {FileReference, fileFromString} from '../../filesystem';
 
 export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
-  protected operation: Partial<RenderOperation<M>> = {};
-
-  abstract getModuleFactory(): Promise<NgModuleFactory<M>>;
-
-  get platform(): PlatformImpl {
-    return basePlatform as PlatformImpl;
+  constructor(templateDocument?: FileReference | string) {
+    if (templateDocument) {
+      this.templateDocument(templateDocument.toString());
+    }
   }
 
-  preboot(enabled?: boolean) {
-    if (enabled != null) {
-      if (enabled) {
-        throw new ApplicationException('preboot support is not implemented');
-      }
-      this.operation.preboot = enabled;
+  protected operation: Partial<RenderOperation> = {};
+
+  abstract build(): Application<any, M>;
+
+  preboot(config?: PrebootConfiguration) {
+    if (config != null) {
+      this.operation.preboot = config;
     }
     return this.operation.preboot;
   }
 
   templateDocument(template?: string) {
     if (template != null) {
-      this.operation.templateDocument = template;
+      this.operation.templateDocument = templateFileToTemplateString(template);
     }
     return this.operation.templateDocument;
   }
@@ -72,6 +67,14 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
     }
     return this.operation.stateReader;
   }
+}
 
-  dispose() {}
+const templateFileToTemplateString = (fileOrTemplate: string): string => {
+  const file = fileFromString(fileOrTemplate);
+
+  if (file.exists()) {
+    return file.content();
+  }
+
+  return fileOrTemplate;
 }

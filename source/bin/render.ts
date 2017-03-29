@@ -4,7 +4,7 @@ import './runtime';
 
 import {
   ApplicationRenderer,
-  ApplicationFromSource,
+  ApplicationBuilderFromSource,
   HtmlOutput,
   log,
 } from '../index';
@@ -15,8 +15,10 @@ const options = commandLineToOptions();
 
 log.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
-const application = new ApplicationFromSource(options.project);
-application.templateDocument(options.templateDocument);
+const builder = new ApplicationBuilderFromSource(options.project);
+builder.templateDocument(options.templateDocument);
+
+const application = builder.build();
 
 const output = new HtmlOutput(options.output);
 

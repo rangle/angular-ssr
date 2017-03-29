@@ -1,6 +1,6 @@
 import {LRUMap} from 'lru_map';
 
-import {ApplicationBase} from '../application';
+import {Application} from '../application';
 import {Snapshot} from '../snapshot';
 
 import {defaultCacheSize} from './cache-size';
@@ -8,7 +8,7 @@ import {defaultCacheSize} from './cache-size';
 export class DocumentStore<M> {
   private cache: LRUMap<string, Snapshot<void>>;
 
-  constructor(private application: ApplicationBase<any, M>, cacheSize = defaultCacheSize) {
+  constructor(private application: Application<any, M>, cacheSize = defaultCacheSize) {
     this.cache = new LRUMap<string, Snapshot<void>>(cacheSize);
   }
 

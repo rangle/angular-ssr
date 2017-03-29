@@ -1,6 +1,6 @@
 import {NgModuleFactory} from '@angular/core';
 
-import {createAotCompiler} from '@angular/compiler';
+import {AotCompiler, createAotCompiler} from '@angular/compiler';
 
 import {
   CompilerHost as AngularCompilerHost,
@@ -41,9 +41,13 @@ import {discoverApplicationModule} from '../static';
 export class CompilableProgram implements Disposable {
   private compilerHost: CompilerHost;
 
+  private compiler: AotCompiler;
+
   private program: Program;
 
-  private build: ApplicationBuild;
+  private ngCompilerHost: AngularCompilerHost;
+
+  private build: Promise<ApplicationBuild>;
 
   constructor(
     private basePath: PathReference,
@@ -54,6 +58,25 @@ export class CompilableProgram implements Disposable {
     this.compilerHost = createCompilerHost(this.ts, true);
 
     this.program = createProgram(sources, this.ts, this.compilerHost);
+
+    const hostContext = new ResourceResolver(this.compilerHost);
+
+    this.ngCompilerHost = this.compilerFactory(hostContext);
+
+    const cli = new NgcCliOptions({
+      i18nFormat: null,
+      i18nFile: null,
+      locale: null,
+      basePath: this.ng.basePath
+    });
+
+    const {compiler} = createAotCompiler(this.ngCompilerHost, {
+      translations: null, // FIXME(cbond): Load from translation file
+      i18nFormat: cli.i18nFormat,
+      locale: cli.locale
+    });
+
+    this.compiler = compiler;
   }
 
   roots(): Array<PathReference> {
@@ -64,16 +87,23 @@ export class CompilableProgram implements Disposable {
     return candidates.map(c => pathFromString(makeAbsolute(this.basePath, c)));
   }
 
+  compile(): Promise<ApplicationBuild> {
+    if (this.build == null) {
+      this.build = this.runCompile();
+    }
+    return this.build;
+  }
+
   async loadModule<M>(module: ApplicationModuleDescriptor, discovery?: boolean): Promise<NgModuleFactory<M>> {
     if (discovery == null || discovery === true) {
       module = this.discoverApplicationModule(module);
     }
 
-    await this.demandCompile();
+    const build = await this.compile();
 
     const roots = [pathFromString(this.ts.outDir)].concat(this.roots(), this.basePath);
 
-    const [resolvedModule, symbol] = this.build.resolve(roots, module);
+    const [resolvedModule, symbol] = build.resolve(roots, module);
     if (resolvedModule == null) {
       throw new CompilerException(`Cannot find a generated NgFactory matching the name ${module.source} with a symbol ${module.symbol}`);
     }
@@ -88,36 +118,20 @@ export class CompilableProgram implements Disposable {
     return loadedModule;
   }
 
-  dispose() {
-    this.program = undefined;
-
+  async dispose() {
     this.compilerHost = undefined;
 
     if (this.build) {
-      this.build.dispose();
-      this.build = undefined;
+      this.build.then(b => b.dispose());
     }
   }
 
-  private async demandCompile(): Promise<void> {
-    if (this.build == null) {
-      try {
-        await this.compile();
-      }
-      catch (exception) {
-        this.dispose();
-
-        throw new CompilerException(`Compilation failed: ${exception}`, exception);
-      }
-    }
-  }
-
-  private async compile(): Promise<void> {
+  private async runCompile(): Promise<ApplicationBuild> {
     assertProgram(this.program);
 
-    this.build = new ApplicationBuild();
+    const build = new ApplicationBuild();
 
-    const [host, generated] = await this.generateTemplates();
+    const [host, generated] = await this.generateTemplates(build);
 
     const sources = this.program.getSourceFiles().map(sf => sf.fileName).concat(generated);
 
@@ -132,7 +146,7 @@ export class CompilableProgram implements Disposable {
         onError: (message: string) => void,
         sourceFiles: Array<SourceFile>
     ) => {
-      this.build.emit(filename, sourceFiles);
+      build.emit(filename, sourceFiles);
 
       return originalWriteFile(filename, data, writeByteOrderMark, onError, sourceFiles);
     };
@@ -141,21 +155,12 @@ export class CompilableProgram implements Disposable {
     if (emitResult) {
       assertDiagnostics(emitResult.diagnostics);
     }
+
+    return build;
   }
 
-  private async generateTemplates(): Promise<[CompilerHost, Array<string>]> {
-    const hostContext = new ResourceResolver(this.compilerHost);
-
-    const compiler = this.compilerFactory(hostContext);
-
-    const cli = new NgcCliOptions({
-      i18nFormat: null,
-      i18nFile: null,
-      locale: null,
-      basePath: this.ng.basePath
-    });
-
-    const generatedModules = await this.generateTemplateCode(compiler, cli);
+  private async generateTemplates(build: ApplicationBuild): Promise<[CompilerHost, Array<string>]> {
+    const generatedModules = await this.generateTemplateCode(build);
 
     const metadataWriter = new (<any>MetadataWriterHost)(this.compilerHost, this.ng, true);
 
@@ -172,26 +177,20 @@ export class CompilableProgram implements Disposable {
     return new AngularCompilerHost(this.program, this.ng, context);
   }
 
-  private async generateTemplateCode(compilerHost: AngularCompilerHost, cli: NgcCliOptions) {
-    const {compiler} = createAotCompiler(compilerHost, {
-      translations: null, // FIXME(cbond): Load from translation file
-      i18nFormat: cli.i18nFormat,
-      locale: cli.locale
-    });
+  private async generateTemplateCode(build: ApplicationBuild) {
+    const filenames = this.program.getSourceFiles().map(sf => this.ngCompilerHost.getCanonicalFileName(sf.fileName));
 
-    const filenames = this.program.getSourceFiles().map(sf => compilerHost.getCanonicalFileName(sf.fileName));
-
-    const generatedModules = await compiler.compileAll(filenames);
+    const generatedModules = await this.compiler.compileAll(filenames);
 
     return generatedModules.map(
       generatedModule => {
         const sourceFile = this.program.getSourceFile(generatedModule.srcFileUrl);
 
-        const emitPath = compilerHost.calculateEmitPath(generatedModule.genFileUrl);
+        const emitPath = this.ngCompilerHost.calculateEmitPath(generatedModule.genFileUrl);
 
         this.compilerHost.writeFile(emitPath, generatedModule.source, false, function () {}, [sourceFile]);
 
-        this.build.emit(emitPath, [sourceFile]);
+        build.emit(emitPath, [sourceFile]);
 
         return emitPath;
       });

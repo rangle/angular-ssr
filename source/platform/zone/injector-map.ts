@@ -2,12 +2,20 @@ import 'zone.js';
 
 import {Injector, InjectionToken, Type} from '@angular/core';
 
+import {PlatformException} from '../../exception';
+
 const map = new Map<Zone, Injector>();
 
 export const mapZoneToInjector = (zone: Zone, injector: Injector): () => void => {
+  if (map.get(zone)) {
+    throw new PlatformException(`Zone ${zone.name} is mapped to an existing injector and a zone can not be mapped to more than one injector`);
+  }
+
   map.set(zone, injector);
 
-  return () => map.delete(zone);
+  return () => {
+    map.delete(zone);
+  };
 };
 
 export const zoneToInjector = (zone: Zone) => {

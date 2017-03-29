@@ -88,7 +88,7 @@ When you build your application, you are outputting two targets: your actual Ang
 Your actual HTTP server code will look something like the following:
 
 ```typescript
-import {ApplicationFromModule, DocumentStore} from 'angular-ssr';
+import {ApplicationFromModule} from 'angular-ssr';
 
 import {join} from 'path';
 
@@ -96,33 +96,20 @@ import {AppModule} from '../src/app/app.module';
 
 const dist = join(process.cwd(), 'dist');
 
-const application = new ApplicationFromModule(AppModule, join(dist, 'index.html'));
+const builder = new ApplicationBuilderFromModule(AppModule, join(dist, 'index.html'));
 
-// Pre-render all routes that do not take parameters (angular-ssr will discover automatically).
-// This is completely optional and may not make sense for your application if even parameterless
-// routes contain dynamic content. If you don't want prerendering, skip to the next block of code
-const prerender = async () => {
-  const snapshots = await application.prerender();
+const application = builder.build();
 
-  snapshots.subscribe(
-    snapshot => {
-      app.get(snapshot.uri, (req, res) => res.send(snapshot.renderedDocument));
-    });
-};
-
-prerender();
-
-// Demand render all other routes (eg /blog/post/12)
-app.get('*', (req, res) => {
-  application.renderUri(absoluteUri(req))
-    .then(snapshot => {
+app.get('*',
+  async (req, res) => {
+    try {
+      const snapshot = await application.renderUri(absoluteUri(req));
       res.send(snapshot.renderedDocument);
-    })
-    .catch(exception => {
-      console.error(`Failed to render ${req.url}`, exception);
-      res.send(application.templateDocument()); // fall back on client-side rendering
-    });
-});
+    }
+    catch (exception) { // log this failure in a real application
+      res.send(builder.templateDocument()); // fall back on client-side rendering
+    }
+  });
 
 export const absoluteUri = (request: express.Request): string => {
   return url.format({
@@ -132,6 +119,22 @@ export const absoluteUri = (request: express.Request): string => {
   });
 };
 ```
+
+If you wish to do _prerendering_ (rendering of all routes that do not take parameters), which is appropriate for applications that are mostly static controls and so forth, then you can write a bit more code like this:
+
+```typescript
+// Pre-render all routes that do not take parameters (angular-ssr will discover automatically).
+// This is completely optional and may not make sense for your application if even parameterless
+// routes contain dynamic content. If you don't want prerendering, skip to the next block of code
+const prerender = async () => {
+  const snapshots = await application.prerender();
+
+  snapshots.subscribe(
+    snapshot => app.get(snapshot.uri, (req, res) => res.send(snapshot.renderedDocument)));
+};
+```
+
+This bit is completely optional.
 
 ### Caching
 
@@ -162,7 +165,7 @@ In this case, your code will look something like this:
 
 ```typescript
 import {
-  ApplicationFromModule,
+  ApplicationBuilderFromModule,
   ApplicationRenderer,
   HtmlOutput,
 } from 'angular-ssr';
@@ -173,7 +176,9 @@ import {AppModule} from '../src/app.module';
 
 const dist = join(process.cwd(), 'dist');
 
-const application = new ApplicationFromModule(ServerModule, join(dist, 'index.html'));
+const builder = new ApplicationBuilderFromModule(ServerModule, join(dist, 'index.html'));
+
+const application = builder.build();
 
 const html = new HtmlOutput(dist);
 
@@ -308,9 +313,9 @@ export class LocaleTransition implements StateTransition<string> {
   }
 }
 
-const application = new ApplicationFromModule(AppModule, join(process.cwd(), 'dist', 'index.html'));
+const builder = new ApplicationBuilderFromModule(AppModule, join(process.cwd(), 'dist', 'index.html'));
 
-application.variants({
+builder.variants({
   locale: {
     values: new Set<string>([
       'en-CA',
@@ -321,11 +326,16 @@ application.variants({
   }
 });
 
+const application = builder.build();
+
 type ApplicationVariants = {locale: string};
 
 // DocumentVariantStore is a variant-aware special-case of DocumentStore. When you
 // query it, you must provide values for each variant key that we described in the
 // call to variants() above. But in this application, there is only one key: locale.
+// And again, if you do not want caching in your application or you want finer-grained
+// control over it, just skip DocumentVariantStore and call application.renderUri,
+// which will render a new document each time you call it, with no caching.
 const documentStore = new DocumentVariantStore<ApplicationVariants>(application);
 
 app.get('*', async (req, res) => {
@@ -338,7 +348,7 @@ app.get('*', async (req, res) => {
     res.send(snapshot.renderedDocument);
   }
   catch (exception) {
-    res.send(application.templateDocument()); // fall back on client-side rendering
+    res.send(builder.templateDocument()); // fall back on client-side rendering
   }
 });
 ```
@@ -352,9 +362,8 @@ The example in `examples/demand-express` has working code that implements what w
 Many applications may wish to transfer some state from the server to the client as part of application bootstrap. `angular-ssr` makes this easy. Simply tell your `ApplicationBuilder` object about your state reader class or function, and any state returned from it will be made available in a global variable called `bootstrapApplicationState`:
 
 ```typescript
-const application = new ApplicationFromModule(AppModule);
-
-application.stateReader(ServerStateReader);
+const builder = new ApplicationBuilderFromModule(AppModule, htmlTemplate);
+builder.stateReader(ServerStateReader);
 ```
 
 And your `ServerStateReader` class implementation might look like this:
@@ -367,7 +376,7 @@ import {Store} from '@ngrx/store';
 import {StateReader} from 'angular-ssr';
 
 @Injectable()
-export class ServerStateReader implements StateReader {
+export class ServerStateReader implements StateReader<MyState> {
   constructor(private store: Store<AppState>) {}
 
   getState(): Promise<MyState> {
@@ -379,12 +388,7 @@ export class ServerStateReader implements StateReader {
 Note that you can inject any service you wish into your state reader. `angular-ssr` will query the constructor arguments using the ng dependency injector the same way it works in application code. Alternatively, you can supply a function which just accepts a bare `Injector` and you can query the DI yourself:
 
 ```typescript
-import {Store} from '@ngrx/store';
-
-application.stateReader(
-  (injector: Injector) => {
-    return injector.get(Store).select(s => s.fooBar).take(1).toPromise();
-  });
+builder.stateReader((injector: Injector) => injector.get(Store).select(s => s.fooBar).toPromise());
 ```
 
 Both solutions are functionally equivalent.
@@ -393,18 +397,29 @@ Both solutions are functionally equivalent.
 
 # More details on server-side rendering code
 
-The main contract that you use to define your application in a server context is called [`ApplicationBuilder`](https://github.com/clbond/angular-ssr/blob/master/source/application/builder/builder.ts). It has thorough comments and explains all the ways that you can configure your application when doing server-side rendering.
+The main contract that you use to define your application in a server context is called [`ApplicationBuilder`](https://github.com/clbond/angular-ssr/blob/master/source/application/builder/builder.ts). It has thorough comments and explains all the ways that you can configure your application when doing server-side rendering. Once you have configured your `ApplicationBuilder`, you call `build()` to get an instance of `Application`. You can use the `Application` instance to do prerendering and demand rendering of routes / URLs.
 
-But `ApplicationBuilder` is an interface. It has three concrete implementations:
+`ApplicationBuilder` is an interface. It has three concrete implementations that you can instantiate, depending on which suits your needs:
 
-* `ApplicationFromModule<V, M>`
+* `ApplicationBuilderFromModule<V, M>`
   * If your code has access to the root `@NgModule` of your application, then this is probably the `ApplicationBuilder` that you want to use. It takes a module type and a template HTML document (`dist/index.html`) as its constructor arguments.
-* `ApplicationFromModuleFactory<V>`
+* `ApplicationBuilderFromModuleFactory<V>`
   * If your application code has already been run through `ngc` and produced `.ngfactory.js` files, then you can pass your root `@NgModule`'s NgFactory -- not the module definition itself, but its compilation output -- to `ApplicationFromModuleFactory<V>` and you can skip the template compilation process.
-* `ApplicationFromSource<V>`
+* `ApplicationBuilderFromSource<V>`
   * You can use this for projects that use `@angular/cli` if you wish to use inplace compilation to generate an `NgModuleFactory` from raw source code. It's fairly unlikely that you will ever use this class: its main purpose is for the implementation of the `ng-render` command.
 
-Other classes of interest are [`DocumentStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-store.ts) and [`DocumentVariantStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-variant-store.ts). You can use these in conjunction with `ApplicationBuilder` to maintain and query a cache of rendered pages.
+The typical usage of `ApplicationBuilder` looks something like:
+
+```typescript
+const builder = new ApplicationBuilderFromModule(MyModule);
+builder.templateDocument(indexHtmlFile);
+
+const application = builder.build();
+
+const renderedDocument = application.renderUri('http://localhost/');
+```
+
+Other classes of interest are [`DocumentStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-store.ts) and [`DocumentVariantStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-variant-store.ts). You can use these in conjunction with `ApplicationBuilder` to maintain and query a cache of rendered pages. Alternatively, you can provide your own caching mechanism and just call `application.renderUri()` when there is a miss.
 
 ## `Snapshot<V>`
 

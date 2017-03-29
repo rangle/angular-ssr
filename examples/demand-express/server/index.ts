@@ -4,7 +4,7 @@ import express = require('express');
 
 import {enableProdMode} from '@angular/core';
 
-import {ApplicationFromModule, DocumentVariantStore} from 'angular-ssr';
+import {ApplicationBuilderFromModule, DocumentVariantStore} from 'angular-ssr';
 
 import {AppModule} from '../app/app.module';
 
@@ -18,11 +18,17 @@ configure(http);
 
 enableProdMode();
 
-const application = new ApplicationFromModule<Variants, AppModule>(AppModule, index);
+const builder = new ApplicationBuilderFromModule<Variants, AppModule>(AppModule, index);
+builder.variants(variants);
 
-application.variants(variants);
+const application = builder.build();
 
-const documentStore = new DocumentVariantStore(application); // has default lru cache size
+// NOTE(cbond): It is important to note that this caching implementation is limited and
+// probably not suitable for your application. It is a fixed-size LRU cache that only
+// makes sense for applications whose content does not change over time. If the content
+// of your application routes does change over time, consider writing your own cache
+// on top of application.renderUri or just avoid caching altogether.
+const documentStore = new DocumentVariantStore(application);
 
 http.get('*', (request, response) => {
   documentStore.load(absoluteUri(request), {locale: request.cookies['locale'] || 'en-US'})
@@ -30,7 +36,7 @@ http.get('*', (request, response) => {
       response.send(snapshot.renderedDocument);
     })
     .catch(exception => {
-      response.send(application.templateDocument()); // fall back on client document
+      response.send(builder.templateDocument()); // fall back on client document
     });
 });
 

@@ -8,9 +8,14 @@ export class ResourceResolver extends ModuleResolutionHostAdapter {
   }
 
   readResource(s: string): Promise<string> {
-    if (this.compilerHost.fileExists(s)) {
-      return Promise.resolve(this.compilerHost.readFile(s));
+    try {
+      if (this.compilerHost.fileExists(s)) {
+        return Promise.resolve(this.compilerHost.readFile(s));
+      }
+      return Promise.resolve(require(s));
     }
-    return Promise.resolve(require(s));
+    catch (e) {
+      return super.readResource(s);
+    }
   }
 }

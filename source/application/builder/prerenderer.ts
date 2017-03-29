@@ -1,9 +1,9 @@
 import {OutputProducer} from '../../output';
 
-import {ApplicationBase} from '../builder';
+import {Application} from '../builder';
 
 export class ApplicationRenderer {
-  constructor(private application: ApplicationBase<any, any>) {}
+  constructor(private application: Application<any, any>) {}
 
   async prerenderTo(output: OutputProducer): Promise<void> {
     output.initialize();

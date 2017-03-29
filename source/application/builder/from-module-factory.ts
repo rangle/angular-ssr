@@ -2,14 +2,31 @@ import {NgModuleFactory} from '@angular/core';
 
 import {FileReference} from '../../filesystem';
 
-import {ApplicationBase} from './impl/application';
+import {Application} from './application';
+import {ApplicationBuilderBase} from './builder-base';
+import {RenderOperation} from '../operation';
+import {PlatformImpl, createJitPlatform} from '../../platform';
 
-export class ApplicationFromModuleFactory<V> extends ApplicationBase<V, any> {
+export class ApplicationBuilderFromModuleFactory<V> extends ApplicationBuilderBase<any> {
   constructor(private factory: NgModuleFactory<any>, templateDocument?: FileReference | string) {
-    super(templateDocument);
+    super();
+
+    if (templateDocument) {
+      this.templateDocument(templateDocument.toString());
+    }
   }
 
-  getModuleFactory(): Promise<NgModuleFactory<any>> {
-    return Promise.resolve(this.factory);
+  build(): Application<V, any> {
+    const platform = createJitPlatform([]) as PlatformImpl;
+
+    class ApplicationFromModuleFactoryImpl extends Application<V, any> {
+      dispose() {
+        platform.destroy();
+      }
+    }
+
+    const moduleFactory = () => Promise.resolve(this.factory);
+
+    return new ApplicationFromModuleFactoryImpl(platform, <RenderOperation> this.operation, moduleFactory);
   }
 }

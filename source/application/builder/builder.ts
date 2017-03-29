@@ -1,11 +1,18 @@
-import {PlatformRef} from '@angular/core';
+import {
+  ApplicationBootstrapper,
+  ApplicationStateReader,
+  Postprocessor,
+  PrebootConfiguration,
+  VariantsMap
+} from '../contracts';
 
-import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
-import {Disposable} from '../../disposable';
+import {Application} from './application';
+
 import {Route} from './../../route/route';
 
-export interface ApplicationBuilder extends Disposable {
-  readonly platform: PlatformRef;
+export interface ApplicationBuilder {
+  // Construct an application from this builder after configuring it
+  build(): Application<any, any>;
 
   // Provide a template HTML document that will be used when rendering this application.
   // In almost all cases this will be the build output file `dist/index.html`, not the
@@ -42,4 +49,8 @@ export interface ApplicationBuilder extends Disposable {
   // postprocessing functions will be called in order and each successive transform will receive
   // as its argument the result of the prior postprocessor.
   postprocess(transform?: Postprocessor): Array<Postprocessor>;
+
+  // Enable preboot integration and specify options that will be passed to preboot when the
+  // inline code is generated and injected into the document.
+  preboot(config?: PrebootConfiguration): PrebootConfiguration;
 }

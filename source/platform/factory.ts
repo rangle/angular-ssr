@@ -4,6 +4,7 @@ import {
   PlatformRef,
   Provider,
   createPlatformFactory,
+  platformCore,
 } from '@angular/core';
 
 import {
@@ -17,8 +18,15 @@ import {PlatformImpl} from './platform';
 import {ZoneProperties} from './zone';
 import {randomizedApplicationId} from '../static';
 
-export const createServerPlatform =
-  createPlatformFactory(platformCoreDynamic, 'nodejs',
+const baseProviders = [
+  ...PLATFORM_COLLECTOR_PROVIDERS,
+  {provide: APP_ID, useFactory: randomizedApplicationId},
+  {provide: PlatformRef, useClass: PlatformImpl},
+  {provide: ZoneProperties, useClass: ZoneProperties},
+];
+
+export const createJitPlatform =
+  createPlatformFactory(platformCoreDynamic, 'jit',
     new Array<Provider>(
       COMPILER_PROVIDERS,
       {
@@ -28,8 +36,7 @@ export const createServerPlatform =
         ]},
         multi: true,
       },
-      ...PLATFORM_COLLECTOR_PROVIDERS,
-      {provide: APP_ID, useFactory: randomizedApplicationId},
-      {provide: PlatformRef, useClass: PlatformImpl},
-      {provide: ZoneProperties, useClass: ZoneProperties},
+      ...baseProviders,
     ));
+
+export const createStaticPlatform = createPlatformFactory(platformCore, 'static', baseProviders);
