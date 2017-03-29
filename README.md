@@ -94,24 +94,32 @@ import {join} from 'path';
 
 import {AppModule} from '../src/app/app.module';
 
+import express = require('express');
+
+import url = require('url');
+
 const dist = join(process.cwd(), 'dist');
 
 const builder = new ApplicationBuilderFromModule(AppModule, join(dist, 'index.html'));
 
 const application = builder.build();
 
-app.get('*',
-  async (req, res) => {
-    try {
-      const snapshot = await application.renderUri(absoluteUri(req));
-      res.send(snapshot.renderedDocument);
-    }
-    catch (exception) { // log this failure in a real application
-      res.send(builder.templateDocument()); // fall back on client-side rendering
-    }
-  });
+const http = express();
 
-export const absoluteUri = (request: express.Request): string => {
+http.get(/.*/, async (request, response) => {
+  try {
+    const snapshot = await application.renderUri(absoluteUri(req));
+
+    response.send(snapshot.renderedDocument);
+  }
+  catch (exception) {
+    response.send(builder.templateDocument()); // fall back on client document
+  }
+});
+
+http.listen(process.env.PORT);
+
+const absoluteUri = (request: express.Request): string => {
   return url.format({
     protocol: request.protocol,
     host: request.get('host'),
@@ -313,7 +321,9 @@ export class LocaleTransition implements StateTransition<string> {
   }
 }
 
-const builder = new ApplicationBuilderFromModule(AppModule, join(process.cwd(), 'dist', 'index.html'));
+type Variants = {locale: string};
+
+const builder = new ApplicationBuilderFromModule<Variants>(AppModule, join(process.cwd(), 'dist', 'index.html'));
 
 builder.variants({
   locale: {
@@ -328,22 +338,12 @@ builder.variants({
 
 const application = builder.build();
 
-type ApplicationVariants = {locale: string};
-
-// DocumentVariantStore is a variant-aware special-case of DocumentStore. When you
-// query it, you must provide values for each variant key that we described in the
-// call to variants() above. But in this application, there is only one key: locale.
-// And again, if you do not want caching in your application or you want finer-grained
-// control over it, just skip DocumentVariantStore and call application.renderUri,
-// which will render a new document each time you call it, with no caching.
-const documentStore = new DocumentVariantStore<ApplicationVariants>(application);
-
 app.get('*', async (req, res) => {
   try {
     // Remember that we set locale in document.cookie, so all requests after the
     // first-ever application load will have a locale cookie that we can use to
     // decide whether to give the user an English or French pre-rendered page.
-    const snapshot = await documentStore.load(req.url, {locale: req.cookies.locale});
+    const snapshot = await application.renderUri(absoluteUri(req), {locale: req.cookies.locale});
 
     res.send(snapshot.renderedDocument);
   }

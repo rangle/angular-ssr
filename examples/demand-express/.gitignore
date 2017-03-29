@@ -1,4 +1,6 @@
 dist
 dist-server
+app/**/*.js
+app/**/*.map
 node_modules
 yarn.lock
