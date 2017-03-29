@@ -176,7 +176,7 @@ import {AppModule} from '../src/app.module';
 
 const dist = join(process.cwd(), 'dist');
 
-const builder = new ApplicationBuilderFromModule(ServerModule, join(dist, 'index.html'));
+const builder = new ApplicationBuilderFromModule(AppModule, join(dist, 'index.html'));
 
 const application = builder.build();
 

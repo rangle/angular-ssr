@@ -13,6 +13,8 @@ import {fork} from './fork';
 
 import uri = require('url');
 
+import chalk = require('chalk');
+
 export abstract class Application<V, M> implements Disposable {
   constructor(
     private platformImpl: PlatformImpl,
