@@ -1,14 +1,15 @@
 import {EOL} from 'os';
+import chalk = require('chalk');
 
 export class Exception extends Error {
   constructor(msg: string, public innerException?: Error) {
-    super(innerException ? `${msg} -> ${innerException.toString()}` : msg);
+    super(innerException ? `${msg} -> ${innerException.toString()}` : chalk.red(msg));
  }
 }
 
 export class AggregateException extends Exception {
   constructor(public exceptions: Array<Exception | Error>) {
-    super(`Multiple exceptions occurred (${exceptions.length}) [${exceptions.map(e => e.stack).join(', ')}]`);
+    super(chalk.red(`Multiple exceptions occurred (${exceptions.length}) [${exceptions.map(e => e.stack).join(', ')}]`));
   }
 
   get stack(): string {
@@ -22,7 +23,7 @@ export class AggregateException extends Exception {
 
 export class NotImplementedException extends Exception {
   constructor() {
-    super('Not implemented');
+    super(chalk.red('Not implemented'));
   }
 }
 
