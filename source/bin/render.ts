@@ -30,6 +30,8 @@ const execute = async () => {
   }
   catch (exception) {
     log.error(`Failed to render application: ${exception.toString()}`);
+
+    process.exitCode = 1;
   }
   finally {
     application.dispose();
