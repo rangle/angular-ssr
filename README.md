@@ -173,7 +173,7 @@ import {AppModule} from '../src/app.module';
 
 const dist = join(process.cwd(), 'dist');
 
-const application = new ApplicationFromModule(ServerModule, join(dist, 'index.html'));
+const application = new ApplicationFromModule(AppModule, join(dist, 'index.html'));
 
 const html = new HtmlOutput(dist);
 
