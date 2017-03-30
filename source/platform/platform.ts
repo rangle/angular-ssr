@@ -12,9 +12,6 @@ import {
   Type,
 } from '@angular/core';
 
-import {PlatformLocation} from '@angular/common';
-
-import {LocationImpl} from './location';
 import {PlatformException} from '../exception';
 import {array} from '../transformation';
 import {bootstrapModule} from './bootstrap';
@@ -74,10 +71,6 @@ export class PlatformImpl implements PlatformRef {
     });
 
     await bootstrapModule(zone, moduleRef).then(() => this.references.add(moduleRef));
-
-    const location = moduleRef.injector.get(PlatformLocation) as LocationImpl;
-
-    location.initializationComplete();
 
     return moduleRef;
   }

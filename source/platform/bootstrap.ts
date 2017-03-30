@@ -6,6 +6,10 @@ import {
   NgZone
 } from '@angular/core';
 
+import {PlatformLocation} from '@angular/common';
+
+import {LocationImpl} from './location';
+
 import {PlatformException} from '../exception';
 
 export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Promise<void> => {
@@ -25,11 +29,15 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
       throw new PlatformException(`Your application module ${description} does not import ApplicationModule, but it must`);
     }
 
+    const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
+
+    const {bootstrapFactories, instance: {ngDoBootstrap}} = <any> moduleRef;
+
+    const location = moduleRef.injector.get(PlatformLocation) as LocationImpl;
+
+    location.initializationComplete();
+
     applicationInit.donePromise.then(() => {
-      const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
-
-      const {bootstrapFactories, instance: {ngDoBootstrap}} = <any> moduleRef;
-
       if (bootstrapFactories.length > 0) {
         for (const component of bootstrapFactories) {
           applicationRef.bootstrap(component);
