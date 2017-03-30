@@ -1,6 +1,6 @@
 import {NgModuleFactory} from '@angular/core';
 
-import {Observable, Subject} from 'rxjs';
+import {Observable, ReplaySubject} from 'rxjs';
 
 import chalk = require('chalk');
 
@@ -53,7 +53,7 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
   }
 
   private renderToStream(operation: RenderOperation): Observable<Snapshot<V>> {
-    const subject = new Subject<Snapshot<V>>();
+    const subject = new ReplaySubject<Snapshot<V>>();
 
     const bind = async (suboperation: RenderVariantOperation<V>) => {
       try {
@@ -68,7 +68,7 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
 
     Promise.all(promises).then(() => subject.complete());
 
-    return subject.asObservable();
+    return subject;
   }
 
   private async renderVariant(operation: RenderVariantOperation<V>): Promise<Snapshot<V>> {

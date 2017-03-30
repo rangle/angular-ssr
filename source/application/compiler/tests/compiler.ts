@@ -11,7 +11,7 @@ describe('CompilableProgram', () => {
     program = getCompilableProgram(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
   });
 
-  afterAll(() => setImmediate(() => program.dispose()));
+  afterAll(() => program.dispose());
 
   it('can build application-basic-inline into executable NgModuleFactory', async () => {
     const program = getCompilableProgram(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));

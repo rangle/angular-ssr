@@ -1,4 +1,7 @@
 import {NgModuleFactory, NgModuleRef} from '@angular/core';
+
+import {LocationStrategy} from '@angular/common';
+
 import {Router, Route as RouteDefinition} from '@angular/router';
 
 import {PlatformImpl, bootstrapWithExecute, forkZone} from '../platform';
@@ -17,7 +20,7 @@ export const applicationRoutes = async <M>(platform: PlatformImpl, moduleFactory
   return routes;
 };
 
-export const extractRoutesFromRouter = (router: Router): Array<Route> => {
+export const extractRoutesFromRouter = (router: Router, locationStrategy: LocationStrategy): Array<Route> => {
   if (router.config == null) {
     throw new RouteException(`Router configuration not found`);
   }
@@ -27,39 +30,44 @@ export const extractRoutesFromRouter = (router: Router): Array<Route> => {
       return new Array<Route>();
     }
 
+    const separator = '/';
+
     return routes.reduce(
       (prev, r) => {
-        const components = r.path ? r.path.split('/').filter(v => v) : [];
+        const components = (r.path || String()).split(separator).filter(v => v);
 
-        const path = [...parent, ...components];
+        const prepared = locationStrategy.prepareExternalUrl(parent.concat(components).join(separator));
 
-        return [...prev, {path}, ...flatten(path, r.children)];
+        const path = prepared.split(separator).filter(v => v);
+
+        return prev.concat({path}, flatten(path, r.children));
       },
       new Array<Route>());
   };
 
-  return flatten(new Array<string>(), router.config);
+  return flatten([], router.config);
 };
 
 export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Route> => {
+  const routes = new Array<Route>();
+
   const router: Router = moduleRef.injector.get(Router, null);
   if (router == null) {
-    return [{path: []}]; // application does not use the router at all, so there is one route: /
+    routes.push({path: []});
+  }
+  else {
+    routes.push(...extractRoutesFromRouter(router, moduleRef.injector.get(LocationStrategy)));
   }
 
-  return extractRoutesFromRouter(router);
+  return routes;
 };
 
 export const renderableRoutes = (routes: Array<Route>): Array<Route> => {
   const unrenderable = new Set<Route>();
 
   for (const r of routes) {
-    for (const segment of r.path) {
-      if (segment.startsWith(':')) {
-        if (r.parameters.has(segment.substring(1)) === false) {
-          unrenderable.add(r);
-        }
-      }
+    if (r.path.some(segment => segment.startsWith(':'))) {
+      unrenderable.add(r);
     }
   }
 

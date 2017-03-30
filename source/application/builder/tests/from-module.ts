@@ -1,5 +1,7 @@
 import {Router} from '@angular/router';
 
+import {LocationStrategy} from '@angular/common';
+
 import {
   BasicInlineModule,
   BasicExternalModule,
@@ -129,7 +131,7 @@ describe('ApplicationFromModule', () => {
         builder.stateReader(
           injector => {
             const router = injector.get(Router);
-            const routes = extractRoutesFromRouter(router);
+            const routes = extractRoutesFromRouter(router, injector.get(LocationStrategy));
             return Promise.resolve(routes.map(r => r.path));
           });
       });

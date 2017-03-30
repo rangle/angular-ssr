@@ -28,13 +28,16 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
       resolve();
     }
 
-    const subscription = Observable.combineLatest(applicationRef.isStable, requests.requestsPending(),
-        (appStable, pending) => appStable === true && pending === 0)
-      .subscribe(v => {
-        if (v) {
-          finish();
-          subscription.unsubscribe();
-        }
+    const combined = Observable.combineLatest(applicationRef.isStable, requests.requestsPending(),
+      (appStable, pending) => {
+        return appStable && pending === 0;
       });
+
+    const subscription = combined.subscribe(v => {
+      if (v === true) {
+        finish();
+        subscription.unsubscribe();
+      }
+    });
   });
 };

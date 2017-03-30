@@ -30,6 +30,15 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
 
     await waitForRouterNavigation(moduleRef);
 
+    // We have to tick once to kick off the init lifecycle events of the app.
+    // The likelihood is that these lifecycle events will themselves cause
+    // new asynchronous operations to start, for example HTTP requests. So
+    // we wait for those to finish, then we tick once more, to update the
+    // UI with any results that we may have received. If an application does
+    // not make requests on startup then there will be no wait time for the
+    // app to become stable, so there is no performance loss.
+    tick(moduleRef);
+
     await waitForApplicationToBecomeStable(moduleRef, timeouts.application.bootstrap);
 
     tick(moduleRef);
