@@ -1,6 +1,6 @@
 import {NgModuleFactory, NgModuleRef} from '@angular/core';
 
-import {LocationStrategy} from '@angular/common';
+import {Location} from '@angular/common';
 
 import {Router, Route as RouteDefinition} from '@angular/router';
 
@@ -20,7 +20,7 @@ export const applicationRoutes = async <M>(platform: PlatformImpl, moduleFactory
   return routes;
 };
 
-export const extractRoutesFromRouter = (router: Router, locationStrategy: LocationStrategy): Array<Route> => {
+export const extractRoutesFromRouter = (router: Router, location: Location): Array<Route> => {
   if (router.config == null) {
     throw new RouteException(`Router configuration not found`);
   }
@@ -30,13 +30,13 @@ export const extractRoutesFromRouter = (router: Router, locationStrategy: Locati
       return new Array<Route>();
     }
 
-    const separator = '/';
+    const separator = /(^\/?#|\/)/g;
 
     return routes.reduce(
       (prev, r) => {
         const components = (r.path || String()).split(separator).filter(v => v);
 
-        const prepared = locationStrategy.prepareExternalUrl(parent.concat(components).join(separator));
+        const prepared = location.prepareExternalUrl(parent.concat(components).join('/'));
 
         const path = prepared.split(separator).filter(v => v);
 
@@ -56,7 +56,7 @@ export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Rou
     routes.push({path: []});
   }
   else {
-    routes.push(...extractRoutesFromRouter(router, moduleRef.injector.get(LocationStrategy)));
+    routes.push(...extractRoutesFromRouter(router, moduleRef.injector.get(Location)));
   }
 
   return routes;
