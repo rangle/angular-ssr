@@ -73,11 +73,11 @@ export class PlatformImpl implements PlatformRef {
       this.references.delete(moduleRef);
     });
 
+    await bootstrapModule(zone, moduleRef).then(() => this.references.add(moduleRef));
+
     const location = moduleRef.injector.get(PlatformLocation) as LocationImpl;
 
     location.initializationComplete();
-
-    await bootstrapModule(zone, moduleRef).then(() => this.references.add(moduleRef));
 
     return moduleRef;
   }
