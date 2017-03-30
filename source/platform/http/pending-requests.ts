@@ -1,14 +1,10 @@
 import {Injectable} from '@angular/core';
 
-import {Observable, Subject} from 'rxjs';
+import {Observable, ReplaySubject} from 'rxjs';
 
 @Injectable()
 export class PendingRequests {
-  private subject = new Subject<number>();
-
-  constructor() {
-    this.subject.next(0);
-  }
+  private subject = new ReplaySubject<number>();
 
   increase() {
     this.subject.next(1);
@@ -19,6 +15,6 @@ export class PendingRequests {
   }
 
   requestsPending(): Observable<number> {
-    return this.subject.scan((acc, value) => acc + value);
+    return this.subject.scan((accumulator, v) => accumulator + v, 0);
   }
 }

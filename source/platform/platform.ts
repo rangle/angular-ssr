@@ -60,9 +60,11 @@ export class PlatformImpl implements PlatformRef {
 
     const injector = createPlatformInjector(this.injector, zone);
 
-    const moduleRef = moduleFactory.create(injector);
+    const moduleRef = instantiateInjector(injector, moduleFactory);
 
     const unmap = mapZoneToInjector(Zone.current, moduleRef.injector);
+
+    moduleRef.create();
 
     moduleRef.onDestroy(() => {
       unmap();
@@ -144,3 +146,5 @@ const specializedCompilerOptions = (compilerOptions: CompilerOptions | Array<Com
   }
   return false;
 };
+
+const instantiateInjector = <M>(injector: Injector, moduleFactory: NgModuleFactory<M>) => new moduleFactory['_injectorClass'](injector);

@@ -1,4 +1,4 @@
-import {ApplicationRef, NgModuleRef, NgZone} from '@angular/core';
+import {ApplicationRef, NgModuleRef} from '@angular/core';
 
 import chalk = require('chalk');
 
@@ -9,13 +9,9 @@ import {Observable} from 'rxjs/Rx';
 export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef<M>, timeout?: number): Promise<void> => {
   const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
 
-  const ngZone: NgZone = moduleRef.injector.get(NgZone);
-
   const requests: PendingRequests = moduleRef.injector.get(PendingRequests);
 
   return new Promise<void>(resolve => {
-    const observable: Observable<boolean> = Observable.from(applicationRef.isStable);
-
     let timer;
     if (timeout) {
       timer = setTimeout(() => {
@@ -32,10 +28,13 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
       resolve();
     }
 
-    observable.combineLatest(requests.requestsPending(),
-        (appStable, pending) => (appStable === true || ngZone.isStable === true) && pending === 0)
-      .takeWhile(v => v === true)
-      .take(1)
-      .subscribe(finish);
+    const subscription = Observable.combineLatest(applicationRef.isStable, requests.requestsPending(),
+        (appStable, pending) => appStable === true && pending === 0)
+      .subscribe(v => {
+        if (v) {
+          finish();
+          subscription.unsubscribe();
+        }
+      });
   });
 };

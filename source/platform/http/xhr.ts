@@ -46,7 +46,7 @@ const adjustUri = (uri: URL) => {
   if (uri.host == null) { // relative path?
     const location = injectableFromZone(Zone.current, PlatformLocation) as LocationImpl;
     if (location) {
-      return url.parse(url.resolve(location.href, this._url.href));
+      return url.parse(url.resolve(location.href, uri.href));
     }
     else {
       try {
