@@ -1,2 +1,2 @@
-export * from './pending-requests';
+export * from './xhr';
 export * from './providers';

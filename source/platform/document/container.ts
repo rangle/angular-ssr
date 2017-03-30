@@ -19,6 +19,12 @@ export class DocumentContainer implements OnDestroy {
     // added / etc). As to how we would merge bootWindow.document with templateDocument, I haven't
     // figured that out yet.
     this.windowRef = domino.createWindow(templateDocument, requestUri);
+
+    Object.defineProperties(this.windowRef, {
+      navigator: {
+        get: () => global['navigator'],
+      },
+    });
   }
 
   get window(): Window {

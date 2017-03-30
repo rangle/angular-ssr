@@ -1,7 +1,8 @@
 import {ApplicationRef, NgModuleRef, NgZone} from '@angular/core';
+
 import chalk = require('chalk');
 
-import {PendingRequests} from '../http/pending-requests';
+import {PendingRequests} from '../http';
 
 import {Observable} from 'rxjs/Rx';
 
