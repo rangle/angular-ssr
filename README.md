@@ -1,4 +1,6 @@
-![CircleCI](https://img.shields.io/circleci/project/github/clbond/angular-ssr.svg) ![Code Coverage](https://img.shields.io/coveralls/clbond/angular-ssr.svg) ![npm](https://img.shields.io/npm/v/angular-ssr.svg)
+[![CircleCI](https://img.shields.io/circleci/project/github/clbond/angular-ssr.svg)](https://circleci.com/gh/clbond/angular-ssr)
+![Code Coverage](https://img.shields.io/coveralls/clbond/angular-ssr.svg)
+[![npm](https://img.shields.io/npm/v/angular-ssr.svg)](https://www.npmjs.com/package/angular-ssr)
 
 # Render your Angular 4 applications as part of your build process or inside of a NodeJS HTTP server
 
