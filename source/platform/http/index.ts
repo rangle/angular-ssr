@@ -1,2 +1,3 @@
-export * from './xhr';
+export * from './pending-requests';
 export * from './providers';
+import './xhr';

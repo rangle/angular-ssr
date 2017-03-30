@@ -14,9 +14,9 @@ import {
 
 import {PlatformException} from '../exception';
 import {array} from '../transformation';
-import {bootstrapModule} from './bootstrap';
+import {bootstrapModule, waitForApplicationToBecomeStable} from './application';
 import {createPlatformInjector} from './injector';
-import {mapZoneToInjector, waitForApplicationToBecomeStable} from './zone';
+import {mapZoneToInjector} from './zone';
 
 @Injectable()
 export class PlatformImpl implements PlatformRef {

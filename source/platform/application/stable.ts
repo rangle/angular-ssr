@@ -32,7 +32,7 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
       resolve();
     }
 
-    observable.combineLatest(requests.requestsPending,
+    observable.combineLatest(requests.requestsPending(),
         (appStable, pending) => (appStable === true || ngZone.isStable === true) && pending === 0)
       .takeWhile(v => v === true)
       .take(1)

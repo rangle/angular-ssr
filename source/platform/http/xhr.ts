@@ -1,64 +1,61 @@
-import {Injectable} from '@angular/core';
-
 import {PlatformLocation} from '@angular/common';
 
-import {Observable, ReplaySubject} from 'rxjs';
+import chalk = require('chalk');
 
 import url = require('url');
 
 import {LocationImpl} from '../location';
-
-import {injectableFromZone} from '../zone';
-
-const pending = new ReplaySubject<number>();
-
-pending.next(0);
+import {PendingRequests} from './pending-requests';
+import {PlatformException} from '../../exception';
+import {injectableFromZone} from '../zone/injector-map';
 
 const XmlHttpRequest = require('xhr2');
-
-let pendingCount = 0;
-
-const send = XmlHttpRequest.prototype.send;
-
-XmlHttpRequest.prototype.send = function (data) {
-  const location = injectableFromZone(Zone.current, PlatformLocation) as LocationImpl;
-  if (location) {
-    this._url = url.parse(url.resolve(location.href, this._url.href)); // relative to absolute
-  }
-  else {
-    if (this._url.protocol == null) {
-      this._url.protocol = 'http:';
-    }
-
-    if (this._url.hostname == null) {
-      this._url.hostname = 'localhost';
-    }
-
-    if (this._url.port == null) {
-      this._url.port = 80;
-    }
-  }
-
-  return send.apply(this, arguments);
-}
 
 const dispatch = XmlHttpRequest.prototype._dispatchProgress;
 
 XmlHttpRequest.prototype._dispatchProgress = function (eventid: string) {
+  const pendingRequests = injectableFromZone(Zone.current, PendingRequests);
+
+  if (pendingRequests == null) {
+    console.warn(chalk.yellow('Your application is conducting an HTTP request from outside of a zone!'));
+    console.warn(chalk.yellow('This will probably cause your application to render before the request finishes'));
+
+    return dispatch.apply(this, arguments);
+  }
+
   switch (eventid) {
     case 'loadstart':
-      pending.next(++pendingCount);
+      pendingRequests.increase();
       break;
     case 'loadend':
-      pending.next(--pendingCount);
+      pendingRequests.decrease();
       break;
   }
   return dispatch.apply(this, arguments);
 };
 
-@Injectable()
-export class PendingRequests {
-  get requestsPending(): Observable<number> {
-    return pending;
+const send = XmlHttpRequest.prototype.send;
+
+XmlHttpRequest.prototype.send = function (data) {
+  this._url = adjustUri(this._url);
+
+  return send.apply(this, arguments);
+};
+
+const adjustUri = (uri: URL) => {
+  if (uri.host == null) { // relative path?
+    const location = injectableFromZone(Zone.current, PlatformLocation) as LocationImpl;
+    if (location) {
+      return url.parse(url.resolve(location.href, this._url.href));
+    }
+    else {
+      try {
+        return url.parse(url.resolve(Zone.current.name, uri.href));
+      }
+      catch (exception) {
+        throw new PlatformException(`Cannot determine origin URI of zone: ${Zone.current.name}`, exception);
+      }
+    }
   }
-}
+  return uri;
+};

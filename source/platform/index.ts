@@ -1,4 +1,4 @@
-export * from './bootstrap';
+export * from './application';
 export * from './collectors';
 export * from './document';
 export * from './http';

@@ -2,15 +2,16 @@ import {
   ApplicationInitStatus,
   ApplicationRef,
   ErrorHandler,
+  NgModuleFactory,
   NgModuleRef,
   NgZone
 } from '@angular/core';
 
 import {PlatformLocation} from '@angular/common';
 
-import {LocationImpl} from './location';
-
-import {PlatformException} from '../exception';
+import {LocationImpl} from '../location';
+import {PlatformImpl} from '../platform';
+import {PlatformException} from '../../exception';
 
 export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
@@ -55,4 +56,16 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
     })
     .catch(exception => reject(exception));
   });
+};
+
+export type ModuleExecute<M, R> = (moduleRef: NgModuleRef<M>) => R | Promise<R>;
+
+export const bootstrapWithExecute = async <M, R>(platform: PlatformImpl, moduleFactory: NgModuleFactory<M>, execute: ModuleExecute<M, R>): Promise<R> => {
+  const moduleRef = await platform.bootstrapModuleFactory<M>(moduleFactory);
+  try {
+    return await Promise.resolve(execute(moduleRef));
+  }
+  finally {
+    moduleRef.destroy();
+  }
 };
