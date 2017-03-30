@@ -4,7 +4,7 @@ import {permutations} from '../../variants/permutations';
 
 import {routeToUri} from '../../route/transform';
 
-export const fork = <V>(operation: RenderOperation): Array<RenderVariantOperation<V>> => {
+export const forkRender = <V>(operation: RenderOperation): Array<RenderVariantOperation<V>> => {
   const operations = new Array<RenderVariantOperation<V>>();
 
   for (const route of operation.routes) {

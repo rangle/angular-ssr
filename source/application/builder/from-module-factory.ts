@@ -3,6 +3,7 @@ import {NgModuleFactory} from '@angular/core';
 import {FileReference} from '../../filesystem';
 
 import {Application} from './application';
+import {ApplicationBase} from './application-base';
 import {ApplicationBuilderBase} from './builder-base';
 import {RenderOperation} from '../operation';
 import {PlatformImpl, createJitPlatform} from '../../platform';
@@ -16,10 +17,10 @@ export class ApplicationBuilderFromModuleFactory<V> extends ApplicationBuilderBa
     }
   }
 
-  build(): Application<V, any> {
+  build(): Application<V> {
     const platform = createJitPlatform([]) as PlatformImpl;
 
-    class ApplicationFromModuleFactoryImpl extends Application<V, any> {
+    class ApplicationFromModuleFactoryImpl extends ApplicationBase<V, any> {
       dispose() {
         platform.destroy();
       }

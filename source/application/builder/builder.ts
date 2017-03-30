@@ -10,9 +10,9 @@ import {Application} from './application';
 
 import {Route} from './../../route/route';
 
-export interface ApplicationBuilder {
+export interface ApplicationBuilder<V> {
   // Construct an application from this builder after configuring it
-  build(): Application<any, any>;
+  build(): Application<V>;
 
   // Provide a template HTML document that will be used when rendering this application.
   // In almost all cases this will be the build output file `dist/index.html`, not the

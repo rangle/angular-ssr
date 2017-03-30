@@ -17,7 +17,7 @@ export const composeTransitions = <V>(variants: VariantsMap, values: V): Compose
     for (const [, v, value] of Object.keys(variants).map(k => [k, variants[k], values[k]])) {
       const variant: Variant<V> = v;
 
-      const fn = typeToInjectorFunction(variant.transition, t => t.execute(value));
+      const fn = typeToInjectorFunction(variant.transition, t => t.transition(value));
 
       promises.push(Promise.resolve(fn(injector, value)));
     }

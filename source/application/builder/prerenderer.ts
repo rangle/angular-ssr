@@ -3,7 +3,7 @@ import {OutputProducer} from '../../output';
 import {Application} from '../builder';
 
 export class ApplicationRenderer {
-  constructor(private application: Application<any, any>) {}
+  constructor(private application: Application<any>) {}
 
   async prerenderTo(output: OutputProducer): Promise<void> {
     output.initialize();

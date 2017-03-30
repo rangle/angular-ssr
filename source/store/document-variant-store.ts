@@ -9,7 +9,7 @@ import {defaultCacheSize} from './cache-size';
 export class DocumentVariantStore<V> {
   private cache: LRUMap<string, Trie<V, Snapshot<V>>>;
 
-  constructor(private application: Application<V, any>, cacheSize = defaultCacheSize) {
+  constructor(private application: Application<V>, cacheSize = defaultCacheSize) {
     this.cache = new LRUMap<string, Trie<V, Snapshot<V>>>(cacheSize);
   }
 

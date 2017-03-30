@@ -1,4 +1,5 @@
 import {Application} from './application';
+import {ApplicationBase} from './application-base';
 import {PlatformImpl, ApplicationRuntimeProject, RuntimeModuleLoader, createStaticPlatform} from '../../platform';
 import {ApplicationBuilderBase} from './builder-base';
 import {ApplicationModuleDescriptor, Project} from '../project';
@@ -11,7 +12,7 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
     super(templateDocument);
   }
 
-  build(): Application<V, any> {
+  build(): Application<V> {
     const program = getCompilableProgram(this.project);
 
     const moduleFactory = program.loadModule(this.project.applicationModule, true);
@@ -20,7 +21,7 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
 
     let applicationInstance;
 
-    class ApplicationFromSourceImpl extends Application<V, any> {
+    class ApplicationFromSourceImpl extends ApplicationBase<V, any> {
       constructor(operation: RenderOperation) {
         platform = createStaticPlatform([
           {provide: ApplicationRuntimeProject, useFactory: () => applicationInstance},

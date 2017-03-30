@@ -10,7 +10,7 @@ import {AppModule} from '../app/app.module';
 
 import {absoluteUri, configure, listen} from './http';
 
-import {Variants, variants} from './variants';
+import {TransitionLocale, Variants} from './variants';
 
 import {index} from './paths';
 
@@ -22,7 +22,12 @@ enableProdMode();
 
 const builder = new ApplicationBuilderFromModule<Variants, AppModule>(AppModule, index);
 
-builder.variants(variants);
+builder.variants({
+  locale: {
+    values: ['en-US', 'fr-FR'],
+    transition: TransitionLocale
+  }
+});
 
 const application = builder.build();
 

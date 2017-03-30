@@ -1,11 +1,11 @@
 import {Application} from './application';
 import {ApplicationBuilder} from './builder';
 import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, PrebootConfiguration, VariantsMap} from '../contracts';
+import {FileReference, fileFromString} from '../../filesystem';
 import {RenderOperation} from '../operation';
 import {Route} from '../../route';
-import {FileReference, fileFromString} from '../../filesystem';
 
-export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
+export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V> {
   constructor(templateDocument?: FileReference | string) {
     if (templateDocument) {
       this.templateDocument(templateDocument.toString());
@@ -14,7 +14,7 @@ export abstract class ApplicationBuilderBase<M> implements ApplicationBuilder {
 
   protected operation: Partial<RenderOperation> = {};
 
-  abstract build(): Application<any, M>;
+  abstract build(): Application<V>;
 
   preboot(config?: PrebootConfiguration) {
     if (config != null) {

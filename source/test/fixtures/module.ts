@@ -6,7 +6,7 @@ import {Application, ApplicationBuilder, ApplicationBuilderFromModule} from '../
 import {Snapshot} from '../../snapshot';
 import {templateDocument} from './document';
 
-export const loadApplicationFixtureFromModule = <M>(moduleType: Type<M>, fn?: (builder: ApplicationBuilder) => void): Application<{}, M> => {
+export const loadApplicationFixtureFromModule = <M>(moduleType: Type<M>, fn?: (builder: ApplicationBuilder<any>) => void): Application<{}> => {
   const builder = new ApplicationBuilderFromModule(moduleType);
   builder.templateDocument(templateDocument);
   if (fn) {

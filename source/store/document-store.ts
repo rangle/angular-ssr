@@ -5,10 +5,10 @@ import {Snapshot} from '../snapshot';
 
 import {defaultCacheSize} from './cache-size';
 
-export class DocumentStore<M> {
+export class DocumentStore {
   private cache: LRUMap<string, Snapshot<void>>;
 
-  constructor(private application: Application<any, M>, cacheSize = defaultCacheSize) {
+  constructor(private application: Application<void | {}>, cacheSize = defaultCacheSize) {
     this.cache = new LRUMap<string, Snapshot<void>>(cacheSize);
   }
 
@@ -19,7 +19,7 @@ export class DocumentStore<M> {
   async load(uri: string): Promise<Snapshot<void>> {
     let snapshot = this.cache.get(uri);
     if (snapshot == null) {
-      snapshot = await this.application.renderUri(uri);
+      snapshot = <Snapshot<any>> await this.application.renderUri(uri);
       this.cache.set(uri, snapshot);
     }
     return snapshot;

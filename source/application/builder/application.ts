@@ -1,107 +1,18 @@
-import {NgModuleFactory} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
 
-import {Observable, Subject} from 'rxjs';
+import {Disposable} from '../../disposable';
+import {Route} from '../../route';
+import {Snapshot} from '../../snapshot';
 
-import {Disposable} from './../../disposable';
-import {PlatformImpl, bootstrapWithExecute, forkZone} from '../../platform';
-import {RenderOperation, RenderVariantOperation} from '../operation';
-import {Snapshot, snapshot} from '../../snapshot';
-import {Route, applicationRoutes, renderableRoutes} from '../../route';
-import {baseUri} from '../../static';
-import {composeTransitions} from '../../variants';
-import {fork} from './fork';
+export interface Application<V> extends Disposable {
+  // Render the specified absolute URI with optional variant
+  renderUri(uri: string, variant?: V): Promise<Snapshot<V>>;
 
-import uri = require('url');
+  // Prerender all of the routes provided from the ApplicationBuilder. If no routes were
+  // provided, they will be discovered using discoverRoutes() and filtered down to the
+  // routes that do not require parameters (eg /blog/:id will be excluded, / will not)
+  prerender(): Promise<Observable<Snapshot<V>>>;
 
-import chalk = require('chalk');
-
-export abstract class Application<V, M> implements Disposable {
-  constructor(
-    private platformImpl: PlatformImpl,
-    private render: RenderOperation,
-    private moduleFactory: () => Promise<NgModuleFactory<M>>
-  ) {}
-
-  abstract dispose(): void;
-
-  async prerender(): Promise<Observable<Snapshot<V>>> {
-    if (this.render.routes == null || this.render.routes.length === 0) {
-      this.render.routes = renderableRoutes(await this.discoverRoutes());
-
-      if (this.render.routes.length === 0) {
-        return Observable.of();
-      }
-    }
-
-    return this.renderToStream(this.render);
-  }
-
-  renderUri(uri: string, variant?: V): Promise<Snapshot<V>> {
-    uri = resolveToAbsoluteUri(uri);
-
-    const transition = composeTransitions(this.render.variants, variant);
-
-    const vop: RenderVariantOperation<V> = {scope: this.render, uri, variant, transition};
-
-    return this.renderVariant(vop);
-  }
-
-  async discoverRoutes(): Promise<Array<Route>> {
-    const moduleFactory = await this.moduleFactory();
-
-    return await applicationRoutes(this.platformImpl, moduleFactory, this.render.templateDocument);
-  }
-
-  private renderToStream(operation: RenderOperation): Observable<Snapshot<V>> {
-    const subject = new Subject<Snapshot<V>>();
-
-    const bind = async (suboperation: RenderVariantOperation<V>) => {
-      try {
-        subject.next(await this.renderVariant(suboperation));
-      }
-      catch (exception) {
-        subject.error(exception);
-      }
-    };
-
-    const promises = fork<V>(operation).map(suboperation => bind(suboperation));
-
-    Promise.all(promises).then(() => subject.complete());
-
-    return subject.asObservable();
-  }
-
-  private async renderVariant(operation: RenderVariantOperation<V>): Promise<Snapshot<V>> {
-    const {uri, scope: {templateDocument}} = operation;
-
-    const moduleFactory = await this.moduleFactory();
-
-    const instantiate = async () =>
-      await bootstrapWithExecute<M, Snapshot<V>>(this.platformImpl, moduleFactory, ref => snapshot(ref, operation));
-
-    return await forkZone(templateDocument, uri, instantiate);
-  }
+  // Discover all of the routes defined in all the NgModules of this application
+  discoverRoutes(): Promise<Array<Route>>;
 }
-
-let relativeUriWarning = false;
-
-const resolveToAbsoluteUri = (relativeUri: string): string => {
-  if (relativeUri == null ||
-      relativeUri.length === 0 ||
-      relativeUri === '/') {
-    return baseUri;
-  }
-
-  const resolved = uri.resolve(baseUri, relativeUri);
-
-  if (resolved !== relativeUri) {
-    if (relativeUriWarning === false) {
-      console.warn(chalk.yellow(`It is best to avoid using relative URIs like ${relativeUri} when requesting render results`));
-      console.warn(chalk.yellow('The reason is that your application may key its service URIs from "window.location" in some manner'));
-      console.warn(chalk.yellow(`I have resolved this relative URI to ${resolved} and this may impact your application`));
-      relativeUriWarning = true;
-    }
-  }
-
-  return resolved;
-};

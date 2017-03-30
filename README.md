@@ -316,7 +316,7 @@ export class LocaleTransition implements StateTransition<string> {
   // values from the Set we created when we first described the locale variant below).
   // Note that this class can use the ng dependency injection system to retrieve any
   // services that it needs in order to execute the state transition.
-  execute(value: string) {
+  transition(value: string) {
     this.localeService.locale(value);
   }
 }
@@ -380,7 +380,7 @@ export class ServerStateReader implements StateReader<MyState> {
   constructor(private store: Store<AppState>) {}
 
   getState(): Promise<MyState> {
-    return this.store.select(s => s.someState).take(1).toPromise();
+    return this.store.select().toPromise();
   }
 }
 ```
