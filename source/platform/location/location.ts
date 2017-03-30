@@ -13,13 +13,23 @@ import {DocumentContainer, RequestUri} from '../document';
 
 @Injectable()
 export class LocationImpl implements PlatformLocation, OnDestroy {
+  initializationPromise: Promise<void>;
+
   private destruction = new Array<() => void>();
+
+  private initialized: () => void;
 
   constructor(
     @Inject(RequestUri) private requestUri: string,
     private documentContainer: DocumentContainer
   ) {
     this.documentContainer.document.location.assign(requestUri);
+
+    this.initializationPromise = new Promise<void>(resolve => this.initialized = () => resolve());
+  }
+
+  initializationComplete() {
+    this.initialized();
   }
 
   get href(): string {
