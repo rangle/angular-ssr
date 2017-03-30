@@ -1,5 +1,7 @@
 ![CircleCI](https://img.shields.io/circleci/project/github/clbond/angular-ssr.svg) ![Code Coverage](https://img.shields.io/coveralls/clbond/angular-ssr.svg) ![npm](https://img.shields.io/npm/v/angular-ssr.svg)
 
+# Render your Angular 4 applications as part of your build process or inside of a NodeJS HTTP server
+
 - [Introduction](#introduction)
 - [The simplest possible case](#the-simplest-possible-case-an-angular-cli-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
   - [Additional examples](#additional-examples)
@@ -10,9 +12,11 @@
   - [Variants](#variants)
     - [Client code](#client-code)
     - [Server code](#server-code)
-- [State transfer from server to client](#state-transfer-from-server-to-client)
-- [More details on server-side rendering code](#more-details-on-server-side-rendering-code)
+- [APIs](#apis)
+  - [State transfer from server to client](#state-transfer-from-server-to-client)
   - [`Snapshot<V>`](#snapshotv)
+  - [Very simple (example) caching implementations](#very-simple-example-caching-implementations)
+- [Zone stability issues](#zone-stability-issues)
 - [Example projects](#example-projects)
   - [CLI based project that uses `@angular/material`](#cli-based-project-that-uses-angularmaterial)
   - [On-demand rendering using express](#on-demand-rendering-using-express)
@@ -357,13 +361,60 @@ Voila! Now whenever the user reloads our application or comes back to it in a fe
 
 The example in `examples/demand-express` has working code that implements what was just described. Give it a shot!
 
-# State transfer from server to client
+# APIs
 
-Many applications may wish to transfer some state from the server to the client as part of application bootstrap. `angular-ssr` makes this easy. Simply tell your `ApplicationBuilder` object about your state reader class or function, and any state returned from it will be made available in a global variable called `bootstrapApplicationState`:
+The main contract that you use to define the behaviour of your application in a server context is called [`ApplicationBuilder`](https://github.com/clbond/angular-ssr/blob/master/source/application/builder/builder.ts). It has thorough comments and explains all the ways that you can configure your application when doing server-side rendering. `ApplicationBuilder` is an implementation of the [Builder pattern](https://en.wikipedia.org/wiki/Builder_pattern). You use it to configure your application and then once you are finished configuring, you call the [`build()`](https://github.com/clbond/angular-ssr/blob/master/source/application/builder/builder.ts#L15) method to get an instance of `Application<V>` (where `V` is an object describing the variants your application understands, or `void` if you are not using variants).
+
+`ApplicationBuilder` is an interface. It has three concrete implementations that you can instantiate, depending on which suits your needs:
+
+* `ApplicationBuilderFromModule<V, M>`
+  * If your code has access to the root `@NgModule` definition (obtained through `import` or `require()`), then this is probably the `ApplicationBuilder` that you want to use. It takes a module type and a template HTML document: `dist/index.html`, the **build output** `index.html` that contains all of the `<script>` tags necessary to bootstrap the client application inside the browser. If you use the **source** `index.html` instead, your server will render the application correctly but the client application will fail to boot inside the browser.
+* `ApplicationBuilderFromModuleFactory<V>`
+  * If your application code has already been run through `ngc` and produced `.ngfactory.js` files, then you can pass your root `@NgModule`'s NgFactory -- not the module definition itself, but its compilation output -- to `ApplicationFromModuleFactory<V>` and you can skip the template compilation process. This results in superior startup performance, but after startup, there is no performance difference between `ApplicationBuilderFromModuleFactory` and any of the other `ApplicationBuilder`s.
+* `ApplicationBuilderFromSource<V>`
+  * You can use this for projects that use `@angular/cli` if you wish to use inplace compilation to generate an `NgModuleFactory` from raw source code and execute that to render your application on the server. That said, it is probably fairly unlikely that you will ever use this class: its main purpose is for the implementation of the `ng-render` command.
+
+The typical usage of `ApplicationBuilder` looks something like:
+
+```typescript
+const builder = new ApplicationBuilderFromModule(MyModule);
+builder.templateDocument(indexHtmlFile);
+
+const application = builder.build();
+
+const renderedDocument = application.renderUri('http://localhost/');
+```
+
+The entire purpose of `ApplicationBuilder` is to produce an `Application<V>` object. The `Application<V>` interface that you get from `ApplicationBuilder` is the primary API that you will use to render your application. It contains several methods:
+
+```typescript
+export interface Application<V> extends Disposable {
+  // Render the specified absolute URI with optional variant
+  renderUri(uri: string, variant?: V): Promise<Snapshot<V>>;
+
+  // Prerender all of the routes provided from the ApplicationBuilder. If no routes were
+  // provided, they will be discovered using discoverRoutes() and filtered down to the
+  // routes that do not require parameters (eg /blog/:id will be excluded, / will not)
+  prerender(): Promise<Observable<Snapshot<V>>>;
+
+  // Discover all of the routes defined in all the NgModules of this application
+  discoverRoutes(): Promise<Array<Route>>;
+}
+```
+
+Note that because `Application<V>` extends the [`Disposable` interface](https://github.com/clbond/angular-ssr/blob/master/source/disposable.ts), you should call `dispose()` when you are finished with it. Failing to call `dispose()` is likely to result in memory leaks, temporary files not being deleted, and other undesirable behaviour.
+
+## State transfer from server to client
+
+Many applications may wish to transfer some state from the server to the client as part of application bootstrap. `angular-ssr` makes this easy. Simply tell your `ApplicationBuilder` object about your state reader class or function, and any state returned from it will be made available in a service called `StateTransfer<T>`.
+
+On the server, we tell our `ApplicationBuilder` about our state reader class:
 
 ```typescript
 const builder = new ApplicationBuilderFromModule(AppModule, htmlTemplate);
-builder.stateReader(ServerStateReader);
+builder.stateReader(MyStateReader);
+
+const application = builder.build();
 ```
 
 And your `ServerStateReader` class implementation might look like this:
@@ -376,7 +427,7 @@ import {Store} from '@ngrx/store';
 import {StateReader} from 'angular-ssr';
 
 @Injectable()
-export class ServerStateReader implements StateReader<MyState> {
+export class MyStateReader implements StateReader<MyState> {
   constructor(private store: Store<AppState>) {}
 
   getState(): Promise<MyState> {
@@ -391,35 +442,9 @@ Note that you can inject any service you wish into your state reader. `angular-s
 builder.stateReader((injector: Injector) => injector.get(Store).select(s => s.fooBar).toPromise());
 ```
 
-Both solutions are functionally equivalent.
+Both are equivalent, but the class-based solution is probably cleaner and easier to understand.
 
-**Note that your state reader will not be called until your application zone becomes stable**. That is to say, when all macro and microtasks have finished. (For example, if your application has some pending HTTP requests, `angular-ssr` will wait for those to finish before asking your state reader for its state. This ensures that your application has finished initializing itself by the time the state reader is invoked.)
-
-# More details on server-side rendering code
-
-The main contract that you use to define your application in a server context is called [`ApplicationBuilder`](https://github.com/clbond/angular-ssr/blob/master/source/application/builder/builder.ts). It has thorough comments and explains all the ways that you can configure your application when doing server-side rendering. Once you have configured your `ApplicationBuilder`, you call `build()` to get an instance of `Application`. You can use the `Application` instance to do prerendering and demand rendering of routes / URLs.
-
-`ApplicationBuilder` is an interface. It has three concrete implementations that you can instantiate, depending on which suits your needs:
-
-* `ApplicationBuilderFromModule<V, M>`
-  * If your code has access to the root `@NgModule` of your application, then this is probably the `ApplicationBuilder` that you want to use. It takes a module type and a template HTML document (`dist/index.html`) as its constructor arguments.
-* `ApplicationBuilderFromModuleFactory<V>`
-  * If your application code has already been run through `ngc` and produced `.ngfactory.js` files, then you can pass your root `@NgModule`'s NgFactory -- not the module definition itself, but its compilation output -- to `ApplicationFromModuleFactory<V>` and you can skip the template compilation process.
-* `ApplicationBuilderFromSource<V>`
-  * You can use this for projects that use `@angular/cli` if you wish to use inplace compilation to generate an `NgModuleFactory` from raw source code. It's fairly unlikely that you will ever use this class: its main purpose is for the implementation of the `ng-render` command.
-
-The typical usage of `ApplicationBuilder` looks something like:
-
-```typescript
-const builder = new ApplicationBuilderFromModule(MyModule);
-builder.templateDocument(indexHtmlFile);
-
-const application = builder.build();
-
-const renderedDocument = application.renderUri('http://localhost/');
-```
-
-Other classes of interest are [`DocumentStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-store.ts) and [`DocumentVariantStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-variant-store.ts). You can use these in conjunction with `ApplicationBuilder` to maintain and query a cache of rendered pages. Alternatively, you can provide your own caching mechanism and just call `application.renderUri()` when there is a miss.
+**Note that your state reader will not be called until your application zone becomes stable**. That is to say, when all macro and microtasks have finished. For example, if your application has some pending HTTP requests, `angular-ssr` will wait for those to finish before asking your state reader for its state. This ensures that your application has finished initializing itself by the time the state reader is invoked.
 
 ## `Snapshot<V>`
 
@@ -437,6 +462,65 @@ One thing to note about `Snapshot` is that it contains far more information than
   * If you are using [variants](#variants), this describes the particular set of variants that were used to generate this snapshot.
 * `uri: string`
   * This is the URI that was originally given to the renderer when this snapshot was generated.
+
+## Very simple (example) caching implementations
+
+The library provides two extremely simple caching implementations. Both are LRU caches that default to a maximum size of 65k items. They are unlikely to be useful to you if your application contains a lot of dynamic content, but they illustrate how you can implement caching inside of your server application:
+
+1. [`DocumentStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-store.ts) is an extremely simple URL-based bounded LRU cache. Each time a URL is requested, it gets bumped to a higher priority. If the cache reaches its maximum size, documents that were last requested a long time ago will be the first to be deleted.
+2. [`DocumentVariantStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-variant-store.ts) is identical to `DocumentStore` except that it works in conjunction with the concept of [variants](#variants). It uses a [trie structure](https://en.wikipedia.org/wiki/Trie) to store and query specific variants of URLs.
+
+Alternatively, you can provide your own caching mechanism and just call `application.renderUri()` when there is a miss. This is the solution that is going to be the most flexible and allows you to customize your caching needs to suit your application (for example, you may wish to integrate with an external caching service built with Redis or some such).
+
+# Zone stability issues
+
+The problems you are most likely to run into revolve around zone stability.
+
+If you are familiar with Angular 4, you know that all application code executes inside of a zone. The same is true of applications running in `angular-ssr`. Each render operation causes a new zone to be forked from the `<root>` zone. All operations (synchronous or asynchronous) then execute inside of that zone. `angular-ssr` also uses zones to map global objects like `document` and `window` to the correct values even if multiple render operations are executing concurrently. Lastly, the library uses zone.js determine whether your application is _stable_. Stable means that **all macrotasks and microtasks have completed**. The library will wait for your zone to become stable before it attempts to do any of the following:
+
+* Reading state through the `StateReader<T>` construct described above
+* Rendering the application into an HTML document
+* Executing postprocessor transformations
+
+This is fairly easy to understand. There are lots of resources online that can provide additional information and guidance on zone:
+
+* [Zone Primer from Google](https://docs.google.com/document/d/1F5Ug0jcrm031vhSMJEOgp1l-Is-Vf0UCNDY-LsQtAIY)
+* [Zone APIs](https://github.com/angular/zone.js/blob/master/dist/zone.js.d.ts)
+* [zone.js training materials from Rangle.io](https://angular-2-training-book.rangle.io/handout/zones/)
+* [Understanding zones](https://blog.thoughtram.io/angular/2016/01/22/understanding-zones.html)
+
+Many issues can surface if your application zone fails to become stable quickly:
+
+* The longer it takes your application to become stable, the longer it takes to render your application and send the HTTP response
+* If your application never becomes stable, you will encounter the following yellow warning message to the console:
+
+Timed out while waiting for NgZone to become stable after 5000ms! This is a serious performance problem!
+This likely means that your application is stuck in an endless loop of change detection or some other pattern of misbehaviour
+In a normal application, a zone becomes stable very quickly
+
+At this point, the SSR library will just assume that the application will never stabilize and will go ahead with the render anyway. This is very dangerous because your application may be in the middle of some kind of state transition or waiting for a network response. So it is very important to ensure that your application becomes stable quickly when running on the server, otherwise you risk poor performance and mangled responses.
+
+If your application requests large amounts of data on startup and it takes a while, one potential solution is to pre-request the data it needs and store it in some sort of cache. Presumably you would update this cache periodically with new data. Then instead of requesting data directly from the running application on the server, you can inject it using a bootstrapper:
+
+```typescript
+const cachedState = // some construct that you use to store init state across requests
+
+import {Bootstrap} from 'angular-ssr';
+
+@Injectable()
+export class InjectStateIntoApplication implements Bootstrap {
+  constructor(private store: Store<AppState>) {}
+
+  bootstrap() {
+    store.dispatch({type: 'INJECT_CACHED_STATE', payload: cachedState});
+  }
+}
+
+const builder = new ApplicationBuilderFromModule(AppModule, index);
+builder.bootstrap(InjectStateIntoApplication);
+```
+
+This means that we will not have to wait for HTTP requests to finish before we render the application, increasing performance and reducing the risk of sending a bad document in the HTTP response.
 
 # Example projects
 
