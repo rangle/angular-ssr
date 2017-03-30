@@ -3,7 +3,7 @@ import {ApplicationRef, NgModuleRef} from '@angular/core';
 import {Subscription} from 'rxjs';
 
 import {ConsoleLog} from './console';
-import {ConsoleCollector, DocumentContainer, ExceptionCollector, waitForApplicationToBecomeStable} from '../platform';
+import {ConsoleCollector, DocumentContainer, ExceptionCollector, waitForApplicationToBecomeStable, waitForRouterNavigation} from '../platform';
 import {RenderVariantOperation} from '../application/operation';
 import {Snapshot} from './snapshot';
 import {timeouts} from '../static';
@@ -27,6 +27,8 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
     container.complete();
 
     await executeBootstrap(moduleRef, bootstrappers, transition);
+
+    await waitForRouterNavigation(moduleRef);
 
     await waitForApplicationToBecomeStable(moduleRef, timeouts.application.bootstrap);
 
