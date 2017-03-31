@@ -71,7 +71,7 @@ export class CompilableProgram implements Disposable {
     });
 
     const {compiler} = createAotCompiler(this.ngCompilerHost, {
-      translations: null, // FIXME(cbond): Load from translation file
+      translations: null, // FIXME(bond): Load from translation file
       i18nFormat: cli.i18nFormat,
       locale: cli.locale
     });

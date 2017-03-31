@@ -2,7 +2,7 @@ import urijs = require('urijs');
 
 import {Route} from './route';
 import {RouteException} from '../exception';
-import {baseUri} from '../static';
+import {fallbackUri} from '../static';
 
 export const routeToPath = (route: Route): string => {
   const split = route.path.reduce((p, c) => p.concat(c.split('/')), []);
@@ -25,7 +25,7 @@ export const routeToPath = (route: Route): string => {
 };
 
 export const routeToUri = (route: Route): string => {
-  let resultUri = `${baseUri}${routeToPath(route)}`;
+  let resultUri = `${fallbackUri}${routeToPath(route)}`;
 
   if (route.queryString) {
     if (route.queryString.startsWith('?')) {

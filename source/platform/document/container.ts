@@ -12,7 +12,7 @@ export class DocumentContainer implements OnDestroy {
     @Inject(TemplateDocument) templateDocument: string,
     @Inject(RequestUri) requestUri: string,
   ) {
-    // TODO(cbond): Instead of creating a new window we need to find a way to clone bootWindow so that
+    // TODO(bond): Instead of creating a new window we need to find a way to clone bootWindow so that
     // we do not lose event handlers and such that were configured during initialization. Libraries
     // like bootstrap modify document as part of their initial execution instead of as part of a runtime
     // initialization process. (i.e., import 'bootstrap' will cause the DOM to change / listeners to be

@@ -7,17 +7,17 @@ import chalk = require('chalk');
 import uri = require('url');
 
 import {Application} from './application';
-import {PlatformImpl, bootstrapWithExecute, forkZone} from '../../platform';
+import {ServerPlatform, bootstrapWithExecute, forkZone} from '../../platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Route, applicationRoutes, renderableRoutes} from '../../route';
 import {Snapshot, snapshot} from '../../snapshot';
-import {baseUri} from '../../static';
+import {fallbackUri} from '../../static';
 import {composeTransitions} from '../../variants';
 import {forkRender} from './fork';
 
 export abstract class ApplicationBase<V, M> implements Application<V> {
   constructor(
-    private platformImpl: PlatformImpl,
+    private platformImpl: ServerPlatform,
     private render: RenderOperation,
     private moduleFactory: () => Promise<NgModuleFactory<M>>
   ) {}
@@ -88,10 +88,10 @@ const resolveToAbsoluteUri = (relativeUri: string): string => {
   if (relativeUri == null ||
       relativeUri.length === 0 ||
       relativeUri === '/') {
-    return baseUri;
+    return fallbackUri;
   }
 
-  const resolved = uri.resolve(baseUri, relativeUri);
+  const resolved = uri.resolve(fallbackUri, relativeUri);
 
   if (resolved !== relativeUri) {
     if (relativeUriWarning === false) {

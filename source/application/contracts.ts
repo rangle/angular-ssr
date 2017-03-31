@@ -9,12 +9,16 @@ import {Injector, Type} from '@angular/core';
 // which you can use to query the application for the services you need.
 
 export interface Variant<T> {
-  // A set describing all the possible values of this variant. For example if this is
-  // a locale variant, this set will contain all languages that the application has
-  // translations for.
-  values: Array<T> | Set<T>;
-
+  // A class or a function which can transition the application into the state described by
+  // this variant and a value that is provided at runtime.
   transition?: Type<StateTransition<T>> | StateTransitionFunction<T>;
+
+  // An optional set describing all the possible values of this variant. For example if this
+  // is a locale variant, this set will contain all languages that the application has
+  // translations for. The only time this set is used is when we are prerendering all variant
+  // permutations of an application. If you are doing demand rendering, you do not need to
+  // set this because we will get the value from the object supplied to Application::renderUri
+  values?: Array<T> | Set<T>;
 }
 
 export type VariantsMap = {[variant: string]: Variant<any>};

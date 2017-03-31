@@ -19,10 +19,8 @@ import {createPlatformInjector} from './injector';
 import {mapZoneToInjector} from './zone';
 
 @Injectable()
-export class PlatformImpl implements PlatformRef {
-  private compiler: Compiler;
-
-  private readonly compiledModules = new Map<Type<any>, NgModuleFactory<any>>();
+export class ServerPlatform implements PlatformRef {
+  private readonly compilers = new Map<CompilerOptions | Array<CompilerOptions>, Compiler>();
 
   private readonly references = new Set<NgModuleRef<any>>();
 
@@ -30,23 +28,10 @@ export class PlatformImpl implements PlatformRef {
 
   constructor(@Inject(Injector) public injector: Injector) {}
 
-  async compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions>) {
+  compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions>) {
     const compiler = this.getCompiler(compilerOptions);
 
-    if (specializedCompilerOptions(compilerOptions)) {
-      return await compiler.compileModuleAsync(moduleType);
-    }
-
-    let cached = this.compiledModules.get(moduleType);
-    if (cached == null) {
-      const compiler = this.getCompiler();
-
-      cached = await compiler.compileModuleAsync(moduleType);
-
-      this.compiledModules.set(moduleType, cached);
-    }
-
-    return cached;
+    return compiler.compileModuleAsync(moduleType);
   }
 
   async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []): Promise<NgModuleRef<M>> {
@@ -60,11 +45,9 @@ export class PlatformImpl implements PlatformRef {
 
     const injector = createPlatformInjector(this.injector, zone);
 
-    const moduleRef = instantiateInjector(injector, moduleFactory);
+    const moduleRef = createInjector(injector, moduleFactory);
 
     const unmap = mapZoneToInjector(Zone.current, moduleRef.injector);
-
-    moduleRef.create();
 
     moduleRef.onDestroy(() => {
       unmap();
@@ -72,27 +55,22 @@ export class PlatformImpl implements PlatformRef {
       this.references.delete(moduleRef);
     });
 
+    moduleRef.create();
+
     await bootstrapModule(zone, moduleRef).then(() => this.references.add(moduleRef));
 
     return moduleRef;
   }
 
   private getCompiler(compilerOptions?: CompilerOptions | Array<CompilerOptions>): Compiler {
-    const createCompiler = () => {
+    let compiler = this.compilers.get(compilerOptions);
+    if (compiler == null) {
       const compilerFactory: CompilerFactory = this.injector.get(CompilerFactory);
 
-      return compilerFactory.createCompiler(array(compilerOptions || {}));
-    };
+      compiler = compilerFactory.createCompiler(array(compilerOptions || {}));
+    }
 
-    if (specializedCompilerOptions(compilerOptions)) {
-      return createCompiler();
-    }
-    else {
-      if (this.compiler == null) {
-        this.compiler = createCompiler();
-      }
-      return this.compiler;
-    }
+    return compiler;
   }
 
   onDestroy(callback: () => void) {
@@ -110,16 +88,15 @@ export class PlatformImpl implements PlatformRef {
     if (this.destroyers != null) {
       const destroyers = this.destroyers.slice();
 
-      this.destroyers = undefined;
+      this.destroyers = null;
 
-      // We want to avoid destroying a module that is in the middle of some asynchronous
-      // operations, because the handlers for those operations are likely to blow up in
-      // spectacular ways if their entire execution context has been ripped out from under
-      // them. So we wait for the zone associated with the module to become stable before
-      // we attempt to dispose of it. But in practice we will probably never wait because
-      // we already waited for zone stability on startup.
+      // The zone of an application zone at this point in the process is either already stable or will never become
+      // stable. We can deduce this because we already waited for it to become stable as part of the bootstrap, and
+      // either it did indeed become stable and therefore is still stable now, or we timed out waiting for it to become
+      // stable, which indicates a likelihood that the application will never become stable because it has some kind
+      // of setInterval running continuously.
       const promises = Array.from(this.references).map(
-        module => waitForApplicationToBecomeStable(module, 1500)
+        module => waitForApplicationToBecomeStable(module, 0)
           .then(() => {
             module.destroy();
           })
@@ -127,24 +104,15 @@ export class PlatformImpl implements PlatformRef {
 
       Promise.all(promises).then(() => destroyers.forEach(handler => handler()));
 
-      if (this.compiler) {
-        this.compiler.clearCache();
-        this.compiler = null;
-      }
+      this.compilers.forEach(c => c.clearCache());
 
-      this.compiledModules.clear();
+      this.compilers.clear();
     }
   }
 }
 
-const specializedCompilerOptions = (compilerOptions: CompilerOptions | Array<CompilerOptions>) => {
-  if (compilerOptions) {
-    if (Array.isArray(compilerOptions)) {
-      return compilerOptions.length > 0;
-    }
-    return Object.keys(compilerOptions).length > 0;
-  }
-  return false;
-};
-
-const instantiateInjector = <M>(injector: Injector, moduleFactory: NgModuleFactory<M>) => new moduleFactory['_injectorClass'](injector);
+// It would be great if we did not have to access this private member, but the fact is we need a reference to the
+// injector instance before create() is called on it, so that we can apply the zone mapping before any instantiation
+// of modules or components happens. Otherwise, if someone attempts to start an HTTP request from inside of a module
+// constructor it will fail with nasty messages about how there is no zone mapping.
+const createInjector = <M>(injector: Injector, moduleFactory: NgModuleFactory<M>): NgModuleRef<M> & {create: () => void} => new moduleFactory['_injectorClass'](injector);

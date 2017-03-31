@@ -6,7 +6,7 @@ import {Application} from './application';
 import {ApplicationBase} from './application-base';
 import {ApplicationBuilderBase} from './builder-base';
 import {RenderOperation} from '../operation';
-import {PlatformImpl, createJitPlatform} from '../../platform';
+import {ServerPlatform, createJitPlatform} from '../../platform';
 
 export class ApplicationBuilderFromModule<V, M> extends ApplicationBuilderBase<V> {
   constructor(private moduleType: Type<M>, templateDocument?: FileReference | string) {
@@ -14,7 +14,7 @@ export class ApplicationBuilderFromModule<V, M> extends ApplicationBuilderBase<V
   }
 
   build(): Application<V> {
-    const platform = createJitPlatform() as PlatformImpl;
+    const platform = createJitPlatform() as ServerPlatform;
 
     class ApplicationFromModuleImpl extends ApplicationBase<V, M> {
       dispose() {

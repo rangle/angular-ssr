@@ -6,7 +6,7 @@ import {Application} from './application';
 import {ApplicationBase} from './application-base';
 import {ApplicationBuilderBase} from './builder-base';
 import {RenderOperation} from '../operation';
-import {PlatformImpl, createJitPlatform} from '../../platform';
+import {ServerPlatform, createJitPlatform} from '../../platform';
 
 export class ApplicationBuilderFromModuleFactory<V> extends ApplicationBuilderBase<any> {
   constructor(private factory: NgModuleFactory<any>, templateDocument?: FileReference | string) {
@@ -18,7 +18,7 @@ export class ApplicationBuilderFromModuleFactory<V> extends ApplicationBuilderBa
   }
 
   build(): Application<V> {
-    const platform = createJitPlatform([]) as PlatformImpl;
+    const platform = createJitPlatform([]) as ServerPlatform;
 
     class ApplicationFromModuleFactoryImpl extends ApplicationBase<V, any> {
       dispose() {

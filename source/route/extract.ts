@@ -1,83 +1,88 @@
-import { waitForRouterNavigation } from './../platform/application/router';
-import { waitForApplicationToBecomeStable } from './../platform/application/stable';
 import {NgModuleFactory, NgModuleRef} from '@angular/core';
 
 import {Location} from '@angular/common';
 
-import {Router, Route as RouteDefinition} from '@angular/router';
+import {Router, Routes} from '@angular/router';
 
-import {PlatformImpl, bootstrapWithExecute, forkZone} from '../platform';
-import {RouteException} from '../exception';
+import {ServerPlatform, bootstrapWithExecute, forkZone} from '../platform';
 import {Route} from './route';
-import {baseUri} from '../static';
+import {fallbackUri} from '../static';
+import {waitForApplicationToBecomeStable, waitForRouterNavigation} from '../platform/application';
 
-export const applicationRoutes = async <M>(platform: PlatformImpl, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
-  const routes = await forkZone(templateDocument, baseUri,
-    async () =>
-      await bootstrapWithExecute<M, Array<Route>>(
-        platform,
-        moduleFactory,
-        async (moduleRef) => {
-          await waitForRouterNavigation(moduleRef); // avoid console errors in case the application kicks off some processes prior to bootstrap
+export const applicationRoutes = <M>(platform: ServerPlatform, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
+  // NOTE(bond): The way that we attempt to extract routes from an NgModuleFactory is to actually
+  // instantiate the application and then query the configuration from the Router module. This is
+  // cleaner and much easier than attempting to collect all the routes from every @NgModule in the
+  // application, including lazily loaded modules. And because we only ever have to do it once (to
+  // discover the routes), there is no negative performance impact except maybe startup time.
+  //
+  // One kink of this approach is that some applications put complex operations inside their module
+  // constructors. For example, it's fairly common to see an NgModule which kicks off an HTTP request
+  // inside of its constructor (or indirectly, in a function called from the constructor). So even
+  // though we really don't want to do a complete bootstrap and render, we have to wait for those
+  // operations to finish and for the zone to stabilize before we can destroy the module instance.
+  // Otherwise those asynchronous operations will have the rug pulled from under them and cause
+  // all kinds of nasty console errors.
+  return new Promise<Array<Route>>((resolve, reject) => {
+    forkZone(templateDocument, fallbackUri,
+      () => {
+        return bootstrapWithExecute<M, void>(
+          platform,
+          moduleFactory,
+          async (moduleRef) => {
+            resolve(extractRoutesFromModule(moduleRef));
 
-          await waitForApplicationToBecomeStable(moduleRef);
+            await waitForRouterNavigation(moduleRef);
 
-          return await extractRoutesFromModule(moduleRef);
-        }));
-
-  return routes;
+            await waitForApplicationToBecomeStable(moduleRef);
+          })
+          .catch(exception => reject(exception));
+      });
+  });
 };
 
 export const extractRoutesFromRouter = (router: Router, location: Location): Array<Route> => {
-  if (router.config == null) {
-    throw new RouteException(`Router configuration not found`);
+  const empty = new Array<Route>();
+
+  if (router == null ||
+      router.config == null ||
+      router.config.length === 0) {
+    return empty;
   }
 
-  const flatten = (parent: Array<string>, routes: Array<RouteDefinition>): Array<Route> => {
-    if (routes == null || routes.length === 0) {
-      return new Array<Route>();
-    }
+  const flatten = (parent: Array<string>, routes: Routes): Array<Route> =>
+    routes.reduce(
+      (prev, route) => {
+        const prepared = location.prepareExternalUrl(parent.concat(route.path).join('/'));
 
-    const separator = /\//g;
+        const path = prepared.split(/\//g).filter(v => v);
 
-    return routes.reduce(
-      (prev, r) => {
-        const components = (r.path || String()).split(separator).filter(v => v);
-
-        const prepared = location.prepareExternalUrl(parent.concat(components).join('/'));
-
-        const path = prepared.split(separator).filter(v => v);
-
-        return prev.concat({path}, flatten(path, r.children));
+        return prev.concat({path}, flatten(path, route.children || []));
       },
-      new Array<Route>());
-  };
+      empty);
 
-  return flatten([], router.config);
+  return flatten(new Array<string>(), router.config);
 };
+
+const singleRoute: Route = {path: []};
 
 export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Route> => {
   const routes = new Array<Route>();
 
   const router: Router = moduleRef.injector.get(Router, null);
   if (router == null) {
-    routes.push({path: []});
-  }
-  else {
-    routes.push(...extractRoutesFromRouter(router, moduleRef.injector.get(Location)));
+    return [singleRoute];
   }
 
-  return routes;
+  const location: Location = moduleRef.injector.get(Location);
+
+  return routes.concat(extractRoutesFromRouter(router, location));
 };
 
 export const renderableRoutes = (routes: Array<Route>): Array<Route> => {
-  const unrenderable = new Set<Route>();
+  const isParameter = (segment: string) => segment.startsWith(':');
 
-  for (const r of routes) {
-    if (r.path.some(segment => segment.startsWith(':'))) {
-      unrenderable.add(r);
-    }
-  }
+  const unrenderable = new Set<Route>(routes.filter(({path}) => path.some(isParameter)));
 
   return routes.filter(r => unrenderable.has(r) === false);
 };

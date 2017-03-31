@@ -13,7 +13,7 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
 
   return new Promise<void>(resolve => {
     let timer;
-    if (timeout) {
+    if (typeof timeout === 'number') {
       timer = setTimeout(() => {
         console.warn(chalk.yellow(`Timed out while waiting for NgZone to become stable after ${timeout}ms! This is a serious performance problem!`));
         console.warn(chalk.yellow('This likely means that your application is stuck in an endless loop of change detection or some other pattern of misbehaviour'));

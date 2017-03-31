@@ -14,29 +14,29 @@ import {
 
 import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
 import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';
-import {PlatformImpl} from './platform';
+import {ServerPlatform} from './platform';
 import {ZoneProperties} from './zone';
 import {randomizedApplicationId} from '../static';
 
-const baseProviders = [
+const baseProviders: Array<Provider> = [
   ...PLATFORM_COLLECTOR_PROVIDERS,
   {provide: APP_ID, useFactory: randomizedApplicationId},
-  {provide: PlatformRef, useClass: PlatformImpl},
+  {provide: PlatformRef, useClass: ServerPlatform},
   {provide: ZoneProperties, useClass: ZoneProperties},
 ];
 
-export const createJitPlatform =
-  createPlatformFactory(platformCoreDynamic, 'jit',
-    new Array<Provider>(
-      COMPILER_PROVIDERS,
-      {
-        provide: COMPILER_OPTIONS,
-        useValue: {providers: [
-          ...PLATFORM_RESOURCE_LOADER_PROVIDERS,
-        ]},
-        multi: true,
-      },
-      ...baseProviders,
-    ));
+export const createStaticPlatform = createPlatformFactory(platformCore, 'node/static', baseProviders);
 
-export const createStaticPlatform = createPlatformFactory(platformCore, 'static', baseProviders);
+const jitProviders: Array<Provider> = [
+  COMPILER_PROVIDERS,
+  {
+    provide: COMPILER_OPTIONS,
+    useValue: {providers: [
+      ...PLATFORM_RESOURCE_LOADER_PROVIDERS,
+    ]},
+    multi: true,
+  },
+  ...baseProviders,
+];
+
+export const createJitPlatform = createPlatformFactory(platformCoreDynamic, 'node/jit', jitProviders);
