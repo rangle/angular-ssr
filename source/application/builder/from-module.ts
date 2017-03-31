@@ -22,8 +22,8 @@ export class ApplicationBuilderFromModule<V, M> extends ApplicationBuilderBase<V
       }
     }
 
-    const factory = () => platform.compileModule(this.moduleType, []);
+    const promise = platform.compileModule(this.moduleType, []);
 
-    return new ApplicationFromModuleImpl(platform, <RenderOperation> this.operation, factory);
+    return new ApplicationFromModuleImpl(platform, <RenderOperation> this.operation, () => promise);
   }
 }

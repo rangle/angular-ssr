@@ -1,3 +1,5 @@
+import { waitForRouterNavigation } from './../platform/application/router';
+import { waitForApplicationToBecomeStable } from './../platform/application/stable';
 import {NgModuleFactory, NgModuleRef} from '@angular/core';
 
 import {Location} from '@angular/common';
@@ -15,7 +17,13 @@ export const applicationRoutes = async <M>(platform: PlatformImpl, moduleFactory
       await bootstrapWithExecute<M, Array<Route>>(
         platform,
         moduleFactory,
-        moduleRef => extractRoutesFromModule(moduleRef)));
+        async (moduleRef) => {
+          await waitForRouterNavigation(moduleRef); // avoid console errors in case the application kicks off some processes prior to bootstrap
+
+          await waitForApplicationToBecomeStable(moduleRef);
+
+          return await extractRoutesFromModule(moduleRef);
+        }));
 
   return routes;
 };
@@ -30,7 +38,7 @@ export const extractRoutesFromRouter = (router: Router, location: Location): Arr
       return new Array<Route>();
     }
 
-    const separator = /(^\/?#|\/)/g;
+    const separator = /\//g;
 
     return routes.reduce(
       (prev, r) => {
