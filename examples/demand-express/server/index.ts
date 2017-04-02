@@ -29,6 +29,10 @@ builder.variants({
   }
 });
 
+builder.preboot({
+  appRoot: 'application'
+});
+
 const application = builder.build();
 
 http.get(/.*/, async (request, response) => {

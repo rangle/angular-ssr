@@ -31,7 +31,7 @@ import {
 } from '../../filesystem';
 
 import {ApplicationModuleDescriptor} from '../project';
-import {ApplicationBuild} from './build';
+import {Build} from './build';
 import {CompilerException} from '../../exception';
 import {Disposable} from '../../disposable';
 import {ResourceResolver} from './resource-resolver';
@@ -47,7 +47,7 @@ export class CompilableProgram implements Disposable {
 
   private ngCompilerHost: AngularCompilerHost;
 
-  private build: Promise<ApplicationBuild>;
+  private build: Promise<Build>;
 
   constructor(
     private basePath: PathReference,
@@ -87,7 +87,7 @@ export class CompilableProgram implements Disposable {
     return candidates.map(c => pathFromString(makeAbsolute(this.basePath, c)));
   }
 
-  compile(): Promise<ApplicationBuild> {
+  compile(): Promise<Build> {
     if (this.build == null) {
       this.build = this.runCompile();
     }
@@ -126,10 +126,10 @@ export class CompilableProgram implements Disposable {
     }
   }
 
-  private async runCompile(): Promise<ApplicationBuild> {
+  private async runCompile(): Promise<Build> {
     assertProgram(this.program);
 
-    const build = new ApplicationBuild();
+    const build = new Build();
 
     const [host, generated] = await this.generateTemplates(build);
 
@@ -159,7 +159,7 @@ export class CompilableProgram implements Disposable {
     return build;
   }
 
-  private async generateTemplates(build: ApplicationBuild): Promise<[CompilerHost, Array<string>]> {
+  private async generateTemplates(build: Build): Promise<[CompilerHost, Array<string>]> {
     const generatedModules = await this.generateTemplateCode(build);
 
     const metadataWriter = new (<any>MetadataWriterHost)(this.compilerHost, this.ng, true);
@@ -177,7 +177,7 @@ export class CompilableProgram implements Disposable {
     return new AngularCompilerHost(this.program, this.ng, context);
   }
 
-  private async generateTemplateCode(build: ApplicationBuild) {
+  private async generateTemplateCode(build: Build) {
     const filenames = this.program.getSourceFiles().map(sf => this.ngCompilerHost.getCanonicalFileName(sf.fileName));
 
     const generatedModules = await this.compiler.compileAll(filenames);

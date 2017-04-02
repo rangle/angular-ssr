@@ -7,7 +7,7 @@ import {PathReference, fileFromString} from '../../filesystem';
 import {ApplicationModuleDescriptor} from './../project';
 import {flatten} from '../../transformation';
 
-export class ApplicationBuild implements Disposable {
+export class Build implements Disposable {
   private map = new Map<string, Array<string>>();
 
   emit(filename: string, sourceFiles: Array<SourceFile>) {

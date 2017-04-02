@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {RouterModule} from '@angular/router';
+import {NavigationEnd, NavigationError, RouterModule, Router} from '@angular/router';
 import {MdSelectModule} from '@angular/material';
 
 import {BlogComponent} from './blog.component';
@@ -11,6 +11,8 @@ import {LocaleComponent} from './locale.component';
 
 import {CookieService} from './cookie.service';
 import {LocaleService} from './locale.service';
+
+declare const preboot;
 
 @NgModule({
   imports: [
@@ -34,4 +36,22 @@ import {LocaleService} from './locale.service';
   ],
   bootstrap: [RootComponent]
 })
-export class AppModule {}
+export class AppModule {
+  constructor(router: Router) {
+    if (typeof preboot === 'undefined') {
+      return;
+    }
+
+    const subscription = router.events.subscribe(event => {
+      switch (true) {
+        case event instanceof NavigationError:
+        case event instanceof NavigationEnd:
+          preboot.complete();
+          subscription.unsubscribe();
+          break;
+        default:
+          break;
+      }
+    });
+  }
+}

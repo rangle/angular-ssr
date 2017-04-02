@@ -1,7 +1,8 @@
-import urijs = require('urijs');
+import url = require('url');
 
 import {Route} from './route';
 import {RouteException} from '../exception';
+
 import {fallbackUri} from '../static';
 
 export const routeToPath = (route: Route): string => {
@@ -37,4 +38,11 @@ export const routeToUri = (route: Route): string => {
   return resultUri;
 };
 
-export const pathFromUri = (uri: string): string => urijs(uri).path();
+export const pathFromUri = (uri: string): string => {
+  try {
+    return url.parse(uri).path;
+  }
+  catch (exception) {
+    throw new RouteException(`Invalid URI: ${uri}`, exception);
+  }
+};

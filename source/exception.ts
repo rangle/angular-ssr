@@ -3,7 +3,7 @@ import chalk = require('chalk');
 
 export class Exception extends Error {
   constructor(msg: string, public innerException?: Error) {
-    super(innerException ? `${msg} -> ${innerException.toString()}` : chalk.red(msg));
+    super(innerException ? `${msg} -> ${innerException.stack}` : chalk.red(msg));
  }
 }
 

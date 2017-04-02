@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 
-import './runtime';
+import {registerTranspiler} from './runtime';
+
+import './styles';
 
 import {
   ApplicationRenderer,
@@ -12,6 +14,8 @@ import {
 import {commandLineToOptions} from './options';
 
 const options = commandLineToOptions();
+
+registerTranspiler(options['no-transpile'] || []);
 
 log.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
@@ -29,7 +33,11 @@ const execute = async () => {
     await applicationRenderer.prerenderTo(output);
   }
   catch (exception) {
-    log.error(`Failed to render application: ${exception.toString()}`);
+    const message = options.debug
+      ? exception.stack
+      : exception.message + ' (use --debug to see a full stack trace)';
+
+    log.error(`Failed to render application: ${message}`);
 
     process.exitCode = 1;
   }

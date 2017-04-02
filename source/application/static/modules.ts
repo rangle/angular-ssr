@@ -18,6 +18,7 @@ import {DiscoveryException} from '../../exception';
 import {
   bootstrap,
   bootstrapFactory,
+  modules,
   ngModule
 } from '../../static';
 
@@ -116,7 +117,9 @@ const importClause = (basePath: string, sourceFile: SourceFile, identifier: stri
 
 const defactory = (identifier: string) => identifier.replace(/NgFactory/, String());
 
-const isExternal = (file: SourceFile): boolean => /(\\|\/)node_modules(\\|\/)/.test(file.fileName);
+const externalExpr = new RegExp(`(\\|\/)${modules}(\\|\/)`);
+
+const isExternal = (file: SourceFile): boolean => externalExpr.test(file.fileName);
 
 const relativeImportPath = (basePath: string, filename: string, relativePath: string) =>
   relative(basePath, resolve(dirname(filename), relativePath));

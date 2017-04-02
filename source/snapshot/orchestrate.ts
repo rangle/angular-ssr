@@ -7,7 +7,7 @@ import {ConsoleCollector, DocumentContainer, ExceptionCollector, waitForApplicat
 import {RenderVariantOperation} from '../application/operation';
 import {Snapshot} from './snapshot';
 import {timeouts} from '../static';
-import {executeBootstrap, injectState, transformDocument} from './creator';
+import {executeBootstrap, injectPreboot, injectState, transformDocument} from './creator';
 
 export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<V>): Promise<Snapshot<V>> => {
   const {variant, uri, transition, scope: {stateReader, bootstrappers, postprocessors}} = vop;
@@ -44,6 +44,8 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
     tick(moduleRef);
 
     const applicationState = await injectState(moduleRef, stateReader, container.document)
+
+    injectPreboot(moduleRef, vop);
 
     transformDocument(postprocessors, container.document);
 

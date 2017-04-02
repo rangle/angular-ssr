@@ -16,9 +16,11 @@ import {
 const {version} = require('../../package.json');
 
 export interface CommandLineOptions {
+  debug: boolean;
   project: Project;
   output: PathReference;
   templateDocument: string;
+  transpilationWhitelist: Array<string>;
 }
 
 export const commandLineToOptions = (): CommandLineOptions => {
@@ -36,10 +38,10 @@ export const commandLineToOptions = (): CommandLineOptions => {
   const symbol = options['symbol'];
 
   const project: Project = {
+    applicationModule: {source, symbol},
     basePath: dirname(tsconfig),
     tsconfig,
     workingPath: pathFromString(process.cwd()),
-    applicationModule: {source, symbol},
   };
 
   const template = fileFromString(options['template']);
@@ -61,17 +63,31 @@ export const commandLineToOptions = (): CommandLineOptions => {
     process.exit(1);
   }
 
-  return {output, project, templateDocument: template.content()};
+  const debug = options['debug'];
+
+  const transpilationWhitelist = options['no-transpile'] || [];
+
+  return {
+    debug,
+    output,
+    project,
+    templateDocument: template.content(),
+    transpilationWhitelist
+  };
 };
+
+const addToTranspilerWhitelist = (lib: string, memo: Array<string>) => memo.concat(lib);
 
 const parseCommandLine = () => {
   return commander
     .version(version)
     .description(chalk.green('Prerender Angular applications'))
+    .option('-d, --debug Enable debugging (stack traces and so forth)', false)
     .option('-p, --project <path>', 'Path to tsconfig.json file or project root (if tsconfig.json lives in the root)', process.cwd())
     .option('-t, --template <path>', 'HTML template document', 'dist/index.html')
     .option('-m, --module <path>', 'Path to root application module TypeScript file')
     .option('-s, --symbol <identifier>', 'Class name of application root module')
+    .option('-t, --no-transpile <library>', 'Add library to the list of libraries that do not require transpilation', addToTranspilerWhitelist, [])
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', 'dist')
     .option('-i, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
     .parse(process.argv);
@@ -86,14 +102,18 @@ const tsconfigFromRoot = (fromRoot: PathReference): string => {
     return fromRoot.toString();
   }
 
-  const candidates = [fromRoot, ...Array.from(fromRoot.directories())]
-    .map(d => join(d.toString(), tsconfig))
-    .filter(c => /e2e/.test(c) === false);
+  for (const tsc of tsconfig) {
+    const candidates = [
+      fromRoot,
+      ...Array.from(fromRoot.directories()),
+      ...Array.from(fromRoot.parent().directories())
+    ];
 
-  const matchingFile = candidates.map(fileFromString).find(c => c.exists());
-  if (matchingFile) {
-    return matchingFile.toString();
+    const matchingFile = candidates.map(d => fileFromString(join(d.toString(), tsc))).find(c => c.exists());
+    if (matchingFile) {
+      return matchingFile.toString();
+    }
   }
 
-  throw new ConfigurationException(chalk.red(`Cannot find tsconfig in ${fromRoot}`));
+  throw new ConfigurationException(chalk.red(`Cannot find tsconfig in ${fromRoot} (tried ${tsconfig.join(' and ')}`));
 };

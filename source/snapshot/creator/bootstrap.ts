@@ -1,4 +1,4 @@
-import {ApplicationRef, Injector, NgModuleRef} from '@angular/core';
+import {Injector, NgModuleRef} from '@angular/core';
 
 import {
   ApplicationBootstrapper,
@@ -16,10 +16,6 @@ export const executeBootstrap = async <M>(moduleRef: NgModuleRef<M>, bootstrappe
   if (typeof transition === 'function') {
     transition(moduleRef.injector);
   }
-
-  const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
-
-  applicationRef.tick(); // bootstrap or transition above may have caused changes, force a tick
 };
 
 export const composeBootstrap = (bootstrappers: Array<ApplicationBootstrapper>): ApplicationBootstrapperFunction => {
