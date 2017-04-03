@@ -1,6 +1,6 @@
 import {Postprocessor} from '../../application/contracts';
 
-import {SnapshotException} from './../../exception';
+import {SnapshotException} from '../../exception';
 
 export const transformDocument = (processors: Array<Postprocessor>, document: Document & { outerHTML?: string }) => {
   for (const processor of processors || []) {

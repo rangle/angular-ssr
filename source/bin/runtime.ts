@@ -1,4 +1,4 @@
-import {join} from 'path';
+import {join, sep} from 'path';
 
 const {plugins} = require('babel-preset-es2015');
 
@@ -40,7 +40,8 @@ export const registerTranspiler = (skip: Array<string>) => {
       if (whitelist.test(filename) || /babel/.test(filename)) {
         return true;
       }
-      if (skip.some(s => filename.indexOf(join(modules, s)) >= 0)) {
+      if (skip.some(s => filename.indexOf(join(modules, s)) >= 0) ||
+          skip.some(s => filename.indexOf([modules, s].join(sep)) >= 0)) {
         return true;
       }
       return false;
@@ -56,4 +57,6 @@ export const registerTranspiler = (skip: Array<string>) => {
 // there is no need to transpile them through Babel. Everything outside of this list will be transpiled using the es2015
 // Babel preset, mainly because people use all kinds of libraries in their projects and we have no way of knowing whether
 // they need transpilation, so we just assume they all do.
-const whitelist = /\/(\@angular|angular-ssr|scoped-logger|tsickle|domino|rxjs|zone\.js|mkpath|preboot|regenerator-transform|es2015-imports-to-commonjs-loose|mock-local-storage|lru_map|typescript|reflect-metadata|core-js|bundles)\//;
+const whitelist = /\/(\@angular|angular-ssr|scoped-logger|tsickle|domino|rxjs|zone\.js|mkpath|preboot|regenerator-transform|es2015-imports-to-commonjs-loose|mock-local-storage|lru_map|typescript|reflect-metadata|core-js)\//;
+
+import './styles';

@@ -2,7 +2,7 @@ import {Inject, Injectable} from '@angular/core';
 
 import {ApplicationRuntimeProject} from './tokens';
 
-import {ApplicationException} from './../../exception';
+import {ApplicationException} from '../../exception';
 
 @Injectable()
 export class RuntimeModuleLoader {

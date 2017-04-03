@@ -2,8 +2,6 @@ import 'reflect-metadata';
 
 import {registerTranspiler} from './runtime';
 
-import './styles';
-
 import {
   ApplicationRenderer,
   ApplicationBuilderFromSource,
@@ -19,18 +17,15 @@ registerTranspiler(options['no-transpile'] || []);
 
 log.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
-const builder = new ApplicationBuilderFromSource(options.project);
-builder.templateDocument(options.templateDocument);
+const builder = new ApplicationBuilderFromSource(options.project, options.templateDocument);
 
 const application = builder.build();
-
-const output = new HtmlOutput(options.output);
 
 const applicationRenderer = new ApplicationRenderer(application);
 
 const execute = async () => {
   try {
-    await applicationRenderer.prerenderTo(output);
+    await applicationRenderer.prerenderTo(new HtmlOutput(options.output));
   }
   catch (exception) {
     const message = options.debug

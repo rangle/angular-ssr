@@ -9,7 +9,7 @@ import {
 
 import {dirname, relative, resolve} from 'path';
 
-import {ApplicationModuleDescriptor} from './../project';
+import {ApplicationModuleDescriptor} from '../project';
 
 import {traverse} from './traverse';
 
@@ -52,7 +52,7 @@ export const discoverApplicationModule = (basePath: string, program: Program): A
             bootstrapIdentifiers.add(defactory((<Identifier> node.arguments[0]).text));
         }
         return false;
-      });
+        });
 
     for (const identifier of Array.from(bootstrapIdentifiers)) {
       const imported = importClause(basePath, sourceFile, identifier);

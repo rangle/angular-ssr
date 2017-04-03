@@ -4,7 +4,7 @@ import {join, sep} from 'path';
 
 import {Disposable} from '../../disposable';
 import {PathReference, fileFromString} from '../../filesystem';
-import {ApplicationModuleDescriptor} from './../project';
+import {ApplicationModuleDescriptor} from '../project';
 import {flatten} from '../../transformation';
 
 export class Build implements Disposable {

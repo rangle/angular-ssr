@@ -8,7 +8,7 @@ import {
 
 import {Application} from './application';
 
-import {Route} from './../../route/route';
+import {Route} from '../../route/route';
 
 export interface ApplicationBuilder<V> {
   // Construct an application from this builder after configuring it

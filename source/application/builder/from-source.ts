@@ -38,9 +38,9 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
       }
 
       dispose() {
-        platform.destroy();
-
         program.dispose();
+
+        platform.destroy();
       }
     }
 
