@@ -42,6 +42,9 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
 
   postprocess(transform?: Postprocessor) {
     if (transform) {
+      if (this.operation.postprocessors == null) {
+        this.operation.postprocessors = [];
+      }
       this.operation.postprocessors.push(transform);
     }
     return this.operation.postprocessors;

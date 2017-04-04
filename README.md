@@ -94,7 +94,7 @@ When you build your application, you are outputting two targets: your actual Ang
 Your actual HTTP server code will look something like the following:
 
 ```typescript
-import {ApplicationFromModule} from 'angular-ssr';
+import {ApplicationBuilderFromModule} from 'angular-ssr';
 
 import {join} from 'path';
 
