@@ -1,3 +1,5 @@
+# Angular-SSR :: Server-side rendering and/or PRE-rendering Angular Applications)
+
 ![CircleCI](https://img.shields.io/circleci/project/github/clbond/angular-ssr.svg) ![Code Coverage](https://img.shields.io/coveralls/clbond/angular-ssr.svg) ![npm](https://img.shields.io/npm/v/angular-ssr.svg)
 
 # Render your Angular 4 applications as part of your build process or inside of a NodeJS HTTP server
