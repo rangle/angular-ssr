@@ -14,6 +14,7 @@ import {Snapshot, snapshot} from '../../snapshot';
 import {fallbackUri} from '../../static';
 import {composeTransitions} from '../../variants';
 import {forkRender} from './fork';
+import {none} from '../../predicate';
 
 export abstract class ApplicationBase<V, M> implements Application<V> {
   constructor(
@@ -25,10 +26,10 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
   abstract dispose(): void;
 
   async prerender(): Promise<Observable<Snapshot<V>>> {
-    if (this.render.routes == null || this.render.routes.length === 0) {
+    if (none(this.render.routes)) {
       this.render.routes = renderableRoutes(await this.discoverRoutes());
 
-      if (this.render.routes.length === 0) {
+      if (none(this.render.routes)) {
         return Observable.of();
       }
     }

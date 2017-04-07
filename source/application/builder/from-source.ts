@@ -1,11 +1,11 @@
 import {Application} from './application';
 import {ApplicationBase} from './application-base';
-import {ServerPlatform, ApplicationRuntimeProject, RuntimeModuleLoader, createStaticPlatform} from '../../platform';
+import {ApplicationRuntimeProject, ServerPlatform, RuntimeModuleLoader,  createStaticPlatform} from '../../platform';
 import {ApplicationBuilderBase} from './builder-base';
-import {ApplicationModuleDescriptor, Project} from '../project';
-import {getCompilableProgram} from '../compiler';
+import {ApplicationModule, Project} from '../project';
 import {FileReference} from '../../filesystem';
 import {RenderOperation} from '../operation';
+import {getCompilerFromProject} from '../compiler';
 
 export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any> {
   constructor(public project: Project, templateDocument?: FileReference | string) {
@@ -13,32 +13,34 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
   }
 
   build(): Application<V> {
-    const program = getCompilableProgram(this.project);
+    const compiler = getCompilerFromProject(this.project);
 
-    const moduleFactory = program.loadModule(this.project.applicationModule, true);
+    const loader = compiler.compile();
 
-    let platform: ServerPlatform;
+    const moduleFactory = loader.then(c => c.load());
 
     let applicationInstance;
 
+    const platform: ServerPlatform = createStaticPlatform([
+      {provide: ApplicationRuntimeProject, useFactory: () => applicationInstance},
+      {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}
+    ]) as ServerPlatform;
+
     class ApplicationFromSourceImpl extends ApplicationBase<V, any> {
       constructor(operation: RenderOperation) {
-        platform = createStaticPlatform([
-          {provide: ApplicationRuntimeProject, useFactory: () => applicationInstance},
-          {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}
-        ]) as ServerPlatform;
-
         super(platform, operation, () => moduleFactory);
 
         applicationInstance = this;
       }
 
-      async getModule(moduleDescriptor: ApplicationModuleDescriptor): Promise<any> {
-        return await program.loadModule(moduleDescriptor, false);
+      loadModule(module: ApplicationModule): Promise<any> {
+        return loader.then(c => c.lazy(module));
       }
 
-      dispose() {
-        program.dispose();
+      async dispose() {
+        const c = await loader;
+
+        c.dispose();
 
         platform.destroy();
       }

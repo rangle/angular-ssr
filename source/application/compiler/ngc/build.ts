@@ -2,13 +2,18 @@ import {SourceFile} from 'typescript';
 
 import {join, sep} from 'path';
 
-import {Disposable} from '../../disposable';
-import {PathReference, fileFromString} from '../../filesystem';
-import {ApplicationModuleDescriptor} from '../project';
-import {flatten} from '../../transformation';
+import {Disposable} from '../../../disposable';
+import {PathReference, fileFromString} from '../../../filesystem';
+import {ApplicationModule} from '../../project';
+import {flatten} from '../../../transformation';
 
 export class Build implements Disposable {
   private map = new Map<string, Array<string>>();
+
+  constructor(
+    public readonly roots: Array<PathReference>,
+    public readonly outputPath: PathReference
+  ) {}
 
   emit(filename: string, sourceFiles: Array<SourceFile>) {
     if (sourceFiles == null) {
@@ -21,7 +26,7 @@ export class Build implements Disposable {
     }
   }
 
-  resolve(roots: Array<PathReference>, module: ApplicationModuleDescriptor): [string, string] {
+  resolve(roots: Array<PathReference>, module: ApplicationModule): [string, string] {
     const source = sourceToNgFactory(module.source);
     const symbol = symbolToNgFactory(module.symbol);
 

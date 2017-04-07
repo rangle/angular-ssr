@@ -8,6 +8,14 @@ import {
   pathFromRandomId
 } from '../../filesystem';
 
+export const getApplicationRoot = (): PathReference => {
+  const path = pathFromString(__dirname);
+
+  const tsconfig = path.findInAncestor('tsconfig.json');
+
+  return tsconfig.parent();
+};
+
 export const getApplicationProject = (moduleId: string, moduleSymbol: string, workingPath?: PathReference): Project => {
   const path = pathFromString(__dirname);
 

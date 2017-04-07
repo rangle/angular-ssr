@@ -11,9 +11,9 @@ import {
   getPreEmitDiagnostics
 } from 'typescript';
 
-import {CompilerException} from '../../exception';
+import {CompilerException} from '../../../exception';
 
-import {flatten} from '../../transformation';
+import {flatten} from '../../../transformation';
 
 export const diagnosticsToException = (diagnostics: Array<Diagnostic>): string => {
   const host: FormatDiagnosticsHost = {

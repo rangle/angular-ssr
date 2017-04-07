@@ -53,17 +53,20 @@
     "@angular/tsc-wrapped": ">=4.0.0 <5.0.0",
     "reflect-metadata": "^0.1.10",
     "zone.js": "^0.8.4",
-    "typescript": ">=2.1.0"
+    "typescript": ">=2.1.0",
+    "webpack": "^2.3.3"
   },
   "optionalPeerDependencies": {
     "@ngrx/store": "^2.2.1"
   },
   "dependencies": {
+    "@angular/cli": "^1.0.0",
     "@types/babel-core": "6.7.14",
     "@types/chalk": "^0.4.31",
     "@types/codependency": "0.1.1",
     "@types/jasmine": "2.5.41",
     "@types/urijs": "^1.15.31",
+    "@types/webpack": "^2.2.14",
     "babel-core": "6.23.1",
     "babel-plugin-transform-es2015-block-scoped-functions": "^6.22.0",
     "babel-plugin-transform-es2015-block-scoping": "^6.23.0",
@@ -124,6 +127,7 @@
     "tslint": "4.4.2",
     "typescript": ">=2.2.0",
     "typescript-babel-jest": "^1.0.2",
+    "webpack": "^2.3.3",
     "zone.js": "0.8.4"
   },
   "jest": {

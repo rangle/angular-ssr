@@ -1,48 +1,22 @@
-import {Tsc} from '@angular/tsc-wrapped/src/tsc';
+import {join} from 'path';
 
-import {
-  CompilerOptions,
-  ModuleKind,
-  ModuleResolutionKind
-} from 'typescript';
-
-import {CompilableProgram} from './program';
-
+import {ApplicationCompiler} from './compiler';
+import {NgcCompiler} from './ngc/compiler';
 import {Project} from '../project';
+import {fileFromString} from '../../filesystem';
+import {cliConfiguration, webpackConfiguration} from '../../static';
 
-import {pathFromString} from '../../filesystem';
-
-export const getCompilableProgram = (project: Project): CompilableProgram => {
-  const tsc = new Tsc();
-
-  const {parsed, ngOptions} = tsc.readConfiguration(project.tsconfig, project.basePath);
-
-  parsed.options.declaration = true;
-
-  ngOptions.declaration = true;
-  ngOptions.basePath = project.basePath;
-  ngOptions.generateCodeForLibraries = true;
-
-  if (project.workingPath != null) {
-    parsed.options.outDir = project.workingPath.toString();
-
-    ngOptions.outDir = parsed.options.outDir;
+export const getCompilerFromProject = (project: Project): ApplicationCompiler => {
+  const hasFile = (filename: string): boolean => {
+    return fileFromString(join(project.basePath.toString(), filename)).exists();
   }
 
-  const sources = parsed.fileNames.filter(file => testHeuristic(file) === false);
+  if (hasFile(webpackConfiguration)) {
+    // return new WebpackCompiler(project) TODO(bond): Enable when implemented
+  }
+  else if (cliConfiguration.some(f => hasFile(f))) {
+    // return new CliCompiler(project) TODO(bond): Enable when implemented
+  }
 
-  const basePath = pathFromString(project.basePath);
-
-  return new CompilableProgram(basePath, adjustOptions(parsed.options), ngOptions, sources);
+  return new NgcCompiler(project);
 };
-
-export const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions => {
-  return Object.assign({}, baseOptions, {
-    declaration: true,
-    module: ModuleKind.CommonJS,
-    moduleResolution: ModuleResolutionKind.NodeJs,
-    noEmitHelpers: false,
-  });
-};
-
-const testHeuristic = (filename: string) => /(e2e|\.?(spec|tests?)\.)/.test(filename);

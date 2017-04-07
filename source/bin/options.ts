@@ -89,6 +89,7 @@ const parseCommandLine = () => {
     .option('-s, --symbol <identifier>', 'Class name of application root module')
     .option('-t, --no-transpile <library>', 'Add library to the list of libraries that do not require transpilation', addToTranspilerWhitelist, [])
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', 'dist')
+    .option('-a, --application <application ID>', 'Optional application ID if your CLI configuration contains multiple apps')
     .option('-i, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
     .parse(process.argv);
 };

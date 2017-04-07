@@ -1,5 +1,7 @@
 import {Snapshot} from '../snapshot';
 
+import {none} from '../predicate';
+
 import {AggregateException, OutputException} from '../exception';
 
 export abstract class OutputProducer {
@@ -21,8 +23,7 @@ export abstract class OutputProducer {
         throw new AggregateException(snapshot.exceptions);
     }
 
-    if (snapshot.renderedDocument == null ||
-        snapshot.renderedDocument.length === 0) {
+    if (none(snapshot.renderedDocument)) {
       throw new OutputException('Received an application snapshot with an empty document!');
     }
   }

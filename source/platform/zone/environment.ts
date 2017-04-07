@@ -5,7 +5,7 @@ import {PlatformLocation} from '@angular/common';
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
 import {PlatformException} from '../../exception';
-import {RuntimeModuleLoader} from '../module';
+import {RuntimeModuleLoader} from '../module/runtime-loader';
 import {bootWindow} from '../../runtime/dom';
 import {injectableFromZone} from './injector-map';
 

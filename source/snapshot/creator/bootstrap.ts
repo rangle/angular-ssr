@@ -8,6 +8,8 @@ import {
 
 import {typeToInjectorFunction} from '../../transformation/type-to-function';
 
+import {none} from '../../predicate';
+
 export const executeBootstrap = async <M>(moduleRef: NgModuleRef<M>, bootstrappers: Array<ApplicationBootstrapper>, transition: ComposedTransition) => {
   const bootstrap = composeBootstrap(bootstrappers);
 
@@ -19,7 +21,7 @@ export const executeBootstrap = async <M>(moduleRef: NgModuleRef<M>, bootstrappe
 };
 
 export const composeBootstrap = (bootstrappers: Array<ApplicationBootstrapper>): ApplicationBootstrapperFunction => {
-  if (bootstrappers == null || bootstrappers.length === 0) {
+  if (none(bootstrappers)) {
     return injector => {};
   }
 

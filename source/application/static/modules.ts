@@ -9,7 +9,7 @@ import {
 
 import {dirname, relative, resolve} from 'path';
 
-import {ApplicationModuleDescriptor} from '../project';
+import {ApplicationModule} from '../project';
 
 import {traverse} from './traverse';
 
@@ -22,10 +22,10 @@ import {
   ngModule
 } from '../../static';
 
-export const discoverApplicationModule = (basePath: string, program: Program): ApplicationModuleDescriptor => {
+export const discoverApplicationModule = (basePath: string, program: Program): ApplicationModule => {
   const expression = new RegExp(`(\.${bootstrap}|\.${bootstrapFactory}|${ngModule})`);
 
-  const candidates = new Array<ApplicationModuleDescriptor>();
+  const candidates = new Array<ApplicationModule>();
 
   for (const sourceFile of program.getSourceFiles()) {
     if (isExternal(sourceFile) || expression.test(sourceFile.text) === false) { // broad filter, performance optimization
@@ -78,7 +78,7 @@ export const discoverApplicationModule = (basePath: string, program: Program): A
   }
 };
 
-const exportClause = (basePath: string, sourceFile: SourceFile, identifier: string): ApplicationModuleDescriptor => {
+const exportClause = (basePath: string, sourceFile: SourceFile, identifier: string): ApplicationModule => {
   const exports: Map<string, any> = sourceFile['symbol'].exports;
 
   for (const exportIdentifier of Array.from(exports.keys())) {
@@ -93,7 +93,7 @@ const exportClause = (basePath: string, sourceFile: SourceFile, identifier: stri
   return null;
 };
 
-const importClause = (basePath: string, sourceFile: SourceFile, identifier: string): ApplicationModuleDescriptor => {
+const importClause = (basePath: string, sourceFile: SourceFile, identifier: string): ApplicationModule => {
   for (const statement of sourceFile['imports']) {
     if (statement.parent == null ||
         statement.parent.importClause == null ||
@@ -124,7 +124,7 @@ const isExternal = (file: SourceFile): boolean => externalExpr.test(file.fileNam
 const relativeImportPath = (basePath: string, filename: string, relativePath: string) =>
   relative(basePath, resolve(dirname(filename), relativePath));
 
-const formatCandidates = (candidates: Array<ApplicationModuleDescriptor>) => candidates.map(m => `${m.symbol} in ${m.source}`).join(', and ');
+const formatCandidates = (candidates: Array<ApplicationModule>) => candidates.map(m => `${m.symbol} in ${m.source}`).join(', and ');
 
 const invalidPairing = (sourceFile: SourceFile, identifier: string): void => {
   const descriptions = [
