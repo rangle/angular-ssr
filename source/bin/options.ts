@@ -1,14 +1,17 @@
 import commander = require('commander');
+
 import chalk = require('chalk');
 
-import {dirname, join} from 'path';
+import {dirname, join, resolve} from 'path';
 
 import {
+  ConfigurationException,
+  FileReference,
   FileType,
   PathReference,
-  ConfigurationException,
   Project,
   fileFromString,
+  fromJson,
   pathFromString,
   tsconfig,
 } from '../index';
@@ -21,6 +24,7 @@ export interface CommandLineOptions {
   output: PathReference;
   templateDocument: string;
   transpilationWhitelist: Array<string>;
+  webpack?: FileReference;
 }
 
 export const commandLineToOptions = (): CommandLineOptions => {
@@ -28,7 +32,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
 
   const path = pathFromString(options['project']);
 
-  const tsconfig: string = tsconfigFromRoot(path);
+  const tsconfig = tsconfigFromRoot(path);
 
   if (path.exists() === false) {
     throw new ConfigurationException(`Project path does not exist: ${path}`);
@@ -39,7 +43,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
 
   const project: Project = {
     applicationModule: {source, symbol},
-    basePath: dirname(tsconfig),
+    basePath: rootFromTsconfig(tsconfig),
     tsconfig,
     workingPath: pathFromString(process.cwd()),
   };
@@ -56,8 +60,6 @@ export const commandLineToOptions = (): CommandLineOptions => {
     outputString = join(process.cwd(), outputString);
   }
 
-  const output = pathFromString(outputString);
-
   if (options['ipc']) {
     console.error(chalk.red('IPC mode is not implemented yet'));
     process.exit(1);
@@ -67,12 +69,17 @@ export const commandLineToOptions = (): CommandLineOptions => {
 
   const transpilationWhitelist = options['no-transpile'] || [];
 
+  const output = pathFromString(outputString);
+
+  const webpack = options['webpack'];
+
   return {
     debug,
     output,
     project,
     templateDocument: template.content(),
-    transpilationWhitelist
+    transpilationWhitelist,
+    webpack
   };
 };
 
@@ -84,6 +91,7 @@ const parseCommandLine = () => {
     .description(chalk.green('Prerender Angular applications'))
     .option('-d, --debug Enable debugging (stack traces and so forth)', false)
     .option('-p, --project <path>', 'Path to tsconfig.json file or project root (if tsconfig.json lives in the root)', process.cwd())
+    .option('-w, --webpack <config>', 'Optional path to webpack configuration file')
     .option('-t, --template <path>', 'HTML template document', 'dist/index.html')
     .option('-m, --module <path>', 'Path to root application module TypeScript file')
     .option('-s, --symbol <identifier>', 'Class name of application root module')
@@ -94,13 +102,24 @@ const parseCommandLine = () => {
     .parse(process.argv);
 };
 
-const tsconfigFromRoot = (fromRoot: PathReference): string => {
+const rootFromTsconfig = (tsconfig: FileReference): PathReference => {
+  const parsed = fromJson<{extends?: string}>(tsconfig.content());
+
+  if (parsed.extends) {
+    return pathFromString(resolve(dirname(join(tsconfig.parent().toString(), parsed.extends))));
+  }
+  else {
+    return tsconfig.parent();
+  }
+};
+
+const tsconfigFromRoot = (fromRoot: PathReference): FileReference => {
   if (fromRoot.exists() === false) {
     throw new ConfigurationException(`Root path does not exist: ${fromRoot}`);
   }
 
   if (fromRoot.type() === FileType.File) {
-    return fromRoot.toString();
+    return fileFromString(fromRoot.toString());
   }
 
   for (const tsc of tsconfig) {
@@ -110,10 +129,7 @@ const tsconfigFromRoot = (fromRoot: PathReference): string => {
       ...Array.from(fromRoot.parent().directories())
     ].filter(p => /(\\|\/)e2e(\\|\/)/.test(p.toString()) === false);
 
-    const matchingFile = candidates.map(d => fileFromString(join(d.toString(), tsc))).find(c => c.exists());
-    if (matchingFile) {
-      return matchingFile.toString();
-    }
+    return candidates.map(d => fileFromString(join(d.toString(), tsc))).find(c => c.exists());
   }
 
   throw new ConfigurationException(chalk.red(`Cannot find tsconfig in ${fromRoot} (tried ${tsconfig.join(' and ')}`));

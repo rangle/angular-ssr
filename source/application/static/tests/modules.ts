@@ -9,7 +9,7 @@ import {
   createSourceFile,
 } from 'typescript';
 
-import {discoverApplicationModule} from '../modules';
+import {discoverRootModule} from '../root-module';
 
 import {pathFromRandomId} from '../../../filesystem';
 
@@ -53,7 +53,7 @@ describe('static analysis', () => {
 
     const program = createProgram([moduleFile.fileName, mainFile.fileName], options, host);
 
-    const descriptor = discoverApplicationModule(root, program);
+    const descriptor = discoverRootModule(root, program);
     expect(descriptor).not.toBeNull();
     expect(descriptor.source).toEqual(moduleFile.fileName.replace(/(^(\\|\/)|\.ts$)/g, String()));
     expect(descriptor.symbol).toBe('RootModule');

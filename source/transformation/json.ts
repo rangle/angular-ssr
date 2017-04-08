@@ -1,0 +1,1 @@
+export const fromJson = <T>(content: string): T => JSON.parse(content);

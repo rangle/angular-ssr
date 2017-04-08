@@ -2,7 +2,7 @@ import {Application} from './application';
 import {ApplicationBase} from './application-base';
 import {ApplicationRuntimeProject, ServerPlatform, RuntimeModuleLoader,  createStaticPlatform} from '../../platform';
 import {ApplicationBuilderBase} from './builder-base';
-import {ApplicationModule, Project} from '../project';
+import {ModuleDeclaration, Project} from '../project';
 import {FileReference} from '../../filesystem';
 import {RenderOperation} from '../operation';
 import {getCompilerFromProject} from '../compiler';
@@ -33,7 +33,7 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
         applicationInstance = this;
       }
 
-      loadModule(module: ApplicationModule): Promise<any> {
+      loadModule(module: ModuleDeclaration): Promise<any> {
         return loader.then(c => c.lazy(module));
       }
 

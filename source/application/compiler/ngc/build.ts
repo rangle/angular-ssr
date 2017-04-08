@@ -3,16 +3,17 @@ import {SourceFile} from 'typescript';
 import {join, sep} from 'path';
 
 import {Disposable} from '../../../disposable';
-import {PathReference, fileFromString} from '../../../filesystem';
-import {ApplicationModule} from '../../project';
+import {PathReference, fileFromString, pathFromString} from '../../../filesystem';
+import {ModuleDeclaration} from '../../project';
 import {flatten} from '../../../transformation';
 
 export class Build implements Disposable {
   private map = new Map<string, Array<string>>();
 
   constructor(
-    public readonly roots: Array<PathReference>,
-    public readonly outputPath: PathReference
+    public readonly basePath: PathReference,
+    public readonly outputPath: PathReference,
+    public readonly roots: Array<PathReference>
   ) {}
 
   emit(filename: string, sourceFiles: Array<SourceFile>) {
@@ -26,15 +27,17 @@ export class Build implements Disposable {
     }
   }
 
-  resolve(roots: Array<PathReference>, module: ApplicationModule): [string, string] {
+  resolve(module: ModuleDeclaration): [string, string] {
     const source = sourceToNgFactory(module.source);
     const symbol = symbolToNgFactory(module.symbol);
 
+    const roots = [...this.roots, this.outputPath, this.basePath].map(pathFromString);
+
     if (source) {
       const candidates = flatten<string>(roots.map(r => [
-        join(r.toString(), source),
-        join(r.toString(), source.replace(/\//g, sep)),
-        join(r.toString(), source.replace(/\\/g, '/')),
+        `${join(r.toString(), source)}`,
+        `${join(r.toString(), source.replace(/\//g, sep))}`,
+        `${join(r.toString(), source.replace(/\\/g, '/'))}`,
         `${r.toString()}/${source}`,
         `${r.toString()}/${source}`.replace(/\//g, sep),
         `${r.toString()}/${source}`.replace(/\\/g, '/')

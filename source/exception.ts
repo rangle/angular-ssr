@@ -30,7 +30,6 @@ export class NotImplementedException extends Exception {
 export class ApplicationException extends Exception {}
 export class CompilerException extends Exception {}
 export class ConfigurationException extends Exception {}
-export class DiscoveryException extends Exception {}
 export class FilesystemException extends Exception {}
 export class ModuleException extends Exception {}
 export class OutputException extends Exception {}
@@ -39,4 +38,5 @@ export class RendererException extends Exception {}
 export class ResourceException extends Exception {}
 export class RouteException extends Exception {}
 export class SnapshotException extends Exception {}
+export class StaticAnalysisException extends Exception {}
 export class TranspileException extends Exception {}

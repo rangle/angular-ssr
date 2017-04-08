@@ -1,14 +1,15 @@
-import {PathReference} from '../filesystem';
+import {FileReference, PathReference} from '../filesystem';
 
-export interface ApplicationModule {
+export interface ModuleDeclaration {
   source: string;
   symbol: string;
 }
 
 export interface Project {
-  basePath: string;
-  tsconfig: string;
+  basePath: PathReference;
+  tsconfig: FileReference;
   identifier?: string | number; // application name or index from angular-cli.json, or null
+  webpack?: FileReference; // optional webpack configuration
   workingPath?: PathReference;
-  applicationModule?: ApplicationModule;
+  applicationModule?: ModuleDeclaration;
 }

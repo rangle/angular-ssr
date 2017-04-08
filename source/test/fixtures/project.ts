@@ -1,5 +1,3 @@
-import {dirname} from 'path';
-
 import {Project} from '../../application';
 
 import {
@@ -21,11 +19,9 @@ export const getApplicationProject = (moduleId: string, moduleSymbol: string, wo
 
   const tsconfig = path.findInAncestor('tsconfig.json');
 
-  const tsconfigPath = tsconfig.toString();
-
   return <Project> {
-    basePath: dirname(tsconfigPath),
-    tsconfig: tsconfigPath,
+    basePath: tsconfig.parent(),
+    tsconfig,
     workingPath: workingPath || pathFromRandomId(),
     applicationModule: {
       source: moduleId,

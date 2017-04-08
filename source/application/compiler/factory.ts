@@ -3,20 +3,23 @@ import {join} from 'path';
 import {ApplicationCompiler} from './compiler';
 import {NgcCompiler} from './ngc/compiler';
 import {Project} from '../project';
+import {WebpackCompiler} from './webpack/compiler';
 import {fileFromString} from '../../filesystem';
 import {cliConfiguration, webpackConfiguration} from '../../static';
+import {cliProjectToWebpackConfiguration } from './webpack/cli';
+import {projectToWebpackConfiguration } from './webpack/configuration';
 
 export const getCompilerFromProject = (project: Project): ApplicationCompiler => {
-  const hasFile = (filename: string): boolean => {
-    return fileFromString(join(project.basePath.toString(), filename)).exists();
-  }
+  const hasFile = (filename: string): boolean =>
+    fileFromString(join(project.basePath.toString(), filename)).exists();
 
-  if (hasFile(webpackConfiguration)) {
-    // return new WebpackCompiler(project) TODO(bond): Enable when implemented
+  if (webpackConfiguration.some(f => hasFile(f))) {
+    return new WebpackCompiler(project, projectToWebpackConfiguration(project));
   }
   else if (cliConfiguration.some(f => hasFile(f))) {
-    // return new CliCompiler(project) TODO(bond): Enable when implemented
+    return new WebpackCompiler(project, cliProjectToWebpackConfiguration(project));
   }
-
-  return new NgcCompiler(project);
+  else {
+    return new NgcCompiler(project);
+  }
 };

@@ -6,4 +6,4 @@ export const modules = 'node_modules';
 
 export const cliConfiguration = ['angular-cli.json', '.angular-cli.json'];
 
-export const webpackConfiguration = 'webpack.config.js';
+export const webpackConfiguration = ['webpack.server.config.js', 'webpack.app.config.js', 'webpack.config.js'];
