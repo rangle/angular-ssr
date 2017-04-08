@@ -1,7 +1,7 @@
 import {getApplicationProject} from '../../../../test/fixtures';
 import {NgcCompiler} from '../compiler';
 
-describe('CompilableProgram', () => {
+describe('NgcCompiler', () => {
   it('can build application-basic-inline into executable NgModuleFactory', async () => {
     const program = new NgcCompiler(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'));
 

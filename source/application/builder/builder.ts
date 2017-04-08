@@ -31,7 +31,7 @@ export interface ApplicationBuilder<V> {
 
   // Define the variants of this application. For applications that wish to render different
   // variants such as languages or anonymous vs authenticated, you can define those variants
-  // here and then query for rendered documents using {@link DocumentVariantStore}
+  // here and then query for rendered documents using {@link MemoryVariantCache}
   variants(definitions?: VariantsMap): void;
 
   // Provide an optional array of routes that you wish to pre-render. If you do not specify

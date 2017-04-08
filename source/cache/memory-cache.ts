@@ -1,19 +1,14 @@
 import {LRUMap} from 'lru_map';
 
 import {Application} from '../application';
+import {Cache} from './cache';
 import {Snapshot} from '../snapshot';
 
-import {defaultCacheSize} from './cache-size';
-
-export class DocumentStore {
+export class MemoryCache implements Cache {
   private cache: LRUMap<string, Snapshot<void>>;
 
-  constructor(private application: Application<void | {}>, cacheSize = defaultCacheSize) {
+  constructor(private application: Application<void | {}>, cacheSize = 1 << 16) {
     this.cache = new LRUMap<string, Snapshot<void>>(cacheSize);
-  }
-
-  get size(): number {
-    return this.cache.size;
   }
 
   async load(uri: string): Promise<Snapshot<void>> {
@@ -25,7 +20,7 @@ export class DocumentStore {
     return snapshot;
   }
 
-  reset() {
-    this.cache.clear();
+  has(uri: string): boolean {
+    return this.cache.get(uri) != null;
   }
 }

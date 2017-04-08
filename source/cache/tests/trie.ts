@@ -1,6 +1,6 @@
 import {Trie} from '../trie';
 
-describe('trie structure', () => {
+describe('Trie', () => {
   type TestVariant = {a: number, b: number};
 
   type TestValue = {hello: string};

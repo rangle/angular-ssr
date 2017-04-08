@@ -469,8 +469,8 @@ One thing to note about `Snapshot` is that it contains far more information than
 
 The library provides two extremely simple caching implementations. Both are LRU caches that default to a maximum size of 65k items. They are unlikely to be useful to you if your application contains a lot of dynamic content, but they illustrate how you can implement caching inside of your server application:
 
-1. [`DocumentStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-store.ts) is an extremely simple URL-based bounded LRU cache. Each time a URL is requested, it gets bumped to a higher priority. If the cache reaches its maximum size, documents that were last requested a long time ago will be the first to be deleted.
-2. [`DocumentVariantStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/document-variant-store.ts) is identical to `DocumentStore` except that it works in conjunction with the concept of [variants](#variants). It uses a [trie structure](https://en.wikipedia.org/wiki/Trie) to store and query specific variants of URLs.
+1. [`DocumentStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/memory-cache.ts) is an extremely simple URL-based bounded LRU cache. Each time a URL is requested, it gets bumped to a higher priority. If the cache reaches its maximum size, documents that were last requested a long time ago will be the first to be deleted.
+2. [`DocumentVariantStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/memory-variant-cache.ts) is identical to `DocumentStore` except that it works in conjunction with the concept of [variants](#variants). It uses a [trie structure](https://en.wikipedia.org/wiki/Trie) to store and query specific variants of URLs.
 
 Alternatively, you can provide your own caching mechanism and just call `application.renderUri()` when there is a miss. This is the solution that is going to be the most flexible and allows you to customize your caching needs to suit your application (for example, you may wish to integrate with an external caching service built with Redis or some such).
 

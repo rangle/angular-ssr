@@ -15,8 +15,8 @@ import {pathFromRandomId} from '../../../filesystem';
 
 import {randomId} from '../../../static';
 
-describe('static analysis', () => {
-  it('can discover root application module', () => {
+describe('discoverRootModule', () => {
+  it('can discover root application module from TypeScript source', () => {
     const root = pathFromRandomId().toString();
 
     const moduleFile = sourceToSourceFile(root, `
