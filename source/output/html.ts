@@ -6,16 +6,14 @@ import {Files} from '../static';
 import {OutputProducer} from './producer';
 import {OutputException} from '../exception';
 import {PathReference, fileFromString, pathFromString} from '../filesystem';
-import {Snapshot} from '../snapshot';
+import {Snapshot, assertSnapshot} from '../snapshot';
 import {log} from './log';
 import {pathFromUri} from '../route';
 
-export class HtmlOutput extends OutputProducer {
+export class HtmlOutput implements OutputProducer {
   private path: PathReference;
 
   constructor(path: PathReference | string, private logger: Logger = log) {
-    super();
-
     this.path = pathFromString(path);
   }
 
@@ -34,7 +32,7 @@ export class HtmlOutput extends OutputProducer {
   }
 
   async write<V>(snapshot: Snapshot<V>): Promise<void> {
-    this.assertValid(snapshot);
+    assertSnapshot(snapshot);
 
     const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), Files.index));
 

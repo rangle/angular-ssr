@@ -1,30 +1,9 @@
 import {Snapshot} from '../snapshot';
 
-import {none} from '../predicate';
+export interface OutputProducer {
+  initialize(): Promise<void>;
 
-import {AggregateException, OutputException} from '../exception';
+  write<V>(snapshot: Snapshot<V>): Promise<void>;
 
-export abstract class OutputProducer {
-  abstract initialize(): Promise<void>;
-
-  abstract async write<V>(snapshot: Snapshot<V>): Promise<void>;
-
-  abstract exception(exception: Error): void;
-
-  protected assertValid<V>(snapshot: Snapshot<V>) {
-    if (snapshot == null) {
-      throw new OutputException('Cannot output a null application snapshot');
-    }
-
-    switch (snapshot.exceptions.length) {
-      case 0: break;
-      case 1: throw snapshot.exceptions[0];
-      default:
-        throw new AggregateException(snapshot.exceptions);
-    }
-
-    if (none(snapshot.renderedDocument)) {
-      throw new OutputException('Received an application snapshot with an empty document!');
-    }
-  }
+  exception(exception: Error): void;
 }

@@ -2,7 +2,7 @@ import {NotImplementedException} from '../exception';
 import {OutputProducer} from './producer';
 import {Snapshot} from '../snapshot';
 
-export class InterprocessOutput extends OutputProducer {
+export class InterprocessOutput implements OutputProducer {
   initialize(): Promise<void> {
     throw new NotImplementedException();
   }
