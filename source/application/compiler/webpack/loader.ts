@@ -1,18 +1,16 @@
-import {Configuration} from 'webpack';
-
 import {NgModuleFactory} from '@angular/core';
 
-import {ModuleDeclaration} from '../../project';
+import {Configuration} from 'webpack';
+
 import {CompilerException} from '../../../exception';
+import {ModuleDeclaration} from './../../project';
 import {ModuleLoader} from '../loader';
 
-export class WebpackLoader implements ModuleLoader {
-  constructor(private configuration: Configuration) {}
+export class WebpackModuleLoader implements ModuleLoader {
+  constructor(webpack: Configuration) {}
 
   load<M>(): Promise<NgModuleFactory<M>> {
-    console.log('LOAD FROM', this.configuration);
-
-    return Promise.reject(new CompilerException('Not implemented'));
+    throw new CompilerException('Not implemented');
   }
 
   lazy<T>(module: ModuleDeclaration): Promise<T> {

@@ -11,14 +11,14 @@ import {dirname, relative, resolve} from 'path';
 
 import {ModuleDeclaration} from '../project';
 
-import {traverse} from './traverse';
-
 import {StaticAnalysisException} from '../../exception';
 
+import {traverse} from './traverse';
+
 import {
+  Files,
   bootstrap,
   bootstrapFactory,
-  modules,
   ngModule
 } from '../../static';
 
@@ -117,7 +117,7 @@ const importClause = (basePath: string, sourceFile: SourceFile, identifier: stri
 
 const defactory = (identifier: string) => identifier.replace(/NgFactory/, String());
 
-const externalExpr = new RegExp(`(\\|\/)${modules}(\\|\/)`);
+const externalExpr = new RegExp(`(\\|\/)${Files.modules}(\\|\/)`);
 
 const isExternal = (file: SourceFile): boolean => externalExpr.test(file.fileName);
 

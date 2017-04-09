@@ -43,6 +43,7 @@
     "url": "https://github.com/clbond/angular-ssr/issues"
   },
   "peerDependencies": {
+    "@angular/cli": ">=1.0.0",
     "@angular/common": ">=4.0.0 <5.0.0",
     "@angular/compiler": ">=4.0.0 <5.0.0",
     "@angular/compiler-cli": ">=4.0.0 <5.0.0",

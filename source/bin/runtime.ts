@@ -2,7 +2,7 @@ import {join, sep} from 'path';
 
 const {plugins} = require('babel-preset-es2015');
 
-import {modules} from '../static';
+import {Files} from '../static';
 
 // Some history is required for this piece of code. Prior to Angular 4, the core team shipped
 // multiple versions of each library, two of which we used: the umd bundle and the JavaScript
@@ -40,8 +40,8 @@ export const registerTranspiler = (skip: Array<string>) => {
       if (whitelist.test(filename) || /babel/.test(filename)) {
         return true;
       }
-      if (skip.some(s => filename.indexOf(join(modules, s)) >= 0) ||
-          skip.some(s => filename.indexOf([modules, s].join(sep)) >= 0)) {
+      if (skip.some(s => filename.indexOf(join(Files.modules, s)) >= 0) ||
+          skip.some(s => filename.indexOf([Files.modules, s].join(sep)) >= 0)) {
         return true;
       }
       return false;

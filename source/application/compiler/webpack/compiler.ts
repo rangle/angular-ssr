@@ -4,16 +4,17 @@ import {createProgram} from 'typescript';
 
 import {ApplicationCompiler} from '../compiler';
 import {CompilerException} from './../../../exception';
+import {ConfigurationLoader} from './config';
 import {ModuleLoader} from '../loader';
 import {Project} from '../../project';
-import {WebpackLoader} from './loader';
+import {WebpackModuleLoader} from './loader';
 import {discoverModules} from '../../static';
 import {projectToOptions} from '../shared';
 
 export class WebpackCompiler implements ApplicationCompiler {
   constructor(
     private project: Project,
-    private configuration: webpack.Configuration
+    private configurationLoader: ConfigurationLoader
   ) {}
 
   async compile(): Promise<ModuleLoader> {
@@ -23,13 +24,13 @@ export class WebpackCompiler implements ApplicationCompiler {
 
     const modules = discoverModules(this.project.basePath, program);
 
-    const configuration = Object.assign({}, this.configuration, {entry: modules});
+    const configuration = Object.assign(this.configurationLoader.load(), {entry: modules});
 
     const compiler = webpack(configuration);
 
-    await callbackToPromise<void>(compiler.run);
+    await callbackToPromise<void>(compiler.run.bind(compiler));
 
-    return new WebpackLoader(this.configuration);
+    return new WebpackModuleLoader(configuration);
   }
 }
 

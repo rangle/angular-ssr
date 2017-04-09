@@ -33,7 +33,7 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
         applicationInstance = this;
       }
 
-      loadModule(module: ModuleDeclaration): Promise<any> {
+      load(module: ModuleDeclaration): Promise<any> {
         return loader.then(c => c.lazy(module));
       }
 

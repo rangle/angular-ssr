@@ -2,11 +2,11 @@ import {join} from 'path';
 
 import {Logger} from 'scoped-logger';
 
+import {Files} from '../static';
 import {OutputProducer} from './producer';
 import {OutputException} from '../exception';
 import {PathReference, fileFromString, pathFromString} from '../filesystem';
 import {Snapshot} from '../snapshot';
-import {index} from '../static';
 import {log} from './log';
 import {pathFromUri} from '../route';
 
@@ -36,7 +36,7 @@ export class HtmlOutput extends OutputProducer {
   async write<V>(snapshot: Snapshot<V>): Promise<void> {
     this.assertValid(snapshot);
 
-    const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), index));
+    const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), Files.index));
 
     this.logger.info(`Rendered route ${pathFromUri(snapshot.uri)} to ${file} `);
 

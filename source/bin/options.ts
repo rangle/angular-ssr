@@ -8,12 +8,12 @@ import {
   ConfigurationException,
   FileReference,
   FileType,
+  Files,
   PathReference,
   Project,
   fileFromString,
   fromJson,
   pathFromString,
-  tsconfig,
 } from '../index';
 
 const {version} = require('../../package.json');
@@ -122,7 +122,7 @@ const tsconfigFromRoot = (fromRoot: PathReference): FileReference => {
     return fileFromString(fromRoot.toString());
   }
 
-  for (const tsc of tsconfig) {
+  for (const tsc of Files.tsconfig) {
     const candidates = [
       fromRoot,
       ...Array.from(fromRoot.directories()),
@@ -132,5 +132,5 @@ const tsconfigFromRoot = (fromRoot: PathReference): FileReference => {
     return candidates.map(d => fileFromString(join(d.toString(), tsc))).find(c => c.exists());
   }
 
-  throw new ConfigurationException(chalk.red(`Cannot find tsconfig in ${fromRoot} (tried ${tsconfig.join(' and ')}`));
+  throw new ConfigurationException(chalk.red(`Cannot find tsconfig in ${fromRoot} (tried ${Files.tsconfig.join(' and ')}`));
 };

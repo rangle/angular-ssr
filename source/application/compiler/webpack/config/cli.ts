@@ -1,43 +1,26 @@
-import webpack = require('webpack');
+import {CompilerException} from '../../../../exception';
+import {ConfigurationLoader} from './loader';
+import {Project} from '../../../project';
 
 const {CliConfig} = require('@angular/cli/models/config');
 
 const {NgCliWebpackConfig} = require('@angular/cli/models/webpack-config');
 
-import {ApplicationCompiler} from '../compiler';
-import {CompilerException} from '../../../exception';
-import {ModuleLoader} from '../loader';
-import {Project} from '../../project';
-import {WebpackModuleLoader} from './loader';
+export class CliLoader implements ConfigurationLoader {
+  constructor(private project: Project) {}
 
-export class CliCompiler implements ApplicationCompiler {
-  private webpack: webpack.Configuration;
+  load() {
+    const project = CliConfig.fromProject(this.project.basePath.toString());
 
-  constructor(application: Project) {
-    const project = CliConfig.fromProject(application.basePath.toString());
+    const app = matchApplication(project.get('apps') || [], this.project.identifier);
 
-    const app = matchApplication(project.get('apps') || [], application.identifier);
+    const cli = new NgCliWebpackConfig(baseOptions(this.project), app);
 
-    this.webpack = new NgCliWebpackConfig(baseOptions(application), app).buildConfig();
-  }
-
-  compile(): Promise<ModuleLoader> {
-    const compiler = webpack(this.webpack);
-
-    return new Promise<ModuleLoader>((resolve, reject) => {
-      compiler.run((err, stats) => {
-        if (err || stats.hasErrors()) {
-          reject(new CompilerException(`Compilation failed: ${stats.toString()}`));
-        }
-        else {
-          resolve(new WebpackModuleLoader(this.webpack));
-        }
-      });
-    });
+    return cli.buildConfig();
   }
 }
 
-const matchApplication = (apps: Array<any>, identifier: string | number | null) => {
+const matchApplication = (apps: Array<any>, identifier?: string | number) => {
   switch (typeof identifier) {
     case 'object':
     case 'undefined':
@@ -65,18 +48,13 @@ const matchApplication = (apps: Array<any>, identifier: string | number | null) 
 const baseOptions = (project: Project) => {
   return {
     target: 'node',
-    environment: 'development',
+    environment: process.env.NODE_ENV || 'development',
     outputPath: project.workingPath ? project.workingPath.toString() : null,
     aot: true,
     sourcemaps: true,
     vendorChunk: false,
-    baseHref: '/',
-    deployUrl: null,
     verbose: true,
     progress: false,
-    i18nFile: null,
-    i18nFormat: null,
-    locale: null,
     extractCss: false,
     watch: false,
     outputHashing: null,
