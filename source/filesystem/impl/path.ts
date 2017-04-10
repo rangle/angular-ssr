@@ -34,7 +34,7 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
       .filter(path => path !== '.')
       .filter(path => path !== '..')
       .filter(path => expr == null || expr.test(path))
-      .filter(path => typeFromPath(path) === FileType.Directory)
+      .filter(path => typeFromPath(join(this.sourcePath, path)) === FileType.Directory)
       .map(path => new PathImpl(normalize(join(this.sourcePath, path))) as PathReference)
       .filter(path => typeof predicate === 'function' ? (<Predicate<PathReference>> predicate)(path) : true));
   }
@@ -47,7 +47,7 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
     const owner = this as PathReference;
 
     return new Set<FileReference>(readdirSync(this.sourcePath)
-      .filter(file => typeFromPath(file) === FileType.File)
+      .filter(file => typeFromPath(join(this.sourcePath, file)) === FileType.File)
       .filter(file => expr == null || expr.test(file))
       .map(item => new FileImpl(owner, normalize(join(this.sourcePath, item))) as FileReference)
       .filter(file => typeof predicate === 'function' ? (<Predicate<FileReference>> predicate)(file) : true));
@@ -94,6 +94,10 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
   }
 
   unlink() {
+    for (const item of [...Array.from(this.files()), ...Array.from(this.directories())]) {
+      item.unlink();
+    }
+
     try {
       unlinkSync(this.toString());
     }

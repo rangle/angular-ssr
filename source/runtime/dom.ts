@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 const domino = require('domino');
 
 const impl = require('domino/lib/impl');
@@ -31,3 +33,7 @@ Object.defineProperties(bootWindow, {
     }
   }
 });
+
+Object.assign(bootWindow, {global, Reflect, Object});
+
+Object.assign(global, {global, Reflect});

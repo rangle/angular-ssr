@@ -1,3 +1,3 @@
 export * from './cli';
 export * from './loader';
-export * from './standard';
+export * from './webpack';

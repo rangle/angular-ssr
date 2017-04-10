@@ -1,21 +1,39 @@
 import {NgModuleFactory} from '@angular/core';
 
+import {join} from 'path';
+
 import {Configuration} from 'webpack';
 
-import {ModuleDeclaration} from './../../project';
+import {ModuleDeclaration, Project} from './../../project';
+
 import {ModuleLoader} from '../loader';
-import {NotImplementedException} from '../../../exception';
 
 export class WebpackModuleLoader implements ModuleLoader {
-  constructor(webpack: Configuration) {}
+  constructor(private project: Project, webpack: Configuration) {}
 
   load<M>(): Promise<NgModuleFactory<M>> {
-    throw new NotImplementedException();
+    return this.lazy<NgModuleFactory<M>>(this.project.applicationModule);
   }
 
   lazy<T>(module: ModuleDeclaration): Promise<T> {
-    return Promise.reject(new NotImplementedException());
+    const loaded = require(
+      join(
+        this.project.workingPath.toString(),
+        this.project.basePath.toString(),
+        `${module.source}.ts.js`));
+
+    if (module.symbol) {
+      return loaded[module.symbol];
+    }
+    else {
+      return loaded;
+    }
   }
 
-  dispose() {}
+  dispose() {
+    if (this.project.workingPath) {
+      this.project.workingPath.unlink();
+      this.project.workingPath = null;
+    }
+  }
 }

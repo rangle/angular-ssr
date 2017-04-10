@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 import {Type} from '@angular/core';
 
 const {ɵreflector: reflector} = require('@angular/core');

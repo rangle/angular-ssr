@@ -1,5 +1,7 @@
 import {Configuration} from 'webpack';
 
+import {Project} from '../../../project';
+
 export interface ConfigurationLoader {
-  load(): Configuration;
+  load(project: Project): Configuration;
 }

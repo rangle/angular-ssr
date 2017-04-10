@@ -3,6 +3,7 @@ import {FileReference, PathReference} from '../filesystem';
 export interface ModuleDeclaration {
   source: string;
   symbol: string;
+  alias?: string;
 }
 
 export interface Project {

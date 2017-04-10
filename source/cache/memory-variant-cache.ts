@@ -12,7 +12,7 @@ export class MemoryVariantCache<V> implements Cache {
     this.cache = new LRUMap<string, Trie<V, Snapshot<V>>>(cacheSize);
   }
 
-  async load(uri: string, variants: V): Promise<Snapshot<V>> {
+  async get(uri: string, variants: V): Promise<Snapshot<V>> {
     let snapshots = this.cache.get(uri);
     if (snapshots == null) {
       snapshots = new Trie<V, Snapshot<V>>();

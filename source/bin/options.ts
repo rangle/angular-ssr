@@ -129,8 +129,11 @@ const tsconfigFromRoot = (fromRoot: PathReference): FileReference => {
       ...Array.from(fromRoot.parent().directories())
     ].filter(p => /(\\|\/)e2e(\\|\/)/.test(p.toString()) === false);
 
-    return candidates.map(d => fileFromString(join(d.toString(), tsc))).find(c => c.exists());
+    const found = candidates.map(d => fileFromString(join(d.toString(), tsc))).find(c => c.exists());
+    if (found) {
+      return found;
+    }
   }
 
-  throw new ConfigurationException(chalk.red(`Cannot find tsconfig in ${fromRoot} (tried ${Files.tsconfig.join(' and ')}`));
+  return null;
 };

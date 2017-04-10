@@ -1,7 +1,7 @@
 
 import {tmpdir} from 'os';
 
-import {dirname, join} from 'path';
+import {dirname, join, resolve} from 'path';
 
 import {randomId} from '../static';
 
@@ -24,9 +24,7 @@ export const fileFromString = (filePath: FileReference | string): FileReference 
 };
 
 export const makeAbsolute = (basePath: string | PathReference, subpath: string): string =>
-  /^\.\.(\\|\/)/.test(subpath)
-    ? join(basePath.toString(), subpath)
-    : subpath;
+  resolve(basePath.toString(), subpath);
 
 export const absolutePath = (basePath: string | PathReference, subpath: string) =>
   pathFromString(makeAbsolute(basePath.toString(), subpath));

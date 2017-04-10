@@ -1,6 +1,6 @@
 import {Application} from './application';
 import {ApplicationBase} from './application-base';
-import {ApplicationRuntimeProject, ServerPlatform, RuntimeModuleLoader,  createStaticPlatform} from '../../platform';
+import {ApplicationRuntimeProject, RuntimeModuleLoader} from '../../platform';
 import {ApplicationBuilderBase} from './builder-base';
 import {ModuleDeclaration, Project} from '../project';
 import {FileReference} from '../../filesystem';
@@ -17,14 +17,19 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
 
     const loader = compiler.compile();
 
-    const moduleFactory = loader.then(c => c.load());
-
     let applicationInstance;
 
-    const platform: ServerPlatform = createStaticPlatform([
+    const platform = compiler.createPlatform([
       {provide: ApplicationRuntimeProject, useFactory: () => applicationInstance},
       {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}
-    ]) as ServerPlatform;
+    ]);
+
+    const conditionalCompile = m =>
+      typeof m !== 'object'
+        ? platform.compileModule(m, [])
+        : m;
+
+    const moduleFactory = loader.then(l => l.load()).then(conditionalCompile);
 
     class ApplicationFromSourceImpl extends ApplicationBase<V, any> {
       constructor(operation: RenderOperation) {
@@ -34,13 +39,12 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
       }
 
       load(module: ModuleDeclaration): Promise<any> {
-        return loader.then(c => c.lazy(module));
+        return loader.then(l => l.lazy(module));
       }
 
       async dispose() {
-        const c = await loader;
-
-        c.dispose();
+        const loadable = await loader;
+        loadable.dispose();
 
         platform.destroy();
       }

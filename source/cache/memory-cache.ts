@@ -11,7 +11,7 @@ export class MemoryCache implements Cache {
     this.cache = new LRUMap<string, Snapshot<void>>(cacheSize);
   }
 
-  async load(uri: string): Promise<Snapshot<void>> {
+  async get(uri: string): Promise<Snapshot<void>> {
     let snapshot = this.cache.get(uri);
     if (snapshot == null) {
       snapshot = <Snapshot<any>> await this.application.renderUri(uri);

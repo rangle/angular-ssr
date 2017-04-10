@@ -3,7 +3,7 @@ import {SourceFile} from 'typescript';
 import {join, sep} from 'path';
 
 import {Disposable} from '../../../disposable';
-import {PathReference, fileFromString, pathFromString} from '../../../filesystem';
+import {PathReference, fileFromString} from '../../../filesystem';
 import {ModuleDeclaration} from '../../project';
 import {flatten} from '../../../transformation';
 
@@ -12,7 +12,7 @@ export class Build implements Disposable {
 
   constructor(
     public readonly basePath: PathReference,
-    public readonly outputPath: PathReference,
+    public readonly outputPaths: Array<PathReference>,
     public readonly roots: Array<PathReference>
   ) {}
 
@@ -27,36 +27,54 @@ export class Build implements Disposable {
     }
   }
 
-  resolve(module: ModuleDeclaration): [string, string] {
-    const source = sourceToNgFactory(module.source);
-    const symbol = symbolToNgFactory(module.symbol);
+  resolveCandidates(source: string): string {
+    const roots = [...this.roots, ...this.outputPaths, this.basePath];
 
-    const roots = [...this.roots, this.outputPath, this.basePath].map(pathFromString);
+    const candidates = flatten<string>(roots.map(r => [
+      `${join(r.toString(), source)}`,
+      `${join(r.toString(), source.replace(/\//g, sep))}`,
+      `${join(r.toString(), source.replace(/\\/g, '/'))}`,
+      `${r.toString()}/${source}`,
+      `${r.toString()}/${source}`.replace(/\//g, sep),
+      `${r.toString()}/${source}`.replace(/\\/g, '/')
+    ]));
 
-    if (source) {
-      const candidates = flatten<string>(roots.map(r => [
-        `${join(r.toString(), source)}`,
-        `${join(r.toString(), source.replace(/\//g, sep))}`,
-        `${join(r.toString(), source.replace(/\\/g, '/'))}`,
-        `${r.toString()}/${source}`,
-        `${r.toString()}/${source}`.replace(/\//g, sep),
-        `${r.toString()}/${source}`.replace(/\\/g, '/')
-      ]));
-
-      for (const candidate of candidates) {
-        const array = this.map.get(candidate);
-        if (array == null) {
-          continue;
-        }
-
-        const ngfactory = array.find(f => /\.ngfactory\.js$/.test(f));
-        if (ngfactory) {
-          return [ngfactory, symbol];
-        }
+    for (const candidate of candidates) {
+      const array = this.map.get(candidate);
+      if (array) {
+        return candidate;
       }
     }
 
-    return [null, null];
+    return null;
+  }
+
+  resolve(module: ModuleDeclaration): [string, string] {
+    const unreachable: [string, string] = [null, null];
+
+    const sourceFile = this.resolveCandidates(bareSource(module.source));
+    if (sourceFile == null) {
+      return unreachable;
+    }
+
+    const generated = this.map.get(sourceFile);
+
+    const factory = generated.find(file => /\.ngfactory\.ts$/.test(file));
+    if (factory == null) {
+      return unreachable;
+    }
+
+    const js = this.map.get(factory);
+    if (js == null) {
+      return unreachable;
+    }
+
+    const jsfactory = js.find(file => /\.ngfactory\.js$/.test(file));
+    if (jsfactory) {
+      return [jsfactory, symbolToNgFactory(module.symbol)];
+    }
+
+    return unreachable;
   }
 
   dispose() {
@@ -77,7 +95,7 @@ export class Build implements Disposable {
   }
 }
 
-const sourceToNgFactory = (source: string): string => {
+const bareSource = (source: string): string => {
   if (!source) {
     return source;
   }
@@ -87,8 +105,8 @@ const sourceToNgFactory = (source: string): string => {
     source = source.replace(/\.ngfactory$/, String());
 
     return /(\\|\/)$/.test(source)
-      ? `${source}index.ngfactory.ts`
-      : `${source}.ngfactory.ts`;
+      ? `${source}index.ts`
+      : `${source}.ts`;
   }
   return source;
 };

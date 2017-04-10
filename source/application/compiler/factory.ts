@@ -1,7 +1,7 @@
 import {join} from 'path';
 
 import {ApplicationCompiler} from './compiler';
-import {CliLoader, StandardLoader} from './webpack/config';
+import {CliLoader, WebpackLoader} from './webpack/config';
 import {Files} from '../../static';
 import {NgcCompiler} from './ngc/compiler';
 import {Project} from '../project';
@@ -13,10 +13,10 @@ export const getCompilerFromProject = (project: Project): ApplicationCompiler =>
     fileFromString(join(project.basePath.toString(), filename)).exists();
 
   if (Files.webpack.some(f => hasFile(f))) {
-    return new WebpackCompiler(project, new StandardLoader(project));
+    return new WebpackCompiler(project, new WebpackLoader());
   }
   else if (Files.cli.some(f => hasFile(f))) {
-    return new WebpackCompiler(project, new CliLoader(project));
+    return new WebpackCompiler(project, new CliLoader());
   }
   else {
     return new NgcCompiler(project);

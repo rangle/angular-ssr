@@ -9,11 +9,11 @@ import {
   createSourceFile,
 } from 'typescript';
 
-import {discoverRootModule} from '../root-module';
+import {discoverRootModule} from '../root';
 
-import {pathFromRandomId} from '../../../filesystem';
+import {pathFromRandomId} from '../../../../filesystem';
 
-import {randomId} from '../../../static';
+import {randomId} from '../../../../static';
 
 describe('discoverRootModule', () => {
   it('can discover root application module from TypeScript source', () => {

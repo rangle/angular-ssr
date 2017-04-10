@@ -1,3 +1,5 @@
+import {Provider} from '@angular/core';
+
 import {AotCompiler} from '@angular/compiler';
 
 import {MetadataWriterHost} from '@angular/tsc-wrapped';
@@ -12,6 +14,8 @@ import {
   createProgram,
 } from 'typescript';
 
+import {join, relative} from 'path';
+
 import {
   PathReference,
   makeAbsolute,
@@ -19,16 +23,21 @@ import {
 } from '../../../filesystem';
 
 import {ApplicationCompiler} from '../compiler';
-import {Project} from '../../project';
 import {Build} from './build';
 import {ModuleLoader} from '../loader';
 import {NgcModuleLoader} from './loader';
+import {Project} from '../../project';
+import {ServerPlatform, createStaticPlatform} from '../../../platform';
 import {assertDiagnostics, assertProgram} from './diagnostics';
 import {createNgCompiler} from './create';
-import {projectToOptions, loadApplicationModule} from '../shared';
+import {projectToOptions, loadApplicationModule} from '../options';
 
 export class NgcCompiler implements ApplicationCompiler {
   constructor(private project: Project) {}
+
+  createPlatform(providers: Array<Provider>) {
+    return createStaticPlatform(providers) as ServerPlatform;
+  }
 
   async compile(): Promise<ModuleLoader> {
     return new NgcModuleLoader(this.project, await this.loadAndCompile());
@@ -58,7 +67,22 @@ export class NgcCompiler implements ApplicationCompiler {
 
     const roots = this.roots(program);
 
-    const build = new Build(this.project.basePath, pathFromString(ts.outDir), roots);
+    const relativeOutput = relative(this.project.basePath.toString(), ts.outDir);
+
+    const workingPath = this.project.workingPath || process.cwd();
+
+    const outputs = [
+      ts.outDir,
+      join(this.project.workingPath.toString(), relativeOutput),
+      workingPath
+    ].map(pathFromString);
+
+    if (this.project.workingPath != null) {
+      ts.outDir = join(this.project.workingPath.toString(), relativeOutput);
+      ng.outDir = ts.outDir;
+    }
+
+    const build = new Build(this.project.basePath, outputs, roots);
 
     const {host, compiler} = createNgCompiler(compilerHost, program, ng, roots);
 

@@ -1,3 +1,4 @@
+export * from './find';
 export * from './modules';
-export * from './root-module';
+export * from './predicates';
 export * from './traverse';
