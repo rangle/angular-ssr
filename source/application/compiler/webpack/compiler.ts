@@ -117,5 +117,5 @@ const removeProblematicPlugins = (plugins: Array<any>): Array<any> => {
 };
 
 const excludeFromBundle = (request: string): boolean => {
-  return /rxjs/.test(request);
+  return /rxjs/i.test(request) || /observable/i.test(request);
 };
