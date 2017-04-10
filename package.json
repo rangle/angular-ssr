@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -114,6 +114,7 @@
     "rxjs": "^5.0.1",
     "scoped-logger": "^0.0.19",
     "source-map-support": "^0.4.11",
+    "symbol-observable": "^1.0.4",
     "urijs": "^1.18.9",
     "xhr2": "^0.1.4"
   },
