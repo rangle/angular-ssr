@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+import './vendor';
 
 import {
   ApplicationRenderer,

@@ -52,7 +52,7 @@ export const extractRoutesFromRouter = (router: Router, location: Location): Arr
       (prev, route) => {
         const prepared = location.prepareExternalUrl(parent.concat(route.path).join('/'));
 
-        const path = prepared.split(/\//g).filter(v => v);
+        const path = prepared.replace(/^\./, String()).split(/\//g).filter(v => v);
 
         return prev.concat({path}, flatten(path, route.children || []));
       },
