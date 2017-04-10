@@ -1,3 +1,5 @@
+import chalk = require('chalk');
+
 import {join} from 'path';
 
 import {Logger} from 'scoped-logger';
@@ -44,7 +46,7 @@ export class HtmlOutput implements OutputProducer {
   }
 
   exception(exception: Error) {
-    this.logger.error(`Fatal exception encountered: ${exception.toString()}`);
+    this.logger.error(`Fatal exception encountered: ${chalk.red(exception.toString())}`);
   }
 
   private routedPathFromSnapshot<V>(snapshot: Snapshot<V>) {

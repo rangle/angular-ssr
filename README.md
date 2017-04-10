@@ -31,12 +31,12 @@
 The purpose of this library is to support server-side rendering of your Angular 4+ applications with minimal code changes and mimimal difficulty. It supports both Angular CLI projects and projects that use custom webpack configurations. It works out of the box with `@angular/material` with no hot-fixes or workarounds! It also generally requires **zero** changes to your existing application code: you won't have to create separate `@NgModule`s, one for the server-side rendered application and one for the regular client application (unless you want to). You can just take your Angular code as-is and follow the steps below to get server-side rendering working.
 
 There are two ways you can use `angular-ssr`:
-1. If your application is an Angular CLI application with no custom webpack configuration, you can simply install it as a dependency, run a normal `ng build`, and then invoke `ng-render` from `node_modules/.bin`. I should emphasize that this is the simplest part of angular-ssr, but also the least flexible and the most prone to errors. So if you encounter exceptions because you have some unsual configs or webpack settings, please try one of the other options below. But if you are using `ng-render`, it will result in several steps being taken:
-	* It will use `tsconfig.json` and some other configuration elements to compile your application to a temporary directory and load the resulting JavaScript code (application code + `.ngfactory.js` files) into memory.
+1. If you want to generate prerendered documents as part of your application build, run a normal `ng build`, and then invoke `ng-render` from `node_modules/.bin`. I should emphasize that this is the simplest use of angular-ssr, but also the least flexible and the most prone to errors. So if you encounter exceptions because you have some unsual configs or webpack settings, please try one of the other options below. But if you are using `ng-render`, it will result in several steps being taken:
+	* It will use `tsconfig.json`, `webpack.server.config.js` or `webpack.config.js` and some other configuration elements to compile your application to a temporary directory and load the resulting JavaScript code into memory.
 	* It will query your router configuration and collect all your application routes into a flattened array (eg. `/`, `/foo`, `/bar`)
 	* For each of the discovered routes, it will instantiate your application and render that route to a static `.html` file in `dist` (or, if you specified an alternate output directory using `--output`, it will write the files there). It instantiates the application using the existing `dist/index.html` file that was produced as part of your normal application build as a template. The pre-rendered content will be inserted into that template and written out as a new `.html` file based on the route: e.g., `/foo/index.html`.
 	* The drawback to this approach is that the content is generated at build time, so if your routes contain some dynamic data that needs to be rendered on the server, you will instead need to [write a simple HTTP server using express and koa and do on-demand server-side rendering](#on-demand-server-side-rendering-and-caching).
-2. If your application has custom webpack configurations and loaders, you probably will not be able to use `ng-render`. But that's alright. It just means that you will have to build a separate webpack program output: either a NodeJS HTTP server, or a NodeJS application whose sole purpose is to do prerendering. You will follow these rough steps:
+2. If your application doesn't work with `ng-render` due to some unusual webpack configuration, that's alright. It just means that you will have to build a separate webpack program output: either a NodeJS HTTP server, or a NodeJS application whose sole purpose is to do prerendering. You will follow these rough steps:
 	* Install `angular-ssr` as a dependency: `npm install angular-ssr --save`
 	* If you already have multiple webpack configs (one for server and one for client), then you can skip down to the next section and begin writing code to interface with `angular-ssr`.
 	* Otherwise, you will need to add an additional output to your existing webpack configurations. This can take two forms: either you modify your existing `webpack.config.js` and just add an additional output, or you create an entirely new `webpack-server.config.js` which will serve as your SSR webpack configuration. Regardless of how you accomplish it, you will ultimately need to produce two programs from webpack:
@@ -143,8 +143,11 @@ If you wish to do _prerendering_ (rendering of all routes that do not take param
 const prerender = async () => {
   const snapshots = await application.prerender();
 
-  snapshots.subscribe(
-    snapshot => app.get(snapshot.uri, (req, res) => res.send(snapshot.renderedDocument)));
+  snapshots.subscribe(snapshot => {
+    app.get(snapshot.uri, (req, res) => {
+      res.send(snapshot.renderedDocument);
+    });
+  });
 };
 ```
 

@@ -59,4 +59,6 @@ export const importClause = (basePath: string, sourceFile: SourceFile, identifie
   return result;
 };
 
-const relativeImportPath = (basePath: string, filename: string, relativePath: string) => relative(basePath, resolve(dirname(filename), relativePath));
+const relativeImportPath = (basePath: string, filename: string, relativePath: string) => {
+  return relative(basePath, resolve(dirname(filename), relativePath));
+};

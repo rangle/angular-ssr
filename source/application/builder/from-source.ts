@@ -24,12 +24,12 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
       {provide: RuntimeModuleLoader, useClass: RuntimeModuleLoader}
     ]);
 
-    const conditionalCompile = m =>
-      typeof m !== 'object'
-        ? platform.compileModule(m, [])
-        : m;
-
-    const moduleFactory = loader.then(l => l.load()).then(conditionalCompile);
+    const moduleFactory =
+      loader
+        .then(l => l.load())
+        .then(m => typeof m !== 'object'
+          ? platform.compileModule(m, [])
+          : m);
 
     class ApplicationFromSourceImpl extends ApplicationBase<V, any> {
       constructor(operation: RenderOperation) {

@@ -77,9 +77,8 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
 
     const moduleFactory = await this.moduleFactory();
 
-    const instantiate = () => bootstrapWithExecute<M, Snapshot<V>>(this.platformImpl, moduleFactory, ref => snapshot(ref, operation));
-
-    return forkZone(templateDocument, uri, instantiate);
+    return forkZone(templateDocument, uri,
+      () => bootstrapWithExecute<M, Snapshot<V>>(this.platformImpl, moduleFactory, ref => snapshot(ref, operation)));
   }
 }
 

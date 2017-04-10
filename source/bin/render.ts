@@ -1,19 +1,21 @@
 import 'reflect-metadata';
 
-import {registerTranspiler} from './runtime';
-
 import {
   ApplicationRenderer,
   ApplicationBuilderFromSource,
+  Files,
   HtmlOutput,
+  PathReference,
   log,
 } from '../index';
 
 import {commandLineToOptions} from './options';
 
+const Module = require('module');
+
 const options = commandLineToOptions();
 
-registerTranspiler(options['no-transpile'] || []);
+patchModuleSearch(options.project.basePath);
 
 log.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
@@ -26,6 +28,8 @@ const applicationRenderer = new ApplicationRenderer(application);
 const execute = async () => {
   try {
     await applicationRenderer.prerenderTo(new HtmlOutput(options.output));
+
+    process.exitCode = 0;
   }
   catch (exception) {
     const message = options.debug
@@ -42,3 +46,21 @@ const execute = async () => {
 };
 
 execute();
+
+function patchModuleSearch(root: PathReference) {
+  const paths = Module._nodeModulePaths;
+
+  const search = new Array<string>();
+
+  for (let iterator = root; iterator; iterator = iterator.parent()) {
+    const modules = iterator.findInAncestor(Files.modules);
+    if (modules == null) {
+      break;
+    }
+    search.push(modules.toString());
+  }
+
+  Module._nodeModulePaths = function (from) {
+    return [...paths.call(this, from), ...search];
+  };
+}

@@ -13,7 +13,7 @@ import {
 
 const {mkdirSync} = require('mkdir-recursive');
 
-import {FileReference, PathReference} from '../contracts';
+import {FilesystemBase, FileReference, PathReference} from '../contracts';
 import {FileImpl} from './file';
 import {FilesystemException} from '../../exception';
 import {FileType, typeFromPath} from '../type';
@@ -66,7 +66,7 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
     return new PathImpl(dirname(this.sourcePath)) as PathReference;
   }
 
-  findInAncestor(file: string): FileReference {
+  findInAncestor(file: string): FilesystemBase {
     this.assert();
 
     let iterator: string = this.sourcePath;
@@ -75,13 +75,20 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
       const candidate = resolve(normalize(join(iterator, file)));
 
       if (existsSync(candidate)) {
-        return new FileImpl(new PathImpl(iterator) as PathReference, candidate);
+        switch (typeFromPath(candidate)) {
+          case FileType.File:
+            return new FileImpl(new PathImpl(iterator) as PathReference, candidate);
+          case FileType.Directory:
+            return new PathImpl(candidate);
+          default:
+            return null;
+        }
       }
 
       iterator = join(iterator, '..');
     }
 
-    throw new FilesystemException(`Cannot locate ${file} between ${this.sourcePath} to ${iterator}`);
+    return null;
   }
 
   findInChildren(file: string): FileReference {

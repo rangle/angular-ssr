@@ -13,6 +13,7 @@ import {
   Project,
   fileFromString,
   fromJson,
+  pathFromRandomId,
   pathFromString,
 } from '../index';
 
@@ -23,7 +24,6 @@ export interface CommandLineOptions {
   project: Project;
   output: PathReference;
   templateDocument: string;
-  transpilationWhitelist: Array<string>;
   webpack?: FileReference;
 }
 
@@ -41,11 +41,14 @@ export const commandLineToOptions = (): CommandLineOptions => {
   const source = options['module'];
   const symbol = options['symbol'];
 
+  const environment = options['environment'];
+
   const project: Project = {
     applicationModule: {source, symbol},
     basePath: rootFromTsconfig(tsconfig),
+    environment,
     tsconfig,
-    workingPath: pathFromString(process.cwd()),
+    workingPath: pathFromRandomId(),
   };
 
   const template = fileFromString(options['template']);
@@ -67,8 +70,6 @@ export const commandLineToOptions = (): CommandLineOptions => {
 
   const debug = options['debug'];
 
-  const transpilationWhitelist = options['no-transpile'] || [];
-
   const output = pathFromString(outputString);
 
   const webpack = options['webpack'];
@@ -78,12 +79,9 @@ export const commandLineToOptions = (): CommandLineOptions => {
     output,
     project,
     templateDocument: template.content(),
-    transpilationWhitelist,
     webpack
   };
 };
-
-const addToTranspilerWhitelist = (lib: string, memo: Array<string>) => memo.concat(lib);
 
 const parseCommandLine = () => {
   return commander
@@ -95,7 +93,6 @@ const parseCommandLine = () => {
     .option('-t, --template <path>', 'HTML template document', 'dist/index.html')
     .option('-m, --module <path>', 'Path to root application module TypeScript file')
     .option('-s, --symbol <identifier>', 'Class name of application root module')
-    .option('-t, --no-transpile <library>', 'Add library to the list of libraries that do not require transpilation', addToTranspilerWhitelist, [])
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', 'dist')
     .option('-a, --application <application ID>', 'Optional application ID if your CLI configuration contains multiple apps')
     .option('-i, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)

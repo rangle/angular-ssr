@@ -18,7 +18,7 @@ export class ApplicationRenderer {
 
           output.exception(exception);
         },
-        resolve);
+        () => resolve());
     });
   }
 }

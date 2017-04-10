@@ -48,8 +48,8 @@ const matchApplication = (apps: Array<any>, identifier?: string | number) => {
 
 const baseOptions = (project: Project) => {
   return {
-    target: 'node',
-    environment: process.env.NODE_ENV || 'development',
+    target: project.environment,
+    environment: project.environment || process.env.NODE_ENV || 'prod',
     outputPath: project.workingPath ? project.workingPath.toString() : null,
     aot: false,
     sourcemaps: true,

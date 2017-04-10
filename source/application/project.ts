@@ -12,5 +12,6 @@ export interface Project {
   identifier?: string | number; // application name or index from angular-cli.json, or null
   webpack?: FileReference; // optional webpack configuration
   workingPath?: PathReference;
+  environment?: string;
   applicationModule?: ModuleDeclaration;
 }

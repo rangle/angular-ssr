@@ -9,7 +9,8 @@ import {Route} from './route';
 import {fallbackUri} from '../static';
 import {waitForApplicationToBecomeStable, waitForRouterNavigation} from '../platform/application';
 
-export const applicationRoutes = <M>(platform: ServerPlatform, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
+export const applicationRoutes =
+    <M>(platform: ServerPlatform, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
   // NOTE(bond): The way that we attempt to extract routes from an NgModuleFactory is to actually
   // instantiate the application and then query the configuration from the Router module. This is
   // cleaner and much easier than attempting to collect all the routes from every @NgModule in the
@@ -23,22 +24,18 @@ export const applicationRoutes = <M>(platform: ServerPlatform, moduleFactory: Ng
   // operations to finish and for the zone to stabilize before we can destroy the module instance.
   // Otherwise those asynchronous operations will have the rug pulled from under them and cause
   // all kinds of nasty console errors.
-  return new Promise<Array<Route>>((resolve, reject) => {
-    forkZone(templateDocument, fallbackUri,
-      () => {
-        return bootstrapWithExecute<M, void>(
-          platform,
-          moduleFactory,
-          async (moduleRef) => {
-            resolve(extractRoutesFromModule(moduleRef));
 
-            await waitForRouterNavigation(moduleRef);
+  return forkZone(templateDocument, fallbackUri,
+    () => bootstrapWithExecute<M, Route[]>(
+      platform,
+      moduleFactory,
+      async (moduleRef) => {
+        await waitForRouterNavigation(moduleRef);
 
-            await waitForApplicationToBecomeStable(moduleRef);
-          })
-          .catch(exception => reject(exception));
-      });
-  });
+        await waitForApplicationToBecomeStable(moduleRef);
+
+        return extractRoutesFromModule(moduleRef);
+      }));
 };
 
 export const extractRoutesFromRouter = (router: Router, location: Location): Array<Route> => {

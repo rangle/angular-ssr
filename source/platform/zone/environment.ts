@@ -2,7 +2,7 @@ import {LOCALE_ID} from '@angular/core';
 
 import {PlatformLocation} from '@angular/common';
 
-import {ConsoleCollector} from '../collectors';
+//import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
 import {PlatformException} from '../../exception';
 import {RuntimeModuleLoader} from '../module/runtime-loader';
@@ -20,11 +20,11 @@ if (typeof Zone === 'undefined') {
 export const baseConsole = console;
 
 Object.defineProperties(global, {
-  console: {
-    get: () => {
-      return injectableFromZone(Zone.current, ConsoleCollector) || baseConsole;
-    }
-  },
+  // console: {
+  //   get: () => {
+  //     return injectableFromZone(Zone.current, ConsoleCollector) || baseConsole;
+  //   }
+  // },
   document: {
     get: () => {
       const doc = injectableFromZone(Zone.current, DocumentContainer);

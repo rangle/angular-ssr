@@ -27,6 +27,7 @@ export class NgcModuleLoader implements ModuleLoader {
     }
 
     const loadedModule = require(resolvedModule);
+
     if (symbol) {
       if (loadedModule[symbol] == null) {
         throw new CompilerException(`Module ${module.source} does not contain a symbol named ${symbol}`);

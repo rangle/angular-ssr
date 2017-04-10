@@ -35,7 +35,7 @@ export interface PathReference extends FilesystemBase {
   files(predicate?: RegExp | Predicate<FileReference>): Set<FileReference>;
 
   // Traverse upward looking for a particular file (throws if not found)
-  findInAncestor(file: string): FileReference;
+  findInAncestor(file: string): FilesystemBase;
 
   // Recursive create of each component of the path (if nonexistent)
   mkdir(): void;
