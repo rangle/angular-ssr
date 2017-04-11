@@ -154,7 +154,7 @@ This bit is completely optional.
 
 ### Caching
 
-The caching implementations in `angular-ssr` are completely optional and are not integral to the product in any way. The library provides two caching implementations: one that is variant-aware (`DocumentVariantStore`) and one that is not (`DocumentStore`). They are both fixed-size LRU caches that default to 65k items but can accept different sizes in their constructors. But they are very simple abstractions that just sit atop `application.renderUri()` and there is absolutely no requirement that you use them. They all share the same basic implementation:
+The caching implementations in `angular-ssr` are completely optional and are not integral to the product in any way. The library provides two caching implementations: one that is variant-aware (`MemoryVariantCache`) and one that is not (`MemoryCache`). They are both fixed-size LRU caches that default to 65k items but can accept different sizes in their constructors. But they are very simple abstractions that just sit atop `application.renderUri()` and there is absolutely no requirement that you use them. They all share the same basic implementation:
 
 ```typescript
   async load(uri: string): Promise<Snapshot<void>> {
@@ -169,7 +169,7 @@ The caching implementations in `angular-ssr` are completely optional and are not
 
 These cache implementations are being considered for removal or deprecation because they are not appropriate for most applications.
 
-If you want to roll your own caching solution, or just not cache anything, you are absolutely free to do so. Just call `application.renderUri` and you will get a freshly rendered document each time. After that, you can cache it or not cache it or do whatever you want with it. Caching is not an integral part of the library; `DocumentStore` and `DocumentVariantStore` are provided mostly as examples of how to implement basic caching.
+If you want to roll your own caching solution, or just not cache anything, you are absolutely free to do so. Just call `application.renderUri` and you will get a freshly rendered document each time. After that, you can cache it or not cache it or do whatever you want with it. Caching is not an integral part of the library; `MemoryCache` and `MemoryVariantCache` are provided mostly as examples of how to implement basic caching.
 
 ## Single-use server-side rendering as part of a build process
 
@@ -471,8 +471,8 @@ One thing to note about `Snapshot` is that it contains far more information than
 
 The library provides two extremely simple caching implementations. Both are LRU caches that default to a maximum size of 65k items. They are unlikely to be useful to you if your application contains a lot of dynamic content, but they illustrate how you can implement caching inside of your server application:
 
-1. [`DocumentStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/memory-cache.ts) is an extremely simple URL-based bounded LRU cache. Each time a URL is requested, it gets bumped to a higher priority. If the cache reaches its maximum size, documents that were last requested a long time ago will be the first to be deleted.
-2. [`DocumentVariantStore`](https://github.com/clbond/angular-ssr/blob/master/source/store/memory-variant-cache.ts) is identical to `DocumentStore` except that it works in conjunction with the concept of [variants](#variants). It uses a [trie structure](https://en.wikipedia.org/wiki/Trie) to store and query specific variants of URLs.
+1. [`MemoryCache`](https://github.com/clbond/angular-ssr/blob/master/source/store/memory-cache.ts) is an extremely simple URL-based bounded LRU cache. Each time a URL is requested, it gets bumped to a higher priority. If the cache reaches its maximum size, documents that were last requested a long time ago will be the first to be deleted.
+2. [`MemoryVariantCache`](https://github.com/clbond/angular-ssr/blob/master/source/store/memory-variant-cache.ts) is identical to `MemoryCache` except that it works in conjunction with the concept of [variants](#variants). It uses a [trie structure](https://en.wikipedia.org/wiki/Trie) to store and query specific variants of URLs.
 
 Alternatively, you can provide your own caching mechanism and just call `application.renderUri()` when there is a miss. This is the solution that is going to be the most flexible and allows you to customize your caching needs to suit your application (for example, you may wish to integrate with an external caching service built with Redis or some such).
 
