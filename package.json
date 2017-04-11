@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -95,6 +95,7 @@
     "babel-register": "^6.24.0",
     "babel-template": "^6.23.0",
     "babel-types": "^6.23.0",
+    "bluebird": "^3.5.0",
     "chalk": "^1.1.3",
     "codependency": "0.1.4",
     "commander": "2.9.0",
