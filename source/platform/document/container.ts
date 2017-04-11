@@ -24,11 +24,7 @@ export class DocumentContainer implements OnDestroy {
 
     this.cloneFrom(bootWindow.document);
 
-    Object.defineProperties(this.windowRef, {
-      navigator: {
-        get: () => global['navigator'],
-      },
-    });
+    Object.defineProperties(this.windowRef, {navigator: {get: () => global['navigator']}});
   }
 
   get window(): Window {
@@ -49,6 +45,10 @@ export class DocumentContainer implements OnDestroy {
 
   private cloneFrom(document: Document) {
     bootWindow.document.dispatchEvent(new Event('DOMContentLoaded'));
+
+    if (document.title) {
+      this.document.title = document.title;
+    }
 
     for (const tag of ['head', 'body']) { // clone from boot window
       if (this.document[tag] == null) {

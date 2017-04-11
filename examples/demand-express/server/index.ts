@@ -1,5 +1,3 @@
-import './vendor';
-
 import express = require('express');
 
 import {enableProdMode} from '@angular/core';
@@ -44,6 +42,8 @@ http.get(/.*/, async (request, response) => {
     response.send(snapshot.renderedDocument);
   }
   catch (exception) {
+    console.error('Rendering exception', exception);
+
     response.send(builder.templateDocument()); // fall back on client document
   }
 });

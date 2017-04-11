@@ -2,7 +2,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/clbond/angular-ssr/badge.svg)](https://coveralls.io/github/clbond/angular-ssr)
 [![npm](https://img.shields.io/npm/v/angular-ssr.svg)](https://www.npmjs.com/package/angular-ssr)
 
-- [Render your Angular 4 applications as part of your build process or inside of a NodeJS HTTP server](#render-your-angular-4-applications-as-part-of-your-build-process-or-inside-of-a-nodejs-http-server)
+# Render your Angular 4 applications as part of your build process or inside of a NodeJS HTTP server
+
 - [Introduction](#introduction)
 - [The simplest possible case: an application with no built-in HTTP server and no need for on-demand rendering](#the-simplest-possible-case-an-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
   - [Additional examples](#additional-examples)

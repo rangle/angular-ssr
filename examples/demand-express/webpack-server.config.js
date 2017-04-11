@@ -26,11 +26,33 @@ module.exports = {
   plugins: [
     new CheckerPlugin(),
   ],
+  externals: [
+    '@angular/cli',
+    '@angular/common',
+    '@angular/compiler',
+    '@angular/compiler-cli',
+    '@angular/core',
+    '@angular/forms',
+    '@angular/http',
+    '@angular/platform-browser',
+    '@angular/router',
+    '@angular/tsc-wrapped',
+    '@angular/service-worker',
+    'angular-ssr',
+    'express',
+    'zone.js',
+    'rxjs',
+    function(context, request, callback) {
+      if (/rxjs/i.test(request) || /observable/i.test(request)) {
+        callback(null, `commonjs ${request.replace(/^.*?(\\|\/)node_modules(\\|\/)/, String())}`);
+      }
+      else {
+        callback();
+      }
+    },
+  ],
   node: {
-    global: true,
-    process: true,
     __dirname: true,
-    __filename: true,
-    Buffer: true
-  },
+    __filename: true
+  }
 };

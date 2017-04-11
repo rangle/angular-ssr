@@ -9,8 +9,9 @@
     "build:server": "webpack --config webpack-server.config.js",
     "build:client:watch": "webpack --watch",
     "build:server:watch": "webpack --config webpack-server.config.js --watch",
-    "watch": "npm-run-all --parallel build:client:watch build:server:watch",
-    "start": "nodemon ./dist-server/index.js"
+    "watch": "npm-run-all --parallel build:client:watch build:server:watch start:watch",
+    "start": "nodemon ./dist-server/index.js",
+    "start:watch": "nodemon -C ./dist-server/index.js"
   },
   "license": "BSD-2-Clause",
   "dependencies": {
