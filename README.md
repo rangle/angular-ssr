@@ -1,11 +1,10 @@
 [![CircleCI](https://img.shields.io/circleci/project/github/clbond/angular-ssr.svg)](https://circleci.com/gh/clbond/angular-ssr)
-![Code Coverage](https://img.shields.io/coveralls/clbond/angular-ssr.svg)
+[![Coverage Status](https://coveralls.io/repos/github/clbond/angular-ssr/badge.svg)](https://coveralls.io/github/clbond/angular-ssr)
 [![npm](https://img.shields.io/npm/v/angular-ssr.svg)](https://www.npmjs.com/package/angular-ssr)
 
-# Render your Angular 4 applications as part of your build process or inside of a NodeJS HTTP server
-
+- [Render your Angular 4 applications as part of your build process or inside of a NodeJS HTTP server](#render-your-angular-4-applications-as-part-of-your-build-process-or-inside-of-a-nodejs-http-server)
 - [Introduction](#introduction)
-- [The simplest possible case](#the-simplest-possible-case-an-angular-cli-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
+- [The simplest possible case: an application with no built-in HTTP server and no need for on-demand rendering](#the-simplest-possible-case-an-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
   - [Additional examples](#additional-examples)
 - [Use cases](#use-cases)
   - [On-demand server-side rendering and caching](#on-demand-server-side-rendering-and-caching)
@@ -34,8 +33,9 @@ There are two ways you can use `angular-ssr`:
 1. If you want to generate prerendered documents as part of your application build, run a normal `ng build`, and then invoke `ng-render` from `node_modules/.bin`. I should emphasize that this is the simplest use of angular-ssr, but also the least flexible and the most prone to errors. So if you encounter exceptions because you have some unsual configs or webpack settings, please try one of the other options below. But if you are using `ng-render`, it will result in several steps being taken:
 	* It will use `tsconfig.json`, `webpack.server.config.js` or `webpack.config.js` and some other configuration elements to compile your application to a temporary directory and load the resulting JavaScript code into memory.
 	* It will query your router configuration and collect all your application routes into a flattened array (eg. `/`, `/foo`, `/bar`)
+		* Note that your application should not be using the hash location strategy if you wish to do server-side rendering. Otherwise this will generate a directory structure containing `#` as part of the path and this is probably not what you want. Just use the regular location strategy instead of `useHash` or `HashLocationStrategy`.
 	* For each of the discovered routes, it will instantiate your application and render that route to a static `.html` file in `dist` (or, if you specified an alternate output directory using `--output`, it will write the files there). It instantiates the application using the existing `dist/index.html` file that was produced as part of your normal application build as a template. The pre-rendered content will be inserted into that template and written out as a new `.html` file based on the route: e.g., `/foo/index.html`.
-	* The drawback to this approach is that the content is generated at build time, so if your routes contain some dynamic data that needs to be rendered on the server, you will instead need to [write a simple HTTP server using express and koa and do on-demand server-side rendering](#on-demand-server-side-rendering-and-caching).
+	* The drawback to this approach is that the content is generated at build time, **so if your routes contain some dynamic data that needs to be rendered on the server**, you will instead need to [write a simple HTTP server using express and koa and do on-demand server-side rendering](#on-demand-server-side-rendering-and-caching).
 2. If your application doesn't work with `ng-render` due to some unusual webpack configuration, that's alright. It just means that you will have to build a separate webpack program output: either a NodeJS HTTP server, or a NodeJS application whose sole purpose is to do prerendering. You will follow these rough steps:
 	* Install `angular-ssr` as a dependency: `npm install angular-ssr --save`
 	* If you already have multiple webpack configs (one for server and one for client), then you can skip down to the next section and begin writing code to interface with `angular-ssr`.
@@ -46,11 +46,11 @@ There are two ways you can use `angular-ssr`:
 			* Alternatively, you can build an application whose sole purpose is to do server-side rendering at build-time. This application will produce some static pre-rendered application content and then exit. This use-case makes sense if your application will not need to do *on-demand* server-side rendering. Let's say for example you just have an application with a few routes (`/a`, `/b`, `/c`, etc.). In this case, since all routes are known in advance and none of them take any URL parameters, we can just pre-render each route at build time and spit out some `.html` files.
 			* Let's say that your application **does** need on-demand rendering, though. For example, you are writing a blog application that has URLs like `/blog/post/1`, `/blog/user/3`, etc. In this case, you will need to do on-demand server-side rendering. No problem! In this use-case, it makes sense to build a small HTTP server using express or koa and to write a few lines of code to integrate with `angular-ssr`. Then from inside your server, you can demand render and cache particular routes with arguments like `/blog/post/1`. I will show you some examples of how to do this below.
 
-# The simplest possible case: an Angular CLI application with no built-in HTTP server and no need for on-demand rendering
+# The simplest possible case: an application with no built-in HTTP server and no need for on-demand rendering
 
-If your application was generated by `ng new` and does not use any custom webpack configuration, then you will be able to use the `ng-render` CLI tooll to automatically pre-render your application routes into static `.html` files. It is worth emphasizing that this use case is the easiest, but also the least flexible. If you need on-demand rendering, or if you have custom webpack configurations, then you should skip down to the examples below as they will cover your use-case better than this section.
+If it makes sense for you to render your application at build time as a performance optimization (ie., your application does not contain lots of dynamic content that is not available at build time, or which is subject to change after the build), then the `ng-render` CLI tool is probably what you want. You simply run `ng build` or `npm run build` as normal, and then invoke `./node_modules/.bin/ng-render` (after `npm install angular-ssr --save` of course). This will render your application routes into static `.html` files. It is worth emphasizing that this use case is the easiest, but also the least flexible. If you need on-demand rendering, or if you have custom webpack configurations, then you should skip down to the examples below as they will cover your use-case better than this section.
 
-But, in the event that you do have a simple `ng cli` application, you can give `angular-ssr` a whirl just by doing:
+To give `ng-render` a shot, just do:
 
 ```sh
 npm install angular-ssr --save
@@ -73,7 +73,7 @@ npm install -g http-server
 http-server .
 ```
 
-Then when you load the application by hitting `http://localhost:8080`, you should see the pre-rendered document in the initial HTTP response (for each route in your application).
+Then when you load the application by hitting `http://localhost:8080`, you should see the pre-rendered document in the initial HTTP response (for each route in your application). To see what the prerendered document looks like, open Chrome Developer Tools and click the `Disable JavaScript` option. This way you can see the server-rendered document and prevent the client app from booting.
 
 An example application like the one I have just described is available in the [`examples/cli`](https://github.com/clbond/angular-ssr/tree/master/examples/cli) directory. It also uses `@angular/material` to prove that Material works with `angular-ssr`.
 
@@ -85,11 +85,9 @@ Additional examples are available in the [Examples](#example-projects) section.
 
 ## On-demand server-side rendering and caching
 
-Let's get this use-case out of the way first, because I think it is likely to be the most common usage of `angular-ssr`.
-
-You have an HTTP server application that you build as part of your application using webpack. Your HTTP server is written in TypeScript. (If your HTTP server is written in JavaScript, the library will still work in the same way, but you won't be able to copy-paste the code below.)
-
-When you build your application, you are outputting two targets: your actual Angular client application, and your HTTP server application. We are going to focus on the server application here because there will be zero changes to your application code.
+I think this is likely to be the most common usage of `angular-ssr`:
+* You have an HTTP server application that you build as part of your application using webpack. Your HTTP server is written in TypeScript. (If your HTTP server is written in JavaScript, the library will still work in the same way, but you won't be able to copy-paste the code below.)
+* When you build your application, you are outputting two targets: your actual Angular client application, and your HTTP server application. We are going to focus on the server application here because there will be zero changes to your application code.
 
 Your actual HTTP server code will look something like the following:
 
