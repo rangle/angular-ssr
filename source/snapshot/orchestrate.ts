@@ -3,11 +3,27 @@ import {ApplicationRef, NgModuleRef} from '@angular/core';
 import {Subscription} from 'rxjs';
 
 import {ConsoleLog} from './console';
-import {ConsoleCollector, DocumentContainer, ExceptionCollector, waitForApplicationToBecomeStable, waitForRouterNavigation} from '../platform';
+
 import {RenderVariantOperation} from '../application/operation';
+
 import {Snapshot} from './snapshot';
+
 import {timeouts} from '../static';
-import {executeBootstrap, injectPreboot, injectState, transformDocument} from './creator';
+
+import {
+  executeBootstrap,
+  injectPreboot,
+  injectState,
+  transformDocument
+} from './creator';
+
+import {
+  ConsoleCollector,
+  DocumentContainer,
+  ExceptionCollector,
+  waitForApplicationToBecomeStable,
+  waitForRouterNavigation
+} from '../platform';
 
 export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<V>): Promise<Snapshot<V>> => {
   const {variant, uri, transition, scope: {stateReader, bootstrappers, postprocessors}} = vop;

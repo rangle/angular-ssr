@@ -1,5 +1,7 @@
 import './vendor';
 
+import chalk = require('chalk');
+
 import {
   ApplicationRenderer,
   ApplicationBuilderFromSource,
@@ -7,19 +9,20 @@ import {
   HtmlOutput,
   PathReference,
   log,
+  pathFromString,
 } from '../index';
 
 import {commandLineToOptions} from './options';
 
-const Module = require('module');
-
 const options = commandLineToOptions();
 
-patchModuleSearch(options.project.basePath);
+patchModuleSearch(options.project.basePath, pathFromString(__dirname));
 
 log.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
 const builder = new ApplicationBuilderFromSource(options.project, options.templateDocument);
+
+builder.preboot(options.preboot);
 
 const application = builder.build();
 
@@ -33,8 +36,8 @@ const execute = async () => {
   }
   catch (exception) {
     const message = options.debug
-      ? exception.stack
-      : exception.message + ' (use --debug to see a full stack trace)';
+      ? chalk.red(exception.stack)
+      : chalk.red(exception.message) + ' (use --debug to see a full stack trace)';
 
     log.error(`Failed to render application: ${message}`);
 
@@ -47,17 +50,25 @@ const execute = async () => {
 
 execute();
 
-function patchModuleSearch(root: PathReference) {
+// Because we compile our outputs to a temporary path outside the filesystem structure of
+// the project, we must tweak the module search paths to look inside the project node
+// modules folder as well as our own modules folder. Otherwise we are going to encounter
+// require exceptions when the application attempts to load libraries.
+function patchModuleSearch(...roots: Array<PathReference>) {
+  const Module = require('module');
+
   const paths = Module._nodeModulePaths;
 
   const search = new Array<string>();
 
-  for (let iterator = root; iterator; iterator = iterator.parent()) {
-    const modules = iterator.findInAncestor(Files.modules);
-    if (modules == null) {
-      break;
+  for (const root of roots) {
+    for (let iterator = root; iterator; iterator = iterator.parent()) {
+      const modules = iterator.findInAncestor(Files.modules);
+      if (modules == null) {
+        break;
+      }
+      search.push(modules.toString());
     }
-    search.push(modules.toString());
   }
 
   Module._nodeModulePaths = function (from) {

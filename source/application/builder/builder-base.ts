@@ -16,13 +16,6 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
 
   abstract build(): Application<V>;
 
-  preboot(config?: PrebootConfiguration) {
-    if (config != null) {
-      this.operation.preboot = config;
-    }
-    return this.operation.preboot;
-  }
-
   templateDocument(template?: string) {
     if (template != null) {
       this.operation.templateDocument = templateFileToTemplateString(template);
@@ -62,6 +55,13 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
       this.operation.routes = routes;
     }
     return this.operation.routes;
+  }
+
+  preboot(config?: PrebootConfiguration) {
+    if (config != null) {
+      this.operation.preboot = config;
+    }
+    return this.operation.preboot;
   }
 
   stateReader<R>(stateReader?: ApplicationStateReader<R>) {

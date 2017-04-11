@@ -72,6 +72,7 @@ export interface EventSelector {
   noReplay?: boolean;
 }
 
+// If you specify a null application root, it will be automatically detected for you
 export type PrebootApplicationRoot = {appRoot: string | Array<string>};
 
 export type PrebootSeparateRoots = {serverClientRoot: Array<{clientSelector: string, serverSelector: string}>};
