@@ -21,5 +21,12 @@ export const injectState = async <M>(moduleRef: NgModuleRef<M>, stateReader: App
 }
 
 const injectStateIntoDocument = (document: Document, state): void => {
-  injectIntoDocument(document, `window.bootstrapApplicationState = ${JSON.stringify(state)};`);
+  try {
+    const serialized = JSON.stringify(state);
+
+    injectIntoDocument(document, `window.bootstrapApplicationState = ${serialized};`);
+  }
+  catch (exception) {
+    console.error(`Cannot inject state into document because it cannot be serialized`, state, exception);
+  }
 };
