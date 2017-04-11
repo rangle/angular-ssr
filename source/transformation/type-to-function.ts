@@ -7,14 +7,19 @@ import {injectable} from '../static';
 export type InjectorFunction<R> = (injector: Injector, ...args) => R;
 
 export const typeToInjectorFunction = <T, R>(classOrFunction: Type<T> | InjectorFunction<R>, execute: (instance: T) => R): InjectorFunction<R> => {
-  const type: Type<T> = classOrFunction as Type<T>;
+  try {
+    const type: Type<T> = classOrFunction as Type<T>;
 
-  const annotations = Reflector.annotations(type);
-  if (decoratedWithInjectable(annotations) === false) {
+    const annotations = Reflector.annotations(type);
+    if (decoratedWithInjectable(annotations) === false) {
+      return <InjectorFunction<R>> classOrFunction;
+    }
+
+    return instantiator<T, R>(type, execute);
+  }
+  catch (exception) {
     return <InjectorFunction<R>> classOrFunction;
   }
-
-  return instantiator<T, R>(type, execute);
 };
 
 const decoratedWithInjectable = (annotations: Array<any>): boolean => {

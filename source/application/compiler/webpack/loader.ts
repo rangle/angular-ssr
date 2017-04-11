@@ -30,16 +30,13 @@ export class WebpackModuleLoader implements ModuleLoader {
 
     const loaded = require(candidate);
 
-    if (module.symbol) {
-      return loaded[module.symbol];
-    }
-    else {
-      return loaded;
-    }
+    return module.symbol
+      ? loaded[module.symbol]
+      : loaded;
   }
 
   dispose() {
-    if (this.project.workingPath.toString() !== this.project.basePath.toString()) {
+    if (this.project.workingPath.equals(this.project.basePath) === false) { // delete outputs
       this.project.workingPath.unlink();
       this.project.workingPath = null;
     }

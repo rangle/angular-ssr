@@ -18,4 +18,8 @@ export abstract class FilesystemBaseImpl implements FilesystemBase {
   type(): FileType {
     return typeFromPath(this.sourcePath);
   }
+
+  equals(other: FilesystemBase): boolean {
+    return other.toString() === this.toString();
+  }
 }

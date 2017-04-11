@@ -13,12 +13,18 @@ const XmlHttpRequest = require('xhr2');
 
 const dispatch = XmlHttpRequest.prototype._dispatchProgress;
 
+let hasWarned = false;
+
 XmlHttpRequest.prototype._dispatchProgress = function (eventid: string) {
   const pendingRequests = injectableFromZone(Zone.current, PendingRequests);
 
   if (pendingRequests == null) {
-    console.warn(chalk.yellow('Your application is conducting an HTTP request from outside of a zone!'));
-    console.warn(chalk.yellow('This will probably cause your application to render before the request finishes'));
+    if (hasWarned === false) {
+      console.warn(chalk.yellow('Your application is conducting an HTTP request from outside of a zone!'));
+      console.warn(chalk.yellow('This will probably cause your application to render before the request finishes'));
+      console.warn(`Context: ${new Error().stack}`);
+      hasWarned = true;
+    }
 
     return dispatch.apply(this, arguments);
   }

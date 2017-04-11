@@ -14,6 +14,8 @@ export interface FilesystemBase {
 
   // Does this path exist?
   exists(): boolean;
+
+  equals(other: FilesystemBase): boolean;
 }
 
 export interface FileReference extends FilesystemBase {
