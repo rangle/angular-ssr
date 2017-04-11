@@ -97,10 +97,7 @@ export class WebpackCompiler implements ApplicationCompiler {
 }
 
 const removeProblematicPlugins = (plugins: Array<any>): Array<any> => {
-  const problematic = [
-    /commons/i,
-    /devtool/i,
-  ];
+  const problematic = [/commons/i];
 
   return plugins.filter(plugin => {
     if (plugin.constructor === Object) {

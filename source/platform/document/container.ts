@@ -2,6 +2,8 @@ import {Injectable, Inject, OnDestroy} from '@angular/core';
 
 import {TemplateDocument, RequestUri} from './tokens';
 
+import {bootWindow} from '../../runtime/dom';
+
 const domino = require('domino');
 
 @Injectable()
@@ -19,6 +21,8 @@ export class DocumentContainer implements OnDestroy {
     // added / etc). As to how we would merge bootWindow.document with templateDocument, I haven't
     // figured that out yet.
     this.windowRef = domino.createWindow(templateDocument, requestUri);
+
+    this.cloneFrom(bootWindow.document);
 
     Object.defineProperties(this.windowRef, {
       navigator: {
@@ -41,5 +45,19 @@ export class DocumentContainer implements OnDestroy {
 
   ngOnDestroy() {
     this.complete();
+  }
+
+  private cloneFrom(document: Document) {
+    bootWindow.document.dispatchEvent(new Event('DOMContentLoaded'));
+
+    for (const tag of ['head', 'body']) { // clone from boot window
+      if (this.document[tag] == null) {
+        this.document.appendChild(this.document.createElement(tag));
+      }
+
+      for (const node of Array.from<Element>(bootWindow.document[tag].childNodes)) {
+        this.document[tag].appendChild(node.cloneNode(true));
+      }
+    }
   }
 }

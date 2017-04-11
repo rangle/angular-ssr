@@ -14,7 +14,7 @@ Object.assign(global, {CSS: null});
 // scripts which modify the DOM as part of their initialization code (which is much more common
 // than you may think) will not lose their changes to the DOM (because we create a separate
 // window and DOM for each render operation).
-export const bootWindow = domino.createWindow('<html><head></head><body></body></html>', 'http://localhost/');
+export const bootWindow: Window = domino.createWindow('<html><head></head><body></body></html>', 'http://localhost/');
 
 Object.defineProperties(bootWindow, {
   navigator: { // this will be changed later in the zone mapper
