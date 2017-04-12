@@ -25,6 +25,12 @@ export const routeToPath = (route: Route): string => {
   return mapped.filter(v => v).join('/');
 };
 
+export const routeToPathWithParameters = (route: Route): string => {
+  const reduced = route.path.reduce((p, c) => p.concat(c.split('/')), new Array<string>());
+
+  return reduced.join('/');
+}
+
 export const routeToUri = (route: Route): string => {
   let resultUri = `${fallbackUri}${routeToPath(route)}`;
 

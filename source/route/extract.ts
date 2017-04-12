@@ -7,6 +7,7 @@ import {Router, Routes} from '@angular/router';
 import {ServerPlatform, bootstrapWithExecute, forkZone} from '../platform';
 import {Route} from './route';
 import {fallbackUri} from '../static';
+import {routeToPathWithParameters} from './transform';
 import {waitForApplicationToBecomeStable, waitForRouterNavigation} from '../platform/application';
 
 export const applicationRoutes =
@@ -58,7 +59,7 @@ export const extractRoutesFromRouter = (router: Router, location: Location): Arr
       },
       empty);
 
-  return flatten(new Array<string>(), router.config);
+  return uniqueRoutes(flatten(new Array<string>(), router.config));
 };
 
 const singleRoute: Route = {path: []};
@@ -82,4 +83,14 @@ export const renderableRoutes = (routes: Array<Route>): Array<Route> => {
   const unrenderable = new Set<Route>(routes.filter(({path}) => path.some(isParameter)));
 
   return routes.filter(r => unrenderable.has(r) === false);
+};
+
+export const uniqueRoutes = (routes: Array<Route>): Array<Route> => {
+  const map = new Map<string, Route>();
+
+  for (const r of routes) {
+    map.set(routeToPathWithParameters(r), r);
+  }
+
+  return Array.from(map.values());
 };

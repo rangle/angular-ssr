@@ -34,6 +34,8 @@ const run = async () => {
   finally {
     instance.kill();
   }
+
+  process.exit(process.exitCode);
 };
 
 run().catch(exception => {
