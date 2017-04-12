@@ -2,16 +2,23 @@ import {
   ApplicationInitStatus,
   ApplicationRef,
   ErrorHandler,
-  NgModuleFactory,
+  Injector,
   NgModuleRef,
   NgZone
 } from '@angular/core';
 
 import {PlatformLocation} from '@angular/common';
 
+import {
+  ApplicationBootstrapper,
+  ApplicationBootstrapperFunction,
+  ComposedTransition
+} from '../../application/contracts';
+
 import {LocationImpl} from '../location';
-import {ServerPlatform} from '../platform';
 import {PlatformException} from '../../exception';
+import {none} from '../../predicate';
+import {typeToInjectorFunction} from '../../transformation/type-to-function';
 
 export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
@@ -58,14 +65,24 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
   });
 };
 
-export type ModuleExecute<M, R> = (moduleRef: NgModuleRef<M>) => R | Promise<R>;
+export const executeBootstrap = async <M>(moduleRef: NgModuleRef<M>, bootstrappers: Array<ApplicationBootstrapper>, transition: ComposedTransition) => {
+  const bootstrap = composeBootstrap(bootstrappers);
 
-export const bootstrapWithExecute = async <M, R>(platform: ServerPlatform, moduleFactory: NgModuleFactory<M>, execute: ModuleExecute<M, R>): Promise<R> => {
-  const moduleRef = await platform.bootstrapModuleFactory<M>(moduleFactory);
-  try {
-    return await Promise.resolve(execute(moduleRef));
+  await Promise.resolve(bootstrap(moduleRef.injector));
+
+  if (typeof transition === 'function') {
+    await Promise.resolve(transition(moduleRef.injector));
   }
-  finally {
-    moduleRef.destroy();
+};
+
+export const composeBootstrap = (bootstrappers: Array<ApplicationBootstrapper>): ApplicationBootstrapperFunction => {
+  if (none(bootstrappers)) {
+    return injector => {};
+  }
+
+  return (injector: Injector) => {
+    const promises = bootstrappers.map(b => Promise.resolve(typeToInjectorFunction(b, instance => instance.bootstrap())(injector)));
+
+    return Promise.all(promises) as Promise<any>
   }
 };

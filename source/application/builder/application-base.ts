@@ -1,4 +1,4 @@
-import {NgModuleFactory} from '@angular/core';
+import {NgModuleFactory, NgModuleRef} from '@angular/core';
 
 import {Observable, ReplaySubject} from 'rxjs';
 
@@ -7,7 +7,7 @@ import chalk = require('chalk');
 import uri = require('url');
 
 import {Application} from './application';
-import {ServerPlatform, bootstrapWithExecute, forkZone} from '../../platform';
+import {ServerPlatform, forkZone, executeBootstrap} from '../../platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Route, applicationRoutes, renderableRoutes} from '../../route';
 import {Snapshot, snapshot} from '../../snapshot';
@@ -73,12 +73,23 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
   }
 
   private async renderVariant(operation: RenderVariantOperation<V>): Promise<Snapshot<V>> {
-    const {uri, scope: {templateDocument}} = operation;
+    const {uri, transition, scope: {bootstrappers, templateDocument}} = operation;
 
     const moduleFactory = await this.moduleFactory();
 
-    return forkZone(templateDocument, uri,
-      () => bootstrapWithExecute<M, Snapshot<V>>(this.platformImpl, moduleFactory, ref => snapshot(ref, operation)));
+    const bootstrap = <M>(moduleRef: NgModuleRef<M>) => executeBootstrap(moduleRef, bootstrappers, transition);
+
+    const execute = async () => {
+      const moduleRef = await this.platformImpl.bootstrapModuleFactory<M>(moduleFactory, bootstrap);
+      try {
+        return await snapshot(moduleRef, operation);
+      }
+      finally {
+        moduleRef.destroy();
+      }
+    };
+
+    return forkZone(templateDocument, uri, execute);
   }
 }
 

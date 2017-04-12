@@ -11,7 +11,6 @@ import {Snapshot} from './snapshot';
 import {timeouts} from '../static';
 
 import {
-  executeBootstrap,
   injectPreboot,
   injectState,
   transformDocument
@@ -26,7 +25,7 @@ import {
 } from '../platform';
 
 export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<V>): Promise<Snapshot<V>> => {
-  const {variant, uri, transition, scope: {stateReader, bootstrappers, postprocessors}} = vop;
+  const {variant, uri, scope: {stateReader, postprocessors}} = vop;
 
   const snapshot: Snapshot<V> = {
     console: new Array<ConsoleLog>(),
@@ -41,8 +40,6 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
     const container = moduleRef.injector.get(DocumentContainer);
 
     container.complete();
-
-    await executeBootstrap(moduleRef, bootstrappers, transition);
 
     await waitForRouterNavigation(moduleRef);
 

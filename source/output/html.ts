@@ -19,7 +19,7 @@ export class HtmlOutput implements OutputProducer {
     this.path = pathFromString(path);
   }
 
-  initialize(): Promise<void> {
+  initialize() {
     if (this.path == null) {
       throw new OutputException('HTML output writer needs a path to write to');
     }

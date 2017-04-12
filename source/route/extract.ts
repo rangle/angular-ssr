@@ -4,7 +4,7 @@ import {Location} from '@angular/common';
 
 import {Router, Routes} from '@angular/router';
 
-import {ServerPlatform, bootstrapWithExecute, forkZone} from '../platform';
+import {ServerPlatform, forkZone} from '../platform';
 import {Route} from './route';
 import {fallbackUri} from '../static';
 import {routeToPathWithParameters} from './transform';
@@ -26,17 +26,21 @@ export const applicationRoutes =
   // Otherwise those asynchronous operations will have the rug pulled from under them and cause
   // all kinds of nasty console errors.
 
-  return forkZone(templateDocument, fallbackUri,
-    () => bootstrapWithExecute<M, Route[]>(
-      platform,
-      moduleFactory,
-      async (moduleRef) => {
-        await waitForRouterNavigation(moduleRef);
+  const execute = async () => {
+    const moduleRef = await platform.bootstrapModuleFactory<M>(moduleFactory);
+    try {
+      await waitForRouterNavigation(moduleRef);
 
-        await waitForApplicationToBecomeStable(moduleRef);
+      await waitForApplicationToBecomeStable(moduleRef);
 
-        return extractRoutesFromModule(moduleRef);
-      }));
+      return extractRoutesFromModule(moduleRef);
+    }
+    finally {
+      moduleRef.destroy();
+    }
+  };
+
+  return forkZone(templateDocument, fallbackUri, execute);
 };
 
 export const extractRoutesFromRouter = (router: Router, location: Location): Array<Route> => {

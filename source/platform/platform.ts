@@ -40,7 +40,7 @@ export class ServerPlatform implements PlatformRef {
     return await this.bootstrapModuleFactory(moduleFactory);
   }
 
-  async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>> {
+  async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>, bootstrap?: (moduleRef: NgModuleRef<M>) => void | Promise<void>): Promise<NgModuleRef<M>> {
     const zone = new NgZone({enableLongStackTrace: true});
 
     const injector = createPlatformInjector(this.injector, zone);
@@ -56,6 +56,10 @@ export class ServerPlatform implements PlatformRef {
     });
 
     moduleRef.create();
+
+    if (typeof bootstrap === 'function') {
+      await Promise.resolve(bootstrap(moduleRef));
+    }
 
     await bootstrapModule(zone, moduleRef).then(() => this.references.add(moduleRef));
 
