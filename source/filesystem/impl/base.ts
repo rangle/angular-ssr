@@ -1,4 +1,4 @@
-import {basename} from 'path';
+import {basename, resolve} from 'path';
 
 import {PathReference, FilesystemBase} from '../contracts';
 
@@ -20,6 +20,6 @@ export abstract class FilesystemBaseImpl implements FilesystemBase {
   }
 
   equals(other: FilesystemBase): boolean {
-    return other.toString() === this.toString();
+    return resolve(other.toString()) === resolve(this.toString());
   }
 }

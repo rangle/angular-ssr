@@ -5,15 +5,13 @@ const domino = require('domino');
 const impl = require('domino/lib/impl');
 
 // Expose all the DOM types and event types because they are used in ng property decorators
-Object.assign(global, impl, {KeyboardEvent: impl.Event});
-
-Object.assign(global, {CSS: null});
+Object.assign(global, impl, {KeyboardEvent: impl.Event, CSS: null});
 
 // What we want to do here is create a prototype document that subsequent render operations
 // will use as a basis for their own window and document objects. This ensures that any
 // scripts which modify the DOM as part of their initialization code (which is much more common
 // than you may think) will not lose their changes to the DOM (because we create a separate
-// window and DOM for each render operation).
+// window and DOM for each render operation, and those are cloned from this initial DOM).
 export const bootWindow: Window = domino.createWindow('<html><head></head><body></body></html>', 'http://localhost/');
 
 Object.defineProperties(bootWindow, {
@@ -34,6 +32,10 @@ Object.defineProperties(bootWindow, {
   }
 });
 
-Object.assign(bootWindow, {global, Reflect, Object});
+const getComputedStyle = (element: Element) => window.getComputedStyle(element);
 
-Object.assign(global, {global, Reflect});
+const environmentalContext = {global, Reflect, Object};
+
+Object.assign(bootWindow, environmentalContext);
+
+Object.assign(global, environmentalContext, {getComputedStyle});

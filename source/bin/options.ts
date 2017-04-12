@@ -75,7 +75,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
     process.exit(1);
   }
 
-  const debug = options['debug'];
+  const debug = options['debug'] || false;
 
   const output = pathFromString(outputString);
 

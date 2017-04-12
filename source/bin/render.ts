@@ -31,24 +31,28 @@ const applicationRenderer = new ApplicationRenderer(application);
 const execute = async () => {
   try {
     await applicationRenderer.prerenderTo(new HtmlOutput(options.output));
-
-    process.exitCode = 0;
   }
-  catch (exception) {
+  finally {
+    // If we are debugging, then we are likely to produce a stack trace that includes compiled
+    // output files. If we simply delete those files upon completion as we normally do, then
+    // the developer will not be able to see what code is generating the issue they have.
+    if (options.debug === false) {
+      application.dispose();
+    }
+  }
+};
+
+execute()
+  .then(() => {
+    process.exitCode = 0;
+  })
+  .catch(exception => {
     const message = options.debug
       ? chalk.red(exception.stack)
       : chalk.red(exception.message) + ' (use --debug to see a full stack trace)';
 
     log.error(`Failed to render application: ${message}`);
-
-    process.exitCode = 1;
-  }
-  finally {
-    application.dispose();
-  }
-};
-
-execute();
+  });
 
 // Because we compile our outputs to a temporary path outside the filesystem structure of
 // the project, we must tweak the module search paths to look inside the project node

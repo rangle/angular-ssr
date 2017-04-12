@@ -4,7 +4,7 @@ import {Component, ViewEncapsulation} from '@angular/core';
   selector: 'application',
   template: `<router-outlet></router-outlet>`,
   styleUrls: [
-    '../node_modules/@angular/material/core/theming/prebuilt/deeppurple-amber.css'
+    '../node_modules/@angular/material/prebuilt-themes/indigo-pink.css',
   ],
   encapsulation: ViewEncapsulation.None
 })

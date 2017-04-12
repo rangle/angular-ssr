@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.54",
+  "version": "0.1.55",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",

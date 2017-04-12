@@ -43,7 +43,9 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
       }
 
       async dispose() {
-        (await loader).dispose();
+        const loaded = await loader;
+
+        loaded.dispose();
 
         platform.destroy();
       }
