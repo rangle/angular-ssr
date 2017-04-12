@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.49",
+  "version": "0.1.50",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -15,7 +15,7 @@
     "prebuild": "rimraf build",
     "build": "tsc",
     "build-cli": "cd examples/cli && npm install && npm run build",
-    "build-express": "cd examples/demand-express && npm install && npm run build",
+    "build-express": "cd examples/demand-express && npm install && npm-run-all build test",
     "build-examples": "npm-run-all --parallel build-cli build-express",
     "watch": "tsc --watch",
     "pretest": "npm run lint && npm run build",
