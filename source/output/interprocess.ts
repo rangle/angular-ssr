@@ -3,7 +3,7 @@ import {OutputProducer} from './producer';
 import {Snapshot} from '../snapshot';
 
 export class InterprocessOutput implements OutputProducer {
-  initialize(): Promise<void> {
+  initialize() {
     throw new NotImplementedException();
   }
 

@@ -3,13 +3,13 @@ import chalk = require('chalk');
 
 export class Exception extends Error {
   constructor(msg: string, public innerException?: Error) {
-    super(innerException ? `${msg} -> ${innerException.stack}` : chalk.red(msg));
+    super(innerException ? `${chalk.red(msg)} -> ${chalk.red(innerException.stack)}` : chalk.red(msg));
  }
 }
 
 export class AggregateException extends Exception {
   constructor(public exceptions: Array<Exception | Error>) {
-    super(chalk.red(`Multiple exceptions occurred (${exceptions.length}) [${exceptions.map(e => e.stack).join(', ')}]`));
+    super(`Multiple exceptions occurred (${exceptions.length}) ${chalk.red(`[${exceptions.map(e => e.stack).join(', ')}]`)}`);
   }
 
   get stack(): string {

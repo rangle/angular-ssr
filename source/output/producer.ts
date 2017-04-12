@@ -1,7 +1,7 @@
 import {Snapshot} from '../snapshot';
 
 export interface OutputProducer {
-  initialize(): Promise<void>;
+  initialize(): void;
 
   write<V>(snapshot: Snapshot<V>): Promise<void>;
 

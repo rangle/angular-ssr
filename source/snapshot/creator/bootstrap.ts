@@ -16,7 +16,7 @@ export const executeBootstrap = async <M>(moduleRef: NgModuleRef<M>, bootstrappe
   await bootstrap(moduleRef.injector);
 
   if (typeof transition === 'function') {
-    transition(moduleRef.injector);
+    await Promise.resolve(transition(moduleRef.injector));
   }
 };
 
