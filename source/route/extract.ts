@@ -65,8 +65,6 @@ export const extractRoutesFromRouter = (router: Router, location: Location): Arr
 const singleRoute: Route = {path: []};
 
 export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Route> => {
-  const routes = new Array<Route>();
-
   const router: Router = moduleRef.injector.get(Router, null);
   if (router == null) {
     return [singleRoute];
@@ -74,7 +72,7 @@ export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Rou
 
   const location: Location = moduleRef.injector.get(Location);
 
-  return routes.concat(extractRoutesFromRouter(router, location));
+  return extractRoutesFromRouter(router, location);
 };
 
 export const renderableRoutes = (routes: Array<Route>): Array<Route> => {
