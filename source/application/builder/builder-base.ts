@@ -1,7 +1,8 @@
 import {Application} from './application';
 import {ApplicationBuilder} from './builder';
-import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, PrebootConfiguration, VariantsMap} from '../contracts';
+import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
 import {FileReference, fileFromString} from '../../filesystem';
+import {PrebootConfiguration} from '../preboot';
 import {RenderOperation} from '../operation';
 import {Route} from '../../route';
 

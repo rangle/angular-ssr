@@ -16,7 +16,7 @@ export class ApplicationBuilderFromModule<V, M> extends ApplicationBuilderBase<V
   build(): Application<V> {
     const platform = createJitPlatform() as ServerPlatform;
 
-    class ApplicationFromModuleImpl extends ApplicationBase<V, M> {
+    class ApplicationFromModule extends ApplicationBase<V, M> {
       dispose() {
         platform.destroy();
       }
@@ -24,6 +24,6 @@ export class ApplicationBuilderFromModule<V, M> extends ApplicationBuilderBase<V
 
     const promise = platform.compileModule(this.moduleType, []);
 
-    return new ApplicationFromModuleImpl(platform, <RenderOperation> this.operation, () => promise);
+    return new ApplicationFromModule(platform, <RenderOperation> this.operation, () => promise);
   }
 }

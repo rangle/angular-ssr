@@ -20,7 +20,7 @@ export class ApplicationBuilderFromModuleFactory<V> extends ApplicationBuilderBa
   build(): Application<V> {
     const platform = createJitPlatform([]) as ServerPlatform;
 
-    class ApplicationFromModuleFactoryImpl extends ApplicationBase<V, any> {
+    class ApplicationModuleFactory extends ApplicationBase<V, any> {
       dispose() {
         platform.destroy();
       }
@@ -28,6 +28,6 @@ export class ApplicationBuilderFromModuleFactory<V> extends ApplicationBuilderBa
 
     const moduleFactory = () => Promise.resolve(this.factory);
 
-    return new ApplicationFromModuleFactoryImpl(platform, <RenderOperation> this.operation, moduleFactory);
+    return new ApplicationModuleFactory(platform, <RenderOperation> this.operation, moduleFactory);
   }
 }

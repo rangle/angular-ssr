@@ -421,7 +421,7 @@ builder.stateReader(MyStateReader);
 const application = builder.build();
 ```
 
-And your `ServerStateReader` class implementation might look like this:
+Your `ServerStateReader` class implementation might look like this:
 
 ```typescript
 import {Injectable} from '@angular/core';
@@ -431,11 +431,17 @@ import {Store} from '@ngrx/store';
 import {StateReader} from 'angular-ssr';
 
 @Injectable()
-export class MyStateReader implements StateReader<MyState> {
+export class MyStateReader implements StateReader<TransmissibleState> {
   constructor(private store: Store<AppState>) {}
 
-  getState(): Promise<MyState> {
-    return this.store.select().toPromise();
+  getState(): Promise<TransmissibleState> {
+    return this.store.select(s => this.transmissibleState(s)).toPromise();
+  }
+
+  private transmissibleState(s: AppState): TransmissibleState {
+    return {
+      foo: s.foo
+    };
   }
 }
 ```
@@ -443,7 +449,7 @@ export class MyStateReader implements StateReader<MyState> {
 Note that you can inject any service you wish into your state reader. `angular-ssr` will query the constructor arguments using the ng dependency injector the same way it works in application code. Alternatively, you can supply a function which just accepts a bare `Injector` and you can query the DI yourself:
 
 ```typescript
-builder.stateReader((injector: Injector) => injector.get(Store).select(s => s.fooBar).toPromise());
+builder.stateReader((injector: Injector) => injector.get(Store).select().toPromise());
 ```
 
 Both are equivalent, but the class-based solution is probably cleaner and easier to understand.

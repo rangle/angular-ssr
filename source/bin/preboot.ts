@@ -1,4 +1,4 @@
-import {PrebootConfiguration} from '../application/contracts';
+import {PrebootConfiguration} from '../application/preboot';
 
 import {JsonSchema, ValidatorResult} from '../transformation';
 

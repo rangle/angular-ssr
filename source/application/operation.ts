@@ -3,9 +3,10 @@ import {
   ApplicationStateReader,
   ComposedTransition,
   Postprocessor,
-  PrebootConfiguration,
   VariantsMap
 } from './contracts';
+
+import {PrebootConfiguration} from './preboot';
 
 import {Route} from '../route';
 

@@ -2,11 +2,12 @@ import {
   ApplicationBootstrapper,
   ApplicationStateReader,
   Postprocessor,
-  PrebootConfiguration,
   VariantsMap
 } from '../contracts';
 
 import {Application} from './application';
+
+import {PrebootConfiguration} from '../preboot';
 
 import {Route} from '../../route/route';
 

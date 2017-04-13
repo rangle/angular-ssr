@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.61",
+  "version": "0.1.62",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -143,15 +143,23 @@
       "<rootDir>/node_modules",
       "<rootDir>/examples/demand-express/node_modules"
     ],
-    "testPathIgnorePatterns": ["/node_modules/"],
-    "transformIgnorePatterns": ["/node_modules/"],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/"
+    ],
     "setupTestFrameworkScriptFile": "<rootDir>/source/test/fixtures/dependencies.js",
     "transform": {
       "\\.ts$": "typescript-babel-jest"
     },
     "testEnvironment": "node",
     "testRegex": "source/.*/tests/.*\\.ts$",
-    "moduleFileExtensions": ["ts", "js", "json"],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
     "verbose": true
   },
   "files": [

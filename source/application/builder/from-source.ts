@@ -31,7 +31,7 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
           ? platform.compileModule(m, [])
           : m);
 
-    class ApplicationFromSourceImpl extends ApplicationBase<V, any> {
+    class ApplicationFromSource extends ApplicationBase<V, any> {
       constructor(operation: RenderOperation) {
         super(platform, operation, () => moduleFactory);
 
@@ -51,6 +51,6 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
       }
     }
 
-    return new ApplicationFromSourceImpl(<RenderOperation> this.operation);
+    return new ApplicationFromSource(<RenderOperation> this.operation);
   }
 }

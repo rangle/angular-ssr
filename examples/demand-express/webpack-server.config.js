@@ -38,12 +38,10 @@ module.exports = {
     '@angular/router',
     '@angular/tsc-wrapped',
     '@angular/service-worker',
-    'angular-ssr',
-    'express',
-    'zone.js',
-    'rxjs',
     function(context, request, callback) {
-      if (/rxjs/i.test(request) || /observable/i.test(request)) {
+      const exclusions = [/\@ngrx/, /rxjs/, /observable/, /zone\.js/, /reflect-metadata/];
+
+      if (exclusions.some(expr => expr.test(request))) {
         callback(null, `commonjs ${request.replace(/^.*?(\\|\/)node_modules(\\|\/)/, String())}`);
       }
       else {
