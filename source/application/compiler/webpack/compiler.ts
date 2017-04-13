@@ -60,10 +60,10 @@ export class WebpackCompiler implements ApplicationCompiler {
         '@angular/router',
         '@angular/tsc-wrapped',
         '@angular/service-worker',
-        'zone.js',
-        'rxjs',
         function(context, request, callback) {
-          if (excludeFromBundle(request)) {
+          const exclusions = [/rxjs/, /observable/, /zone\.js/, /reflect-metadata/];
+
+          if (exclusions.some(expr => expr.test(request))) {
             callback(null, `commonjs ${request.replace(/^.*?(\\|\/)node_modules(\\|\/)/, String())}`);
           }
           else {
@@ -109,6 +109,3 @@ const removeProblematicPlugins = (plugins: Array<any>): Array<any> => {
   });
 };
 
-const excludeFromBundle = (request: string): boolean => {
-  return /rxjs/i.test(request) || /observable/i.test(request);
-};
