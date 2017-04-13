@@ -2,7 +2,7 @@ import {Injectable, Inject, OnDestroy} from '@angular/core';
 
 import {TemplateDocument, RequestUri} from './tokens';
 
-import {bootWindow} from '../../runtime/dom';
+import {bootWindow} from '../../runtime/browser-emulation';
 
 const domino = require('domino');
 

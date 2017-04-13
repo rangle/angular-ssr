@@ -346,7 +346,7 @@ builder.variants({
 
 const application = builder.build();
 
-app.get('*', async (req, res) => {
+app.get(/.*/, async (req, res) => {
   try {
     // Remember that we set locale in document.cookie, so all requests after the
     // first-ever application load will have a locale cookie that we can use to

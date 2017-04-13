@@ -1,4 +1,4 @@
-class MutationObserverImpl implements MutationObserver {
+export class MutationObserver implements MutationObserver {
   constructor(callback: MutationCallback) {}
 
   observe(target: Node, init: MutationObserverInit): void {}
@@ -9,5 +9,3 @@ class MutationObserverImpl implements MutationObserver {
     return [];
   }
 }
-
-Object.assign(global, {MutationObserver: MutationObserverImpl});
