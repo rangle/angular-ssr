@@ -19,11 +19,17 @@ const run = async () => {
 
       const timer = setTimeout(() => reject(new Error('Timed out waiting for the server to start')), timeout);
 
+      instance.stderr.pipe(process.stderr);
+
       instance.stdout.on('data',
         message => {
           process.stdout.write(message);
 
-          if (isServerRunning(message.toString())) {
+          if (expressions.failure.test(message.toString())) {
+            reject(new Error('Server failed to start'));
+          }
+
+          if (expressions.success.test(message.toString())) {
             clearTimeout(timer);
 
             client.run().then(() => resolve()).catch(reject);
@@ -34,14 +40,16 @@ const run = async () => {
   finally {
     instance.kill();
   }
-
-  process.exit(process.exitCode);
 };
 
-run().catch(exception => {
-  console.error('Exception running system tests', exception);
-
-  process.exitCode = 1;
-});
-
-const isServerRunning = (message: string) => /Load https?:\/\/localhost/.test(message);
+run()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch(exception => {
+    console.error('Exception running system tests', exception);
+  
+    process.exit(1);
+  });
+  
+const expressions = {failure: /app crashed/i, success: /Load https?:\/\/localhost/i};
