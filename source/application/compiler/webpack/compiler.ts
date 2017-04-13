@@ -40,7 +40,6 @@ export class WebpackCompiler implements ApplicationCompiler {
 
     const configuration = Object.assign(base, {
       target: 'node',
-      bail: true,
       context: this.project.basePath.toString(),
       devtool: false,
       entry: entries,
@@ -97,7 +96,7 @@ export class WebpackCompiler implements ApplicationCompiler {
 }
 
 const removeProblematicPlugins = (plugins: Array<any>): Array<any> => {
-  const problematic = [/commons/i];
+  const problematic = [/Commons/, /HtmlWebpackPlugin/];
 
   return plugins.filter(plugin => {
     if (plugin.constructor === Object) {
