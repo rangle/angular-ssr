@@ -2,7 +2,7 @@ import {Injectable, Inject, OnDestroy} from '@angular/core';
 
 import {TemplateDocument, RequestUri} from './tokens';
 
-import {bootWindow} from '../../runtime/browser-emulation';
+import {bootWindow, polyfillWindow} from '../../runtime/browser-emulation';
 
 const domino = require('domino');
 
@@ -21,6 +21,8 @@ export class DocumentContainer implements OnDestroy {
     // added / etc). As to how we would merge bootWindow.document with templateDocument, I haven't
     // figured that out yet.
     this.windowRef = domino.createWindow(templateDocument, requestUri);
+
+    polyfillWindow(this.window, () => this.window);
 
     this.cloneFrom(bootWindow.document);
 

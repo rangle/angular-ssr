@@ -1,6 +1,7 @@
 import {Application} from './application';
 import {ApplicationBuilder} from './builder';
 import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
+import {ConfigurationException} from '../../exception';
 import {FileReference, fileFromString} from '../../filesystem';
 import {PrebootConfiguration} from '../preboot';
 import {RenderOperation} from '../operation';
@@ -79,6 +80,8 @@ const templateFileToTemplateString = (fileOrTemplate: string): string => {
   if (file.exists()) {
     return file.content();
   }
-
+  else if (/<!doctype html>/i.test(fileOrTemplate) === false) {
+    throw new ConfigurationException(`Invalid template file or missing doctype: ${fileOrTemplate}`);
+  }
   return fileOrTemplate;
 }

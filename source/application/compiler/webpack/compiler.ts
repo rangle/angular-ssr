@@ -61,7 +61,7 @@ export class WebpackCompiler implements ApplicationCompiler {
         '@angular/tsc-wrapped',
         '@angular/service-worker',
         function(context, request, callback) {
-          const exclusions = [/\@ngrx/, /rxjs/, /observable/, /zone\.js/, /reflect-metadata/];
+          const exclusions = [/\@ngrx/, /rxjs/, /zone\.js/, /reflect-metadata/];
 
           if (exclusions.some(expr => expr.test(request))) {
             callback(null, `commonjs ${request.replace(/^.*?(\\|\/)node_modules(\\|\/)/, String())}`);

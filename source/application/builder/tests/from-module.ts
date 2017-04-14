@@ -17,17 +17,16 @@ import {ConsoleType} from '../../../snapshot';
 import {extractRoutesFromRouter} from '../../../route';
 
 describe('ApplicationFromModule', () => {
-  it('should require a template document in order to render', async () => {
-    const application = loadApplicationFixtureFromModule(BasicInlineModule, builder => builder.templateDocument(String()));
+  it('should require a template document in order to render', () => {
     try {
-      return await application.prerender()
-        .then(() => {
-          throw new Error('Expected a failure');
-        })
-        .catch(() => Promise.resolve(void 0));
-    }
-    finally {
+      const application = loadApplicationFixtureFromModule(BasicInlineModule, builder => builder.templateDocument(String()));
+
       application.dispose();
+
+      return Promise.reject(new Error('Expected an exception to be thrown'));
+    }
+    catch (exception) {
+      return Promise.resolve();
     }
   });
 

@@ -3,79 +3,86 @@
     <i class="material-icons app-toolbar-menu">menu</i>
   </button>
 
-  Angular Material2 Example App
+  Angular Material Example Application!
 
   <span class="app-toolbar-filler"></span>
-  <button md-button (click)="isDarkTheme = !isDarkTheme">TOGGLE DARK THEME</button>
+
+  <button md-button (click)="isDarkTheme = !isDarkTheme">Toggle Dark Theme</button>
 </md-toolbar>
 
-<div class="app-content">
+<div fxLayout="row" class="zero">
+  <div class="one">
+    <md-card>
+      <button md-button>FLAT</button>
+      <button md-raised-button md-tooltip="This is a tooltip!">RAISED</button>
+      <button md-raised-button color="primary">PRIMARY RAISED</button>
+      <button md-raised-button color="accent">ACCENT RAISED</button>
+    </md-card>
 
-  <md-card>
-    <button md-button>FLAT</button>
-    <button md-raised-button md-tooltip="This is a tooltip!">RAISED</button>
-    <button md-raised-button color="primary">PRIMARY RAISED</button>
-    <button md-raised-button color="accent">ACCENT RAISED</button>
-  </md-card>
+    <md-card>
+      <md-checkbox>Unchecked</md-checkbox>
+      <md-checkbox [checked]="true">Checked</md-checkbox>
+      <md-checkbox [indeterminate]="true">Indeterminate</md-checkbox>
+      <md-checkbox [disabled]="true">Disabled</md-checkbox>
+    </md-card>
 
-  <md-card>
-    <md-checkbox>Unchecked</md-checkbox>
-    <md-checkbox [checked]="true">Checked</md-checkbox>
-    <md-checkbox [indeterminate]="true">Indeterminate</md-checkbox>
-    <md-checkbox [disabled]="true">Disabled</md-checkbox>
-  </md-card>
+    <md-card>
+      <md-radio-button name="symbol">Alpha</md-radio-button>
+      <md-radio-button name="symbol">Beta</md-radio-button>
+      <md-radio-button name="symbol" disabled>Gamma</md-radio-button>
+    </md-card>
 
-  <md-card>
-    <md-radio-button name="symbol">Alpha</md-radio-button>
-    <md-radio-button name="symbol">Beta</md-radio-button>
-    <md-radio-button name="symbol" disabled>Gamma</md-radio-button>
-  </md-card>
+    <md-card>
+      <md-spinner class="app-spinner"></md-spinner>
+      <md-spinner color="accent" class="app-spinner"></md-spinner>
+    </md-card>
+  </div>
+  <div fxLayout="vertical" fxLayout.md="row" class="two">
+    <div class="two_one">
+      <md-card>
+        <label>
+          Determinate progress bar - 50%
+            <md-progress-bar
+                class="app-progress"
+                color="accent"
+                mode="determinate"
+                [value]="50"
+                aria-label="Determinate progress-bar example"></md-progress-bar>
+        </label>
+      </md-card>
+    </div>
+    <div class="two_two">
+      <md-card>
+        <md-tab-group>
+          <md-tab label="Earth">
+            <p>EARTH</p>
+          </md-tab>
+          <md-tab label="Fire">
+            <p>FIRE</p>
+          </md-tab>
+        </md-tab-group>
+      </md-card>
+    </div>
+  </div>
+  <div fxFlex class="three">
+    <md-card>
+      <md-icon>build</md-icon>
+    </md-card>
 
-  <md-card>
-    <md-spinner class="app-spinner"></md-spinner>
-    <md-spinner color="accent" class="app-spinner"></md-spinner>
-  </md-card>
+    <md-card>
+      <button md-button [md-menu-trigger-for]="menu">
+        MENU
+      </button>
+    </md-card>
 
-  <md-card>
-    <label>
-      Determinate progress bar - 50%
-      <md-progress-bar
-          class="app-progress"
-          color="accent"
-          mode="determinate"
-          [value]="50"
-          aria-label="Determinate progress-bar example"></md-progress-bar>
-    </label>
-  </md-card>
+    <md-menu #menu="mdMenu">
+      <button md-menu-item>Lemon</button>
+      <button md-menu-item>Lime</button>
+      <button md-menu-item>Banana</button>
+    </md-menu>
 
-  <md-card>
-    <md-tab-group>
-      <md-tab label="Earth">
-        <p>EARTH</p>
-      </md-tab>
-      <md-tab label="Fire">
-        <p>FIRE</p>
-      </md-tab>
-    </md-tab-group>
-  </md-card>
-
-  <md-card>
-    <md-icon>build</md-icon>
-  </md-card>
-
-  <md-card>
-    <button md-button [md-menu-trigger-for]="menu">
-      MENU
-    </button>
-  </md-card>
-
-  <md-menu #menu="mdMenu">
-    <button md-menu-item>Lemon</button>
-    <button md-menu-item>Lime</button>
-    <button md-menu-item>Banana</button>
-  </md-menu>
+    <span class="app-action" [class.m2app-dark]="isDarkTheme">
+      <button md-fab><md-icon>check circle</md-icon></button>
+    </span>
+  </div>
 </div>
-
-<span class="app-action" [class.m2app-dark]="isDarkTheme">
-  <button md-fab><md-icon>check circle</md-icon></button>
-</span>
