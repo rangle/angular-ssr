@@ -65,7 +65,7 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
   });
 };
 
-export const executeBootstrap = async <M>(moduleRef: NgModuleRef<M>, bootstrappers: Array<ApplicationBootstrapper>, transition: ComposedTransition) => {
+export const executeBootstrap = async <M>(moduleRef: NgModuleRef<M>, bootstrappers: Array<ApplicationBootstrapper>, transition?: ComposedTransition) => {
   const bootstrap = composeBootstrap(bootstrappers);
 
   await Promise.resolve(bootstrap(moduleRef.injector));

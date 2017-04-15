@@ -2,7 +2,7 @@ import {Inject, Injectable} from '@angular/core';
 
 import {ApplicationRuntimeProject} from './tokens';
 
-import {ApplicationException} from '../../exception';
+import {RuntimeException} from '../../exception';
 
 @Injectable()
 export class RuntimeModuleLoader {
@@ -10,7 +10,7 @@ export class RuntimeModuleLoader {
 
   load(moduleId: string): Promise<any> {
     if (this.application == null) {
-      throw new ApplicationException('You cannot use the RuntimeModuleLoader with no ApplicationRuntimeProject provided');
+      throw new RuntimeException('You cannot use the RuntimeModuleLoader with no ApplicationRuntimeProject provided');
     }
     return this.application.load({source: moduleId, symbol: null}, false);
   }

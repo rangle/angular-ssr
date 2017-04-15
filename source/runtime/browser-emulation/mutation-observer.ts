@@ -9,3 +9,5 @@ export class MutationObserver implements MutationObserver {
     return [];
   }
 }
+
+export const bindMutation = targetWindow => ({MutationObserver});

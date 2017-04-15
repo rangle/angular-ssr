@@ -3,7 +3,7 @@ import {ApplicationBuilder} from './builder';
 import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
 import {ConfigurationException} from '../../exception';
 import {FileReference, fileFromString} from '../../filesystem';
-import {PrebootConfiguration} from '../preboot';
+import {Preboot, PrebootConfiguration} from '../preboot';
 import {RenderOperation} from '../operation';
 import {Route} from '../../route';
 
@@ -32,7 +32,7 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
       }
       this.operation.bootstrappers.push(bootstrapper);
     }
-    return this.operation.bootstrappers;
+    return this.operation.bootstrappers || [];
   }
 
   postprocess(transform?: Postprocessor) {
@@ -42,7 +42,7 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
       }
       this.operation.postprocessors.push(transform);
     }
-    return this.operation.postprocessors;
+    return this.operation.postprocessors || [];
   }
 
   variants(map: VariantsMap) {
@@ -56,21 +56,21 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
     if (routes) {
       this.operation.routes = routes;
     }
-    return this.operation.routes;
+    return this.operation.routes || [];
   }
 
   preboot(config?: PrebootConfiguration) {
     if (config != null) {
-      this.operation.preboot = config;
+      this.operation.preboot = config as Preboot;
     }
-    return this.operation.preboot;
+    return this.operation.preboot as PrebootConfiguration;
   }
 
   stateReader<R>(stateReader?: ApplicationStateReader<R>) {
     if (stateReader) {
       this.operation.stateReader = stateReader;
     }
-    return this.operation.stateReader;
+    return this.operation.stateReader as any;
   }
 }
 

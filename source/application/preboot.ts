@@ -2,14 +2,16 @@ export type PrebootApplicationRoot = {appRoot: string | Array<string>};
 
 export type PrebootSeparateRoots = {serverClientRoot: Array<{clientSelector: string, serverSelector: string}>};
 
-export type PrebootRoot = PrebootApplicationRoot | PrebootSeparateRoots;
-
-export type PrebootConfiguration = PrebootRoot & {
+export type PrebootBaseOptions = {
   eventSelectors?: Array<EventSelector>;
   buffer?: boolean;
   uglify?: boolean;
   noInlineCache?: boolean;
 };
+
+export type PrebootConfiguration = (PrebootApplicationRoot | PrebootSeparateRoots) & PrebootBaseOptions;
+
+export interface Preboot extends PrebootApplicationRoot, PrebootSeparateRoots, PrebootBaseOptions {}
 
 export interface EventSelector {
   selector: string;

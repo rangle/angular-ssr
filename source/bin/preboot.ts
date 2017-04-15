@@ -5,7 +5,7 @@ import {JsonSchema, ValidatorResult} from '../transformation';
 const prebootSchema = new JsonSchema({
   $schema: 'http://json-schema.org/draft-04/schema#',
   type: 'object',
-  oneOf: [
+  anyOf: [
     {required: ['appRoot']},
     {required: ['serverClientRoot']}
   ],

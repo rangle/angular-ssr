@@ -11,12 +11,14 @@ import chalk = require('chalk');
 import {ModuleDeclaration} from '../../project';
 import {StaticAnalysisException} from '../../../exception';
 import {importClause, exportClause} from '../find';
-import {bootstrap, bootstrapFactory} from '../../../static';
+import {BootstrapFunctions} from '../../../static';
 import {isExternalModule} from '../predicates';
 import {traverse} from '../traverse';
 
 export const discoverRootModule = (basePath: string, program: Program): ModuleDeclaration => {
-  const expression = new RegExp(`(\.${bootstrap}|\.${bootstrapFactory})`);
+  const identifiers = Object.keys(BootstrapFunctions).map(k => BootstrapFunctions[k]).join('|');
+
+  const expression = new RegExp(`(\.${identifiers})`);
 
   const candidates = new Array<ModuleDeclaration>();
 
@@ -37,8 +39,8 @@ export const discoverRootModule = (basePath: string, program: Program): ModuleDe
           return false;
         }
         switch (pae.name.text) {
-          case bootstrap:
-          case bootstrapFactory:
+          case BootstrapFunctions.bootstrap:
+          case BootstrapFunctions.bootstrapFactory:
             if (node.arguments.length === 0 || node.arguments[0].kind !== SyntaxKind.Identifier) {
               break;
             }

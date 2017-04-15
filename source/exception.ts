@@ -3,7 +3,7 @@ import chalk = require('chalk');
 
 export class Exception extends Error {
   constructor(msg: string, public innerException?: Error) {
-    super(innerException ? `${chalk.red(msg)} -> ${chalk.red(innerException.stack)}` : chalk.red(msg));
+    super(innerException ? `${chalk.red(msg)} -> ${chalk.red(innerException.stack || '')}` : chalk.red(msg));
  }
 }
 
@@ -27,7 +27,6 @@ export class NotImplementedException extends Exception {
   }
 }
 
-export class ApplicationException extends Exception {}
 export class CompilerException extends Exception {}
 export class ConfigurationException extends Exception {}
 export class FilesystemException extends Exception {}
@@ -36,6 +35,7 @@ export class OutputException extends Exception {}
 export class PlatformException extends Exception {}
 export class RendererException extends Exception {}
 export class ResourceException extends Exception {}
+export class RuntimeException extends Exception {}
 export class RouteException extends Exception {}
 export class SnapshotException extends Exception {}
 export class StaticAnalysisException extends Exception {}

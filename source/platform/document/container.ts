@@ -2,7 +2,7 @@ import {Injectable, Inject, OnDestroy} from '@angular/core';
 
 import {TemplateDocument, RequestUri} from './tokens';
 
-import {bootWindow, polyfillWindow} from '../../runtime/browser-emulation';
+import {bootWindow, upgradeWindow} from '../../runtime/browser-emulation';
 
 const domino = require('domino');
 
@@ -22,7 +22,7 @@ export class DocumentContainer implements OnDestroy {
     // figured that out yet.
     this.windowRef = domino.createWindow(templateDocument, requestUri);
 
-    polyfillWindow(this.window, () => this.window);
+    upgradeWindow(this.window, () => this.window);
 
     this.cloneFrom(bootWindow.document);
 

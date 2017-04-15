@@ -3,3 +3,5 @@ export const requestAnimationFrame = (callback: (ms: number) => void) => {
 };
 
 export const cancelAnimationFrame = (id) => clearImmediate(id);
+
+export const bindAnimation = targetWindow => ({requestAnimationFrame, cancelAnimationFrame});

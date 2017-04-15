@@ -20,7 +20,7 @@ export interface ApplicationBuilder<V> {
   // source index.html. This is because this file should include everything that is necessary
   // to boot the client-side application, including the <script> tags that are injected
   // by webpack as part of the build process.
-  templateDocument(template?: string): string;
+  templateDocument(template?: string): string | undefined;
 
   // Provide optional bootstrap classes or functions. If you provide a class type, that type
   // will be instantiated by the dependency injector in the context of a running application.

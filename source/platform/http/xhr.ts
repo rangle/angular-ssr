@@ -22,7 +22,10 @@ XmlHttpRequest.prototype._dispatchProgress = function (eventid: string) {
     if (hasWarned === false) {
       console.warn(chalk.yellow('Your application is conducting an HTTP request from outside of a zone!'));
       console.warn(chalk.yellow('This will probably cause your application to render before the request finishes'));
-      console.warn(chalk.red(new Error().stack));
+      const stack = new Error().stack;
+      if (stack) {
+        console.warn(chalk.red(stack));
+      }
       hasWarned = true;
     }
 

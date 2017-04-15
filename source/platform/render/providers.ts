@@ -10,10 +10,10 @@ import {
 
 import {DocumentContainer} from '../document';
 
-import {ApplicationException} from '../../exception';
+import {RuntimeException} from '../../exception';
 
 if (typeof BrowserDomAdapter !== 'function') {
-  throw new ApplicationException('This application requires Angular 4');
+  throw new RuntimeException('This application requires Angular 4');
 }
 
 setRootDomAdapter(new BrowserDomAdapter());

@@ -11,7 +11,7 @@ import {ServerPlatform, forkZone, executeBootstrap} from '../../platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Route, applicationRoutes, renderableRoutes} from '../../route';
 import {Snapshot, snapshot} from '../../snapshot';
-import {fallbackUri} from '../../static';
+import {FallbackOptions} from '../../static';
 import {composeTransitions} from '../../variants';
 import {forkRender} from './fork';
 import {none} from '../../predicate';
@@ -99,10 +99,10 @@ const resolveToAbsoluteUri = (relativeUri: string): string => {
   if (relativeUri == null ||
       relativeUri.length === 0 ||
       relativeUri === '/') {
-    return fallbackUri;
+    return FallbackOptions.fallbackUri;
   }
 
-  const resolved = uri.resolve(fallbackUri, relativeUri);
+  const resolved = uri.resolve(FallbackOptions.fallbackUri, relativeUri);
 
   if (resolved !== relativeUri) {
     if (relativeUriWarning === false) {

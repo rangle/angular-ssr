@@ -27,7 +27,7 @@ export class Build implements Disposable {
     }
   }
 
-  resolveCandidates(source: string): string {
+  resolveCandidates(source: string): string | null {
     const roots = [...this.roots, ...this.outputPaths, this.basePath];
 
     const candidates = flatten<string>(roots.map(r => [
@@ -49,15 +49,15 @@ export class Build implements Disposable {
     return null;
   }
 
-  resolve(module: ModuleDeclaration): [string, string] {
-    const unreachable: [string, string] = [null, null];
+  resolve(module: ModuleDeclaration): [string | null, string | null] {
+    const unreachable: [string | null, string | null] = [null, null];
 
     const sourceFile = this.resolveCandidates(bareSource(module.source));
     if (sourceFile == null) {
       return unreachable;
     }
 
-    const generated = this.map.get(sourceFile);
+    const generated = this.map.get(sourceFile) || [];
 
     const factory = generated.find(file => /\.ngfactory\.ts$/.test(file));
     if (factory == null) {
@@ -87,11 +87,13 @@ export class Build implements Disposable {
     this.map = new Map<string, Array<string>>();
   }
 
-  private sourceArray(filename: string) {
-    if (this.map.has(filename) === false) {
-      this.map.set(filename, new Array<string>());
+  private sourceArray(filename: string): Array<string> {
+    let value = this.map.get(filename);
+    if (value == null) {
+      value = new Array<string>();
+      this.map.set(filename, value);
     }
-    return this.map.get(filename);
+    return value;
   }
 }
 

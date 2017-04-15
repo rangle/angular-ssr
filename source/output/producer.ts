@@ -5,5 +5,5 @@ export interface OutputProducer {
 
   write<V>(snapshot: Snapshot<V>): Promise<void>;
 
-  exception(exception: Error): void;
+  exception(exception: Error): Promise<void>;
 }

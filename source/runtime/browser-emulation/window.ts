@@ -1,6 +1,13 @@
 import 'reflect-metadata';
 
-import {polyfillWindow} from './polyfill';
+import {createModernWindow, upgradeWindow} from './create';
+
+const templateDocument =
+  `<!doctype html>
+   <html>
+     <head></head>
+     <body></body>
+   </html>`;
 
 // Do not look at this file and get the wrong impression that this is the extent of the DOM
 // emulation code. It is not. The purpose of this file is not to provide a DOM to the render
@@ -18,38 +25,6 @@ import {polyfillWindow} from './polyfill';
 // DOM structure, we will use this initial document as a prototype which we will clone. This
 // way, changes made to the initial DOM structure are maintained in the render-specific DOM
 // implementation because we clone the render-specific DOM from this one on creation.
+export const bootWindow: Window = createModernWindow(templateDocument, 'http://localhost/');
 
-const domino = require('domino');
-
-const impl = require('domino/lib/impl');
-
-// Expose all the DOM types and event types because they are used in ng property decorators.
-// These are part of the impl object that comes back from domino (eg MouseEvent, KeyboardEvent)
-Object.assign(global, impl, {CSS: null});
-
-const templateDocument =
-  `<!doctype html>
-   <html>
-     <head></head>
-     <body></body>
-   </html>`;
-
-export const bootWindow: Window = domino.createWindow(templateDocument, 'http://localhost/');
-
-const navigator = {
-  get userAgent() {
-    return 'Chrome';
-  },
-  get language() {
-    return 'en-US';
-  },
-  get cookieEnabled() {
-    return false;
-  }
-};
-
-Object.defineProperties(bootWindow, {navigator: {get: () => navigator}});
-
-polyfillWindow(bootWindow, () => bootWindow);
-
-polyfillWindow(global, () => window);
+upgradeWindow(global, () => window);

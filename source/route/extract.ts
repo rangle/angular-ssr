@@ -6,7 +6,7 @@ import {Router, Routes} from '@angular/router';
 
 import {ServerPlatform, forkZone} from '../platform';
 import {Route} from './route';
-import {fallbackUri} from '../static';
+import {FallbackOptions} from '../static';
 import {routeToPathWithParameters} from './transform';
 import {waitForApplicationToBecomeStable, waitForRouterNavigation} from '../platform/application';
 
@@ -40,7 +40,7 @@ export const applicationRoutes =
     }
   };
 
-  return forkZone(templateDocument, fallbackUri, execute);
+  return forkZone(templateDocument, FallbackOptions.fallbackUri, execute);
 };
 
 export const extractRoutesFromRouter = (router: Router, location: Location): Array<Route> => {
@@ -55,7 +55,7 @@ export const extractRoutesFromRouter = (router: Router, location: Location): Arr
   const flatten = (parent: Array<string>, routes: Routes): Array<Route> =>
     routes.reduce(
       (prev, route) => {
-        const prepared = location.prepareExternalUrl(parent.concat(route.path).join('/'));
+        const prepared = location.prepareExternalUrl(parent.concat(route.path || []).join('/'));
 
         const path = prepared.replace(/(^\.|\*\*?)/g, String()).split(/\//g).filter(v => v);
 

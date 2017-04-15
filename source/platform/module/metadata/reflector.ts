@@ -1,9 +1,9 @@
-import {Type} from '@angular/core';
+import 'reflect-metadata';
 
-const {ɵreflector: reflector} = require('@angular/core');
+import {Type} from '@angular/core';
 
 export abstract class Reflector {
   static annotations<T>(type: Type<T>): Array<any> {
-    return reflector.annotations(type);
+    return Reflect.getMetadata('annotations', type);
   }
 }

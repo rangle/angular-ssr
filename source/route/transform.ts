@@ -3,10 +3,10 @@ import url = require('url');
 import {Route} from './route';
 import {RouteException} from '../exception';
 
-import {fallbackUri} from '../static';
+import {FallbackOptions} from '../static';
 
 export const routeToPath = (route: Route): string => {
-  const split = route.path.reduce((p, c) => p.concat(c.split('/')), []);
+  const split = route.path.reduce<Array<string>>((p, c) => [...p, ...c.split('/')], []);
 
   const mapped = split.map(component => {
     if (component.startsWith(':')) {
@@ -32,7 +32,7 @@ export const routeToPathWithParameters = (route: Route): string => {
 }
 
 export const routeToUri = (route: Route): string => {
-  let resultUri = `${fallbackUri}${routeToPath(route)}`;
+  let resultUri = `${FallbackOptions.fallbackUri}${routeToPath(route)}`;
 
   if (route.queryString) {
     if (route.queryString.startsWith('?')) {
@@ -44,7 +44,7 @@ export const routeToUri = (route: Route): string => {
   return resultUri;
 };
 
-export const pathFromUri = (uri: string): string => {
+export const pathFromUri = (uri: string): string | undefined => {
   try {
     return url.parse(uri).path;
   }

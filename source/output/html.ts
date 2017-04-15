@@ -47,6 +47,8 @@ export class HtmlOutput implements OutputProducer {
 
   exception(exception: Error) {
     this.logger.error(`Fatal exception encountered: ${chalk.red(exception.toString())}`);
+
+    return Promise.resolve(void 0);
   }
 
   private routedPathFromSnapshot<V>(snapshot: Snapshot<V>) {
