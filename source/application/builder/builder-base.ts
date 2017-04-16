@@ -8,13 +8,13 @@ import {RenderOperation} from '../operation';
 import {Route} from '../../route';
 
 export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V> {
+  protected operation: Partial<RenderOperation> = {};
+
   constructor(templateDocument?: FileReference | string) {
     if (templateDocument) {
       this.templateDocument(templateDocument.toString());
     }
   }
-
-  protected operation: Partial<RenderOperation> = {};
 
   abstract build(): Application<V>;
 
@@ -80,8 +80,8 @@ const templateFileToTemplateString = (fileOrTemplate: string): string => {
   if (file.exists()) {
     return file.content();
   }
-  else if (/<!doctype html>/i.test(fileOrTemplate) === false) {
-    throw new ConfigurationException(`Invalid template file or missing doctype: ${fileOrTemplate}`);
+  else if (/<html>/i.test(fileOrTemplate) === false) {
+    throw new ConfigurationException(`Invalid template file or missing <html> element: ${fileOrTemplate}`);
   }
   return fileOrTemplate;
 }

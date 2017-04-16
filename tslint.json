@@ -6,7 +6,6 @@
     "quotemark": [true, "single", "avoid-escape"],
     "no-eval": true,
     "no-namespace": false,
-    "no-module": false,
     "no-reference": false,
     "prefer-for-of": true,
     "promise-function-async": false,

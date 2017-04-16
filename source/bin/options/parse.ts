@@ -11,6 +11,7 @@ import {
   FileReference,
   FileType,
   Files,
+  InterprocessOutput,
   PathReference,
   PrebootConfiguration,
   Project,
@@ -19,22 +20,17 @@ import {
   fromJson,
   pathFromRandomId,
   pathFromString,
-} from '../index';
+  HtmlOutput,
+  OutputProducer,
+} from '../../index';
+
+import {CommandLineOptions} from './options';
 
 import {validatePrebootOptionsAgainstSchema} from './preboot';
 
-const {version} = require('../../package.json');
+const {version} = require('../../../package.json');
 
-export interface CommandLineOptions {
-  debug: boolean;
-  preboot: PrebootConfiguration;
-  project: Project;
-  output: PathReference;
-  templateDocument: string;
-  webpack?: FileReference;
-}
-
-export const commandLineToOptions = (): CommandLineOptions => {
+export const parseCommandLineOptions = (): CommandLineOptions => {
   const options = parseCommandLine();
 
   const path = pathFromString(options['project']);
@@ -50,6 +46,18 @@ export const commandLineToOptions = (): CommandLineOptions => {
 
   const environment = options['environment'];
 
+  const template = fileFromString(options['template']);
+
+  if (template.exists() === false) {
+    throw new ConfigurationException(`HTML template document does not exist: ${options['template']}`);
+  }
+
+  const debug = options['debug'] || false;
+
+  const webpack = options['webpack'];
+
+  const preboot = getPrebootConfiguration(options['preboot'] as string);
+
   const project: Project = {
     applicationModule: {source, symbol},
     basePath: rootFromTsconfig(tsconfig),
@@ -58,30 +66,7 @@ export const commandLineToOptions = (): CommandLineOptions => {
     workingPath: pathFromRandomId(),
   };
 
-  const template = fileFromString(options['template']);
-
-  if (template.exists() === false) {
-    throw new ConfigurationException(`HTML template document does not exist: ${options['template']}`);
-  }
-
-  let outputString = options['output'];
-
-  if (/^(\\|\/)/.test(outputString) === false) {
-    outputString = join(cwd(), outputString);
-  }
-
-  if (options['ipc']) {
-    console.error(chalk.red('IPC mode is not implemented yet'));
-    process.exit(1);
-  }
-
-  const debug = options['debug'] || false;
-
-  const output = pathFromString(outputString);
-
-  const webpack = options['webpack'];
-
-  const preboot = getPrebootConfiguration(options['preboot'] as string);
+  const output = createOutput(options);
 
   return {
     debug,
@@ -91,6 +76,27 @@ export const commandLineToOptions = (): CommandLineOptions => {
     templateDocument: template.content(),
     webpack
   };
+};
+
+const createOutput = (options): OutputProducer =>
+  options['ipc']
+    ? createInterprocessOutput(options)
+    : createHtmlOutput(options);
+
+const createInterprocessOutput = (options): OutputProducer => new InterprocessOutput();
+
+const createHtmlOutput = (options): OutputProducer => {
+  let outputString = options['output'];
+
+  if (/^(\\|\/)/.test(outputString) === false) {
+    outputString = join(cwd(), outputString);
+  }
+
+  const output = pathFromString(outputString);
+
+  const inline = options['inline'] || false;
+
+  return new HtmlOutput(output, inline);
 };
 
 const parseCommandLine = () => {
@@ -106,7 +112,8 @@ const parseCommandLine = () => {
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', 'dist')
     .option('-a, --application <application ID>', 'Optional application ID if your CLI configuration contains multiple apps')
     .option('-b, --preboot [file or json]', 'Enable preboot and optionally read the preboot configuration from the specified JSON file (otherwise will use sensible defaults and automatically find the root element name)', null)
-    .option('-i, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
+    .option('-i, --inline', 'Inline of resources referenced in head > link')
+    .option('-I, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
     .parse(process.argv);
 };
 

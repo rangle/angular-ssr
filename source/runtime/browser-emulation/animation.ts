@@ -1,7 +1,7 @@
-export const requestAnimationFrame = (callback: (ms: number) => void) => {
+const requestAnimationFrame = (callback: (ms: number) => void) => {
   return setImmediate(() => callback(Date.now()));
 };
 
-export const cancelAnimationFrame = (id) => clearImmediate(id);
+const cancelAnimationFrame = (id) => clearImmediate(id);
 
-export const bindAnimation = targetWindow => ({requestAnimationFrame, cancelAnimationFrame});
+export const bindAnimation = (target: () => Window) => ({cancelAnimationFrame, requestAnimationFrame});

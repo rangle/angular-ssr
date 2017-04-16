@@ -6,7 +6,7 @@ import {Observable, ReplaySubject} from 'rxjs';
 export class ExceptionCollector extends ErrorHandler implements OnDestroy {
   constructor() {super(true)}
 
-  private subject = new ReplaySubject<Error>();
+  private readonly subject = new ReplaySubject<Error>();
 
   observable(): Observable<Error> {
     return this.subject.asObservable();

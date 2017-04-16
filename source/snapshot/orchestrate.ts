@@ -62,7 +62,7 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
 
     transformDocument(postprocessors, container.document);
 
-    const renderedDocument = (<{outerHTML?}> container.document).outerHTML;
+    const renderedDocument = container.document.documentElement.outerHTML;
 
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }

@@ -5,6 +5,8 @@ import {OutputProducer} from './producer';
 import {Snapshot} from '../snapshot';
 
 export class InterprocessOutput implements OutputProducer {
+  constructor() {}
+
   initialize() {
     if (connected === false) {
       throw new RuntimeException('This application is not connected to a parent application and therefore cannot use the IPC functionality');

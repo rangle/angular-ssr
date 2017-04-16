@@ -4,10 +4,13 @@ import {bindAnimation} from './animation';
 import {bindBase64} from './base64';
 import {bindControl} from './control';
 import {bindEvents} from './events';
+import {bindHttp} from './http';
 import {bindInteractions} from './interaction';
 import {bindMutation} from './mutation-observer';
+import {bindNavigator} from './navigator';
 import {bindPosition} from './position';
 import {bindSelection} from './selection';
+import {bindStorage} from './storage';
 import {bindStyle} from './style';
 import {bindTypes} from './types';
 
@@ -19,10 +22,13 @@ export const upgradeWindow = (target, window: () => Window): void => {
     ...bindBase64(window),
     ...bindControl(window),
     ...bindEvents(window),
+    ...bindHttp(window),
     ...bindInteractions(window),
     ...bindMutation(window),
+    ...bindNavigator(window),
     ...bindPosition(window),
     ...bindSelection(window),
+    ...bindStorage(window),
     ...bindStyle(window),
   };
 

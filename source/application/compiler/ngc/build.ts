@@ -8,7 +8,7 @@ import {ModuleDeclaration} from '../../project';
 import {flatten} from '../../../transformation';
 
 export class Build implements Disposable {
-  private map = new Map<string, Array<string>>();
+  private readonly map = new Map<string, Array<string>>();
 
   constructor(
     public readonly basePath: PathReference,
@@ -84,7 +84,7 @@ export class Build implements Disposable {
       file.unlink();
     }
 
-    this.map = new Map<string, Array<string>>();
+    this.map.clear();
   }
 
   private sourceArray(filename: string): Array<string> {

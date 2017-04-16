@@ -8,7 +8,7 @@ import {baseConsole} from '../zone';
 
 @Injectable()
 export class ConsoleCollector implements OnDestroy {
-  private subject = new ReplaySubject<ConsoleLog>();
+  private readonly subject = new ReplaySubject<ConsoleLog>();
 
   observable(): Observable<ConsoleLog> {
     return this.subject.asObservable();

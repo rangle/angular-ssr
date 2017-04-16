@@ -11,6 +11,9 @@ export type PrebootBaseOptions = {
 
 export type PrebootConfiguration = (PrebootApplicationRoot | PrebootSeparateRoots) & PrebootBaseOptions;
 
+// NOTE(bond): This is an internal interface that we use to query the configuration. For APIs that
+// accept a configuration object from an API consumer, those should use {@link PrebootConfiguration}
+// as it has the proper union rules about requiring either appRoot or serverClientRoot.
 export interface Preboot extends PrebootApplicationRoot, PrebootSeparateRoots, PrebootBaseOptions {}
 
 export interface EventSelector {

@@ -82,4 +82,4 @@ export class Selection implements Selection {
 
 const getSelection = () => new Selection();
 
-export const bindSelection = targetWindow => ({getSelection});
+export const bindSelection = (target: () => Window) => ({getSelection});

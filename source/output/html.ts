@@ -2,20 +2,19 @@ import chalk = require('chalk');
 
 import {join} from 'path';
 
-import {Logger} from 'scoped-logger';
-
 import {Files} from '../static';
 import {OutputProducer} from './producer';
 import {OutputException} from '../exception';
 import {PathReference, fileFromString, pathFromString} from '../filesystem';
 import {Snapshot, assertSnapshot} from '../snapshot';
+import {inlineResources} from './inline';
 import {log} from './log';
 import {pathFromUri} from '../route';
 
 export class HtmlOutput implements OutputProducer {
   private path: PathReference;
 
-  constructor(path: PathReference | string, private logger: Logger = log) {
+  constructor(path: PathReference | string, private inline: boolean = true) {
     this.path = pathFromString(path);
   }
 
@@ -25,9 +24,14 @@ export class HtmlOutput implements OutputProducer {
     }
 
     if (this.path.exists() === false) {
-      this.logger.info(`Creating output path: ${this.path}`);
+      try {
+        this.path.mkdir();
+      }
+      catch (exception) {
+        throw new OutputException(`Cannot create output folder: ${this.path}`, exception);
+      }
 
-      this.path.mkdir();
+      log.info(`Created output path: ${this.path}`);
     }
 
     return Promise.resolve();
@@ -38,15 +42,19 @@ export class HtmlOutput implements OutputProducer {
 
     const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), Files.index));
 
-    this.logger.info(`Rendered route ${pathFromUri(snapshot.uri)} to ${file} `);
+    log.info(`Rendered route ${pathFromUri(snapshot.uri)} to ${file} `);
 
-    file.create(snapshot.renderedDocument);
+    const rendered = this.inline
+      ? inlineResources(file.parent(), snapshot.renderedDocument)
+      : snapshot.renderedDocument;
+
+    file.create(rendered);
 
     return Promise.resolve(void 0);
   }
 
   exception(exception: Error) {
-    this.logger.error(`Fatal exception encountered: ${chalk.red(exception.toString())}`);
+    log.error(`Fatal exception encountered: ${chalk.red(exception.toString())}`);
 
     return Promise.resolve(void 0);
   }

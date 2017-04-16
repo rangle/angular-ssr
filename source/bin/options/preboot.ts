@@ -1,6 +1,6 @@
-import {PrebootConfiguration} from '../application/preboot';
+import {PrebootConfiguration} from '../../application/preboot';
 
-import {JsonSchema, ValidatorResult} from '../transformation';
+import {JsonSchema, ValidatorResult} from '../../transformation';
 
 const prebootSchema = new JsonSchema({
   $schema: 'http://json-schema.org/draft-04/schema#',

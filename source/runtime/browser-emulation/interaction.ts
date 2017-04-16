@@ -18,11 +18,11 @@ function focus() {
   this().focus();
 }
 
-export const bindInteractions = targetWindow => ({
+export const bindInteractions = (target: () => Window) => ({
   alert,
-  blur: blur.bind(targetWindow),
+  blur: blur.bind(target),
   confirm,
   print,
   prompt,
-  focus: focus.bind(targetWindow)
+  focus: focus.bind(target)
 });

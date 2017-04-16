@@ -6,15 +6,14 @@ import {
   ApplicationRenderer,
   ApplicationBuilderFromSource,
   Files,
-  HtmlOutput,
   PathReference,
   log,
   pathFromString,
 } from '../index';
 
-import {commandLineToOptions} from './options';
+import {parseCommandLineOptions} from './options';
 
-const options = commandLineToOptions();
+const options = parseCommandLineOptions();
 
 patchModuleSearch(options.project.basePath, pathFromString(__dirname));
 
@@ -30,7 +29,7 @@ const applicationRenderer = new ApplicationRenderer(application);
 
 const execute = async () => {
   try {
-    await applicationRenderer.prerenderTo(new HtmlOutput(options.output));
+    await applicationRenderer.prerenderTo(options.output);
   }
   finally {
     // If we are debugging, then we are likely to produce a stack trace that includes compiled

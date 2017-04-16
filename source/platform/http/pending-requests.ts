@@ -4,7 +4,7 @@ import {Observable, BehaviorSubject} from 'rxjs';
 
 @Injectable()
 export class PendingRequests {
-  private subject = new BehaviorSubject<number>(0);
+  private readonly subject = new BehaviorSubject<number>(0);
 
   increase() {
     this.subject.next(this.subject.value + 1);

@@ -2,17 +2,17 @@ import {Postprocessor} from '../../application/contracts';
 
 import {SnapshotException} from '../../exception';
 
-export const transformDocument = (processors: Array<Postprocessor>, document: Document & { outerHTML?: string }) => {
+export const transformDocument = (processors: Array<Postprocessor>, document: Document) => {
   for (const processor of processors || []) {
     switch (processor.length) {
       case 1:
         processor(document);
         break;
       case 2:
-        const result = processor(document, document.outerHTML);
+        const result = processor(document, document.documentElement.outerHTML);
         switch (typeof result) {
           case 'string':
-            document.outerHTML = result as string;
+            document.documentElement.outerHTML = <string> result;
             break;
           default:
             if (result != null) {

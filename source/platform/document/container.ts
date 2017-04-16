@@ -2,9 +2,7 @@ import {Injectable, Inject, OnDestroy} from '@angular/core';
 
 import {TemplateDocument, RequestUri} from './tokens';
 
-import {bootWindow, upgradeWindow} from '../../runtime/browser-emulation';
-
-const domino = require('domino');
+import {bootWindow, createModernWindow} from '../../runtime/browser-emulation';
 
 @Injectable()
 export class DocumentContainer implements OnDestroy {
@@ -14,19 +12,9 @@ export class DocumentContainer implements OnDestroy {
     @Inject(TemplateDocument) templateDocument: string,
     @Inject(RequestUri) requestUri: string,
   ) {
-    // TODO(bond): Instead of creating a new window we need to find a way to clone bootWindow so that
-    // we do not lose event handlers and such that were configured during initialization. Libraries
-    // like bootstrap modify document as part of their initial execution instead of as part of a runtime
-    // initialization process. (i.e., import 'bootstrap' will cause the DOM to change / listeners to be
-    // added / etc). As to how we would merge bootWindow.document with templateDocument, I haven't
-    // figured that out yet.
-    this.windowRef = domino.createWindow(templateDocument, requestUri);
-
-    upgradeWindow(this.window, () => this.window);
+    this.windowRef = createModernWindow(templateDocument, requestUri);
 
     this.cloneFrom(bootWindow.document);
-
-    Object.defineProperties(this.windowRef, {navigator: {get: () => global['navigator']}});
   }
 
   get window(): Window {
@@ -42,17 +30,27 @@ export class DocumentContainer implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.complete();
+    // NOTE(bond): This is a feeble attempt to avoid memory leaks by deleting all document elements
+    // and therefore all event handlers associated with them as soon as we finish rendering. As to
+    // whether or not this is going to have any positive effect or not, I do not know.
+    this.document.documentElement.outerHTML = String();
+
+    delete this.windowRef;
   }
 
   private cloneFrom(document: Document) {
+    // NOTE(bond): Calling this more than once is probably not a smart idea and this code should
+    // either be removed or refactored. Perhaps this event should just be dispatched on bootWindow
+    // creation instead of when we are ready to clone from it when creating a new DOM.
     bootWindow.document.dispatchEvent(new Event('DOMContentLoaded'));
 
     if (document.title) {
       this.document.title = document.title;
     }
 
-    for (const tag of ['head', 'body']) { // clone from boot window
+    const cloneContainers = ['head', 'body'];
+
+    for (const tag of cloneContainers) {
       if (this.document[tag] == null) {
         this.document.appendChild(this.document.createElement(tag));
       }

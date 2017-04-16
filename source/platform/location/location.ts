@@ -15,7 +15,7 @@ import {DocumentContainer, RequestUri} from '../document';
 export class LocationImpl implements PlatformLocation, OnDestroy {
   initializationPromise: Promise<void>;
 
-  private destruction = new Array<() => void>();
+  private readonly destruction = new Array<() => void>();
 
   private initialized: () => void;
 

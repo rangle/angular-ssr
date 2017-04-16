@@ -10,4 +10,4 @@ export class MutationObserver implements MutationObserver {
   }
 }
 
-export const bindMutation = targetWindow => ({MutationObserver});
+export const bindMutation = (target: () => Window) => ({MutationObserver});

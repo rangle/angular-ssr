@@ -21,7 +21,7 @@ export class TrieNode<T> {
 }
 
 export class Trie<V, T> {
-  private root = new TrieNode<T>(null);
+  private readonly root = new TrieNode<T>(null);
 
   private keys: Array<string>;
 
