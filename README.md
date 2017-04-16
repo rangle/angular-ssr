@@ -175,14 +175,14 @@ If you want to roll your own caching solution, or just not cache anything, you a
 
 If your application does not fall into the categories described above (i.e., you do not need on-demand server-side rendering of all URLs), then perhaps your application falls into another category: single-use server-side rendering as part of the application build process.
 
-In this case, your code will look similar to the HTTP server code above, but instead of integrating with express, you will simply use `ApplicationRenderer` to pre-render all application routes and write them to static `.html` files, which you can then serve with the HTTP server of your choosing. Again: this case only makes sense if you do not need on-demand rendering of all application routes.
+In this case, your code will look similar to the HTTP server code above, but instead of integrating with express, you will simply use `ApplicationPrerenderer` to pre-render all application routes and write them to static `.html` files, which you can then serve with the HTTP server of your choosing. Again: this case only makes sense if you do not need on-demand rendering of all application routes.
 
 In this case, your code will look something like this:
 
 ```typescript
 import {
   ApplicationBuilderFromModule,
-  ApplicationRenderer,
+  ApplicationPrerenderer,
   HtmlOutput,
 } from 'angular-ssr';
 
@@ -198,7 +198,7 @@ const application = builder.build();
 
 const html = new HtmlOutput(dist);
 
-const renderer = new ApplicationRenderer(application);
+const renderer = new ApplicationPrerenderer(application);
 
 renderer.renderTo(html)
   .catch(exception => {

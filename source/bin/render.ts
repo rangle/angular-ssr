@@ -3,7 +3,7 @@ import './vendor';
 import chalk = require('chalk');
 
 import {
-  ApplicationRenderer,
+  ApplicationPrerenderer,
   ApplicationBuilderFromSource,
   Files,
   PathReference,
@@ -25,7 +25,7 @@ builder.preboot(options.preboot);
 
 const application = builder.build();
 
-const applicationRenderer = new ApplicationRenderer(application);
+const applicationRenderer = new ApplicationPrerenderer(application);
 
 const execute = async () => {
   try {

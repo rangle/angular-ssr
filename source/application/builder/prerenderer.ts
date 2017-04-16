@@ -2,7 +2,7 @@ import {OutputProducer} from '../../output';
 
 import {Application} from '../builder';
 
-export class ApplicationRenderer {
+export class ApplicationPrerenderer {
   constructor(private application: Application<any>) {}
 
   async prerenderTo(output: OutputProducer): Promise<void> {
