@@ -8,4 +8,7 @@ export namespace FallbackOptions {
   // used for things like booting an application to extract the router configuration from. In that
   // particular case it doesn't matter what the URI is because we are not rendering.
   export const fallbackUri = 'http://localhost/';
+
+  // Locale to fall back on when none is specified with LOCALE_ID
+  export const locale = 'en-US';
 }

@@ -1,5 +1,3 @@
-import {LOCALE_ID} from '@angular/core';
-
 import {PlatformLocation} from '@angular/common';
 
 import {ConsoleCollector} from '../collectors';
@@ -45,30 +43,16 @@ Object.defineProperties(global, {
   },
   navigator: {
     get: () => {
-      return {
-        get userAgent() {
-          return 'Chrome';
-        },
-        get language() {
-          const locale = injectableFromZone(Zone.current, LOCALE_ID);
-          if (locale) {
-            return locale;
-          }
-          return 'en-US';
-        },
-        get cookieEnabled() {
-          return false;
-        }
-      };
-    }
+      return window.navigator;
+    },
   },
   window: {
     get: () => {
-      const w = injectableFromZone(Zone.current, DocumentContainer);
-      if (w) {
-        return w.window;
-      }
-      return bootWindow;
+      const documentContainer = injectableFromZone(Zone.current, DocumentContainer);
+
+      return documentContainer == null
+        ? bootWindow
+        : documentContainer.window;
     }
   },
 });
