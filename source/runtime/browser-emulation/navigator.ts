@@ -1,6 +1,6 @@
 import {LOCALE_ID} from '@angular/core';
 
-import {injectableFromZone} from '../../index';
+import {injectableFromZone} from '../../platform/zone/injector-map';
 
 const navigator = {
   get userAgent() {
@@ -19,20 +19,19 @@ const navigator = {
 };
 
 const parseLanguage = (lang: string): string => {
-  try {
-    const [code, subcode, country] = lang.split(/[_-]/g);
-
-    if (country) {
-      return `${code}-${subcode}_${country}`;
-    }
-    else if (subcode) {
-      return `${code}-${subcode}`;
-    }
-    return code;
+  if (lang == null || lang.length === 0) {
+    return null;
   }
-  catch (exception) {}
 
-  return null;
+  const [code, subcode, country] = lang.split(/[_-]/g);
+
+  if (country) {
+    return `${code}-${subcode}_${country}`;
+  }
+  else if (subcode) {
+    return `${code}-${subcode}`;
+  }
+  return code;
 };
 
 export const bindNavigator = (target: () => Window) => navigator;
