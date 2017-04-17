@@ -87,4 +87,12 @@ describe('ApplicationBuilderFromSource', () => {
       application.dispose();
     }
   });
+
+  afterEach(() => {
+    if (typeof gc !== 'undefined') {
+      gc(); // webpack uses so much memory
+    }
+  })
 });
+
+declare const gc;

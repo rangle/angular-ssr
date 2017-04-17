@@ -1,16 +1,29 @@
 machine:
+  environment:
+    YARN_VERSION: 0.23.2
+    PATH: "${PATH}:${HOME}/.yarn/bin"
   node:
-    version: 6.10.1
-  post:
-    - npm install -g npm@3.10.10
+    version: 6.9
+
+dependencies:
+  pre:
+    - |
+      if test ! -e ~/.yarn/bin/yarn -o $(yarn --version) != "${YARN_VERSION}"; then
+        curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version $YARN_VERSION
+      fi
+  override:
+    - yarn install
 
 checkout:
   post:
-    - npm install
-    - npm run build
-    - npm run build-examples
+    - yarn
+    - yarn run build
+    - yarn run build-examples
 
 test:
+  override:
+    - node --expose_gc --always_compact ./node_modules/.bin/jest --logHeapUsage --coverage=true:
+        timeout: 900
   post:
     - cp -r coverage $CIRCLE_ARTIFACTS
     - ./bin/coverage.sh
