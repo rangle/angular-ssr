@@ -13,7 +13,7 @@ import {CompilerException} from '../../exception';
 
 import {ModuleDeclaration, Project} from '../project';
 
-import {discoverRootModule} from './../static';
+import {discoverRootModule} from '../static';
 
 export interface CompilationOptions {
   ts: CompilerOptions;

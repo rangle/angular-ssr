@@ -3,7 +3,7 @@ import {NgModuleFactory} from '@angular/core';
 import {join} from 'path';
 
 import {CompilerException} from '../../../exception';
-import {ModuleDeclaration, Project} from './../../project';
+import {ModuleDeclaration, Project} from '../../project';
 import {ModuleLoader} from '../loader';
 
 export type Chunk = {name: string, files: Array<string>};

@@ -1,19 +1,11 @@
-import {PlatformLocation} from '@angular/common';
+import './assertions';
 
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
-import {PlatformException} from '../../exception';
+import {LocationImpl} from '../location/location';
 import {RuntimeModuleLoader} from '../module/runtime-loader';
 import {bootWindow} from '../../runtime/browser-emulation';
 import {injectableFromZone} from './injector-map';
-
-if (typeof window !== 'undefined' || typeof document !== 'undefined') {
-  throw new PlatformException('Executing in a NodeJS environment but window and document are non-null!');
-}
-
-if (typeof Zone === 'undefined') {
-  throw new PlatformException(`You must import zone.js into this process (Zone is undefined)`);
-}
 
 export const baseConsole = console;
 
@@ -25,20 +17,20 @@ Object.defineProperties(global, {
   },
   document: {
     get: () => {
-      const doc = injectableFromZone(Zone.current, DocumentContainer);
-      if (doc) {
-        return doc.document;
+      let container: {document} = injectableFromZone(Zone.current, DocumentContainer);
+      if (container == null) {
+        container = bootWindow;
       }
-      return bootWindow.document;
+      return container.document;
     }
   },
   location: {
     get: () => {
-      const location = injectableFromZone(Zone.current, PlatformLocation);
-      if (location) {
-        return location;
+      let location: Location = injectableFromZone(Zone.current, LocationImpl);
+      if (location == null) {
+        location = window.location;
       }
-      return bootWindow.location;
+      return location;
     }
   },
   navigator: {

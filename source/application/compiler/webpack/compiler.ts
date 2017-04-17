@@ -7,7 +7,7 @@ import {createProgram} from 'typescript';
 import {Provider} from '@angular/core';
 
 import {ApplicationCompiler} from '../compiler';
-import {CompilerException} from './../../../exception';
+import {CompilerException} from '../../../exception';
 import {ConfigurationLoader} from './config';
 import {ModuleLoader} from '../loader';
 import {Project} from '../../project';

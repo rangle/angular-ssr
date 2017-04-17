@@ -1,9 +1,9 @@
-import {NotImplementedException} from '../../exception';
+import {NotSupportedException} from '../../exception';
 
 const alert = (message: string) => {};
 
 const confirm = (message) => {
-  throw new NotImplementedException();
+  throw new NotSupportedException();
 }
 
 const print = () => {};

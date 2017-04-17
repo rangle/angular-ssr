@@ -8,7 +8,7 @@ import {
 
 import {dirname, relative, resolve} from 'path';
 
-import {ModuleDeclaration} from './../project';
+import {ModuleDeclaration} from '../project';
 
 import {traverse} from './traverse';
 

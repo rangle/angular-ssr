@@ -8,7 +8,7 @@ import {
 
 import {ModuleDeclaration} from '../../project';
 import {PathReference} from '../../../filesystem';
-import {isExternalModule} from './../predicates';
+import {isExternalModule} from '../predicates';
 import {importClause} from '../find';
 import {traverse} from '../traverse';
 

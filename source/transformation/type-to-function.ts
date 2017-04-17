@@ -1,6 +1,6 @@
 import {Injector, ReflectiveInjector, Type} from '@angular/core';
 
-import {isInjectable} from './../platform/module/metadata/decorators';
+import {isInjectable} from '../platform/module/metadata/decorators';
 
 export type InjectorFunction<R> = (injector: Injector, ...args) => R;
 

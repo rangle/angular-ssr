@@ -23,7 +23,13 @@ export class AggregateException extends Exception {
 
 export class NotImplementedException extends Exception {
   constructor() {
-    super(chalk.red('Not implemented'));
+    super('Not implemented');
+  }
+}
+
+export class NotSupportedException extends Exception {
+  constructor() {
+    super('This operation is not supported in a browserless context and never will be');
   }
 }
 

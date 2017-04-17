@@ -1,8 +1,8 @@
 import {join} from 'path';
 
 import {ApplicationBuilderFromSource} from '../from-source';
-import {Project} from './../../project';
-import {absoluteFile, absolutePath, pathFromRandomId} from './../../../filesystem';
+import {Project} from '../../project';
+import {absoluteFile, absolutePath, pathFromRandomId} from '../../../filesystem';
 import {templateDocument, getApplicationProject, getApplicationRoot} from '../../../test/fixtures';
 
 describe('ApplicationFromSource', () => {
