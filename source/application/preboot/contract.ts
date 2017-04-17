@@ -9,7 +9,7 @@ export type PrebootBaseOptions = {
   noInlineCache?: boolean;
 };
 
-export type PrebootConfiguration = (PrebootApplicationRoot | PrebootSeparateRoots) & PrebootBaseOptions;
+export type PrebootConfiguration = (PrebootApplicationRoot | PrebootSeparateRoots | {}) & PrebootBaseOptions;
 
 export interface EventSelector {
   selector: string;

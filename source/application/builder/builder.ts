@@ -52,6 +52,8 @@ export interface ApplicationBuilder<V> {
   postprocess(transform?: Postprocessor): Array<Postprocessor>;
 
   // Enable preboot integration and specify options that will be passed to preboot when the
-  // inline code is generated and injected into the document.
-  preboot(config?: PrebootConfiguration): PrebootConfiguration;
+  // inline code is generated and injected into the document. If you just specify true,
+  // then we will automatically look up the root element tags based on the components that
+  // your application bootstraps.
+  preboot(preboot?: PrebootConfiguration | boolean): PrebootConfiguration;
 }

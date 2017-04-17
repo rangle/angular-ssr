@@ -204,9 +204,9 @@ describe('ApplicationBuilderFromModule', () => {
     }
   });
 
-  it('can apply postprocessor to rendered document string', async () => {
+  it('can inject preboot initialization code into rendered document', async () => {
     const application = loadApplicationFixtureFromModule(BasicInlineModule,
-      b => b.postprocess((document, rendered) => rendered.replace('Hello!', 'What up sucka!')));
+      b => b.preboot({appRoot: 'application'}));
 
     try {
       const snapshots = await application.prerender();
@@ -215,7 +215,32 @@ describe('ApplicationBuilderFromModule', () => {
         snapshots.subscribe(
           snapshot => {
             assertSnapshot(snapshot);
-            const expr = /<application ng-version="([^"]+)"><div>What up sucka!<\/div><\/application>/;
+            const expr = /prebootstrap\(\).init\({(.*),"appRoot":"application"}\);/;
+            expect(snapshot.exceptions).not.toBeNull();
+            expect(snapshot.exceptions.length).toBe(0);
+            expect(snapshot.variant).toBeUndefined();
+            expect(snapshot.applicationState).toBeUndefined();
+            expect(expr.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
+            resolve();
+          },
+          exception => reject(exception));
+      });
+    }
+    finally {
+      application.dispose();
+    }
+  });
+
+  it('can auto-detect root component selector when injecting preboot code', async () => {
+    const application = loadApplicationFixtureFromModule(BasicInlineModule, b => b.preboot(true));
+    try {
+      const snapshots = await application.prerender();
+
+      return await new Promise((resolve, reject) => {
+        snapshots.subscribe(
+          snapshot => {
+            assertSnapshot(snapshot);
+            const expr = /prebootstrap\(\).init\({(.*),"appRoot":\["application"\]}\);/;
             expect(snapshot.exceptions).not.toBeNull();
             expect(snapshot.exceptions.length).toBe(0);
             expect(snapshot.variant).toBeUndefined();
@@ -288,6 +313,33 @@ describe('ApplicationBuilderFromModule', () => {
             const trimmed = trimDocument(snapshot.renderedDocument);
             expect(expr1.test(trimmed)).toBeTruthy();
             expect(expr2.test(trimmed)).toBeTruthy();
+            resolve();
+          },
+          exception => reject(exception));
+      });
+    }
+    finally {
+      application.dispose();
+    }
+  });
+
+  it('can apply postprocessor to rendered document string', async () => {
+    const application = loadApplicationFixtureFromModule(BasicInlineModule,
+      b => b.postprocess((document, rendered) => rendered.replace('Hello!', 'What up sucka!')));
+
+    try {
+      const snapshots = await application.prerender();
+
+      return await new Promise((resolve, reject) => {
+        snapshots.subscribe(
+          snapshot => {
+            assertSnapshot(snapshot);
+            const expr = /<application ng-version="([^"]+)"><div>What up sucka!<\/div><\/application>/;
+            expect(snapshot.exceptions).not.toBeNull();
+            expect(snapshot.exceptions.length).toBe(0);
+            expect(snapshot.variant).toBeUndefined();
+            expect(snapshot.applicationState).toBeUndefined();
+            expect(expr.test(trimDocument(snapshot.renderedDocument))).toBeTruthy();
             resolve();
           },
           exception => reject(exception));

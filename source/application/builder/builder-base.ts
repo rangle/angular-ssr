@@ -59,9 +59,14 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
     return this.operation.routes || [];
   }
 
-  preboot(config?: PrebootConfiguration) {
-    if (config != null) {
-      this.operation.preboot = config as PrebootQueryable;
+  preboot(preboot?: PrebootConfiguration | boolean) {
+    if (preboot != null) {
+      if (typeof preboot === 'boolean') {
+        this.operation.preboot = preboot ? {} as PrebootQueryable : null;
+      }
+      else {
+        this.operation.preboot = preboot as PrebootQueryable;
+      }
     }
     return this.operation.preboot as PrebootConfiguration;
   }

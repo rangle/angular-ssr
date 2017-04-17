@@ -13,7 +13,7 @@ import {timeouts} from '../static';
 import {
   injectPreboot,
   injectState,
-  transformDocument
+  transformAndSerializeDocument
 } from './creator';
 
 import {
@@ -58,9 +58,9 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
 
     const applicationState = await injectState(moduleRef, stateReader, container.document)
 
-    injectPreboot(moduleRef, vop);
+    injectPreboot(moduleRef, vop); // conditional on config
 
-    const renderedDocument = transformDocument(postprocessors, container.document);
+    const renderedDocument = transformAndSerializeDocument(postprocessors, container.document);
 
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }
