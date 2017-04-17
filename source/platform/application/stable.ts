@@ -18,6 +18,7 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
         console.warn(chalk.yellow(`Timed out while waiting for NgZone to become stable after ${timeout}ms! This is a serious performance problem!`));
         console.warn(chalk.yellow('This likely means that your application is stuck in an endless loop of change detection or some other pattern of misbehaviour'));
         console.warn(chalk.yellow('In a normal application, a zone becomes stable very quickly'));
+        console.warn('You can adjust the zone stable timeout (or disable it) with ApplicationBuilder::stabilizeTimeout()');
         resolve();
       },
       timeout);

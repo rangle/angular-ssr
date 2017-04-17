@@ -8,7 +8,7 @@ import {RenderOperation} from '../operation';
 import {Route} from '../../route';
 
 export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V> {
-  protected operation: Partial<RenderOperation> = {};
+  protected operation: Partial<RenderOperation> = {stabilizeTimeout: 5000};
 
   constructor(templateDocument?: FileReference | string) {
     if (templateDocument) {
@@ -26,7 +26,7 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
   }
 
   bootstrap(bootstrapper?: ApplicationBootstrapper) {
-    if (bootstrapper) {
+    if (bootstrapper !== undefined) {
       if (this.operation.bootstrappers == null) {
         this.operation.bootstrappers = [];
       }
@@ -36,7 +36,7 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
   }
 
   postprocess(transform?: Postprocessor) {
-    if (transform) {
+    if (transform !== undefined) {
       if (this.operation.postprocessors == null) {
         this.operation.postprocessors = [];
       }
@@ -46,21 +46,21 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
   }
 
   variants(map: VariantsMap) {
-    if (map) {
+    if (map !== undefined) {
       this.operation.variants = map;
     }
     return this.operation.variants;
   }
 
   routes(routes?: Array<Route>) {
-    if (routes) {
+    if (routes !== undefined) {
       this.operation.routes = routes;
     }
     return this.operation.routes || [];
   }
 
   preboot(preboot?: PrebootConfiguration | boolean) {
-    if (preboot != null) {
+    if (preboot !== undefined) {
       if (typeof preboot === 'boolean') {
         this.operation.preboot = preboot ? {} as PrebootQueryable : null;
       }
@@ -72,10 +72,17 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
   }
 
   stateReader<R>(stateReader?: ApplicationStateReader<R>) {
-    if (stateReader) {
+    if (stateReader !== undefined) {
       this.operation.stateReader = stateReader;
     }
     return this.operation.stateReader as any;
+  }
+
+  stabilizeTimeout(milliseconds?: number): number | null {
+    if (milliseconds !== undefined) {
+      this.operation.stabilizeTimeout = milliseconds;
+    }
+    return this.operation.stabilizeTimeout;
   }
 }
 

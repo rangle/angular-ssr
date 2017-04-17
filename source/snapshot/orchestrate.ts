@@ -8,8 +8,6 @@ import {RenderVariantOperation} from '../application/operation';
 
 import {Snapshot} from './snapshot';
 
-import {timeouts} from '../static';
-
 import {
   injectPreboot,
   injectState,
@@ -25,7 +23,7 @@ import {
 } from '../platform';
 
 export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVariantOperation<V>): Promise<Snapshot<V>> => {
-  const {variant, uri, scope: {stateReader, postprocessors}} = vop;
+  const {variant, uri, scope: {stateReader, postprocessors, stabilizeTimeout}} = vop;
 
   const snapshot: Snapshot<V> = {
     console: new Array<ConsoleLog>(),
@@ -52,7 +50,7 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
     // app to become stable, so there is no performance loss.
     tick(moduleRef);
 
-    await waitForApplicationToBecomeStable(moduleRef, timeouts.application.bootstrap);
+    await waitForApplicationToBecomeStable(moduleRef, stabilizeTimeout);
 
     tick(moduleRef);
 

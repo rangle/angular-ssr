@@ -54,6 +54,11 @@ export interface RenderOperation {
 
   // Optional preboot configuration, if preboot integration is desired
   preboot: PrebootQueryable;
+
+  // The number of milliseconds we will wait for the application zone to become stable on startup.
+  // If this value is null, we will wait forever. It is recommended that you set this to a low
+  // value if you are doing on-demand rendering. For build-time rendering, high values are fine.
+  stabilizeTimeout?: number;
 }
 
 export interface RenderVariantOperation<V> {
