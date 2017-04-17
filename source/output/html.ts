@@ -6,7 +6,7 @@ import {Files} from '../static';
 import {OutputProducer} from './producer';
 import {OutputException} from '../exception';
 import {PathReference, fileFromString, pathFromString} from '../filesystem';
-import {Snapshot, assertSnapshot} from '../snapshot';
+import {Snapshot} from '../snapshot';
 import {inlineResources} from './inline';
 import {log} from './log';
 import {pathFromUri} from '../route';
@@ -38,8 +38,6 @@ export class HtmlOutput implements OutputProducer {
   }
 
   async write<V>(snapshot: Snapshot<V>): Promise<void> {
-    assertSnapshot(snapshot);
-
     const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), Files.index));
 
     log.info(`Rendered route ${pathFromUri(snapshot.uri)} to ${file} `);

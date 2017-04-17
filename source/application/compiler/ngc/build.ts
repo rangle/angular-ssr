@@ -102,7 +102,7 @@ const bareSource = (source: string): string => {
     return source;
   }
 
-  if (/\.ngfactory\.(ts|js)$/.test(source) === false) {
+  if (/\.ngfactory\.(ts|js)$/i.test(source) === false) {
     source = source.replace(/\.(js|ts)$/, String());
     source = source.replace(/\.ngfactory$/, String());
 

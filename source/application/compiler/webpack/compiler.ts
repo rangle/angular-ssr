@@ -29,7 +29,7 @@ export class WebpackCompiler implements ApplicationCompiler {
 
     this.project.applicationModule = loadApplicationModule(
       program,
-      this.project.basePath.toString(),
+      this.project.basePath,
       this.project.applicationModule);
 
     const entries = {

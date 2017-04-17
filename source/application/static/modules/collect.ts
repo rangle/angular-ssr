@@ -36,7 +36,7 @@ export const collectModules = (basePath: PathReference, program: Program): Array
 
           if (imported.symbol === 'NgModule') {
             modules.push({
-              source: sourceFile.fileName,
+              source: sourceFile.fileName.replace(/\.(ts|js)$/i, String()),
               symbol: node.name.text,
             });
           }

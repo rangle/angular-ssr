@@ -6,7 +6,7 @@ import {
   VariantsMap
 } from './contracts';
 
-import {Preboot} from './preboot';
+import {PrebootQueryable} from './preboot';
 
 import {Route} from '../route';
 
@@ -53,7 +53,7 @@ export interface RenderOperation {
   postprocessors: Array<Postprocessor>;
 
   // Optional preboot configuration, if preboot integration is desired
-  preboot: Preboot;
+  preboot: PrebootQueryable;
 }
 
 export interface RenderVariantOperation<V> {

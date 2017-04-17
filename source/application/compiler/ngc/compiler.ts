@@ -62,7 +62,7 @@ export class NgcCompiler implements ApplicationCompiler {
 
     this.project.applicationModule = loadApplicationModule(
       program,
-      this.project.basePath.toString(),
+      this.project.basePath,
       this.project.applicationModule);
 
     const roots = this.roots(program);

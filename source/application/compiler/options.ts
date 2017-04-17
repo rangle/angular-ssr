@@ -10,9 +10,8 @@ import {
 } from 'typescript';
 
 import {CompilerException} from '../../exception';
-
 import {ModuleDeclaration, Project} from '../project';
-
+import {PathReference} from '../../filesystem';
 import {discoverRootModule} from '../static';
 
 export interface CompilationOptions {
@@ -51,7 +50,7 @@ const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions => {
 
 const testHeuristic = (filename: string) => /(e2e|\.?(spec|tests?)\.)/.test(filename);
 
-export const loadApplicationModule = (program: Program, basePath: string, module: ModuleDeclaration): ModuleDeclaration => {
+export const loadApplicationModule = (program: Program, basePath: PathReference, module: ModuleDeclaration): ModuleDeclaration => {
   const invalid = () => !module || !module.source || !module.symbol;
 
   if (invalid()) {

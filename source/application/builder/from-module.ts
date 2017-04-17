@@ -22,7 +22,7 @@ export class ApplicationBuilderFromModule<V, M> extends ApplicationBuilderBase<V
       }
     }
 
-    const promise = platform.compileModule(this.moduleType, []);
+    const promise = platform.compileModule(this.moduleType);
 
     return new ApplicationFromModule(platform, <RenderOperation> this.operation, () => promise);
   }

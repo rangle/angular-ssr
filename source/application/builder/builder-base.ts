@@ -3,7 +3,7 @@ import {ApplicationBuilder} from './builder';
 import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
 import {ConfigurationException} from '../../exception';
 import {FileReference, fileFromString} from '../../filesystem';
-import {Preboot, PrebootConfiguration} from '../preboot';
+import {PrebootQueryable, PrebootConfiguration} from '../preboot';
 import {RenderOperation} from '../operation';
 import {Route} from '../../route';
 
@@ -61,7 +61,7 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
 
   preboot(config?: PrebootConfiguration) {
     if (config != null) {
-      this.operation.preboot = config as Preboot;
+      this.operation.preboot = config as PrebootQueryable;
     }
     return this.operation.preboot as PrebootConfiguration;
   }

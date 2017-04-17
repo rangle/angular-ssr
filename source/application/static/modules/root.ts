@@ -9,13 +9,14 @@ import {
 import chalk = require('chalk');
 
 import {ModuleDeclaration} from '../../project';
+import {PathReference} from '../../../filesystem';
 import {StaticAnalysisException} from '../../../exception';
 import {importClause, exportClause} from '../find';
 import {BootstrapFunctions} from '../../../static';
 import {isExternalModule} from '../predicates';
 import {traverse} from '../traverse';
 
-export const discoverRootModule = (basePath: string, program: Program): ModuleDeclaration => {
+export const discoverRootModule = (basePath: PathReference, program: Program): ModuleDeclaration => {
   const identifiers = Object.keys(BootstrapFunctions).map(k => BootstrapFunctions[k]).join('|');
 
   const expression = new RegExp(`(\.${identifiers})`);
@@ -51,12 +52,12 @@ export const discoverRootModule = (basePath: string, program: Program): ModuleDe
       });
 
     for (const identifier of Array.from(bootstrapIdentifiers)) {
-      const imported = importClause(basePath, sourceFile, identifier);
+      const imported = importClause(basePath.toString(), sourceFile, identifier);
       if (imported) {
         candidates.push(imported);
       }
       else {
-        const declaration = exportClause(basePath, sourceFile, identifier);
+        const declaration = exportClause(basePath.toString(), sourceFile, identifier);
         if (declaration) {
           const descriptions = [
             'Pairing bootstrapModule or bootstrapModuleFactory with the root @NgModule in the same file will not work',

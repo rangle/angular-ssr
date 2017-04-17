@@ -11,22 +11,21 @@ import {
   FileReference,
   FileType,
   Files,
+  HtmlOutput,
   InterprocessOutput,
   PathReference,
   PrebootConfiguration,
   Project,
+  OutputProducer,
   absoluteFile,
   fileFromString,
   fromJson,
   pathFromRandomId,
   pathFromString,
-  HtmlOutput,
-  OutputProducer,
+  validatePrebootOptionsAgainstSchema
 } from '../../index';
 
 import {CommandLineOptions} from './options';
-
-import {validatePrebootOptionsAgainstSchema} from './preboot';
 
 const {version} = require('../../../package.json');
 

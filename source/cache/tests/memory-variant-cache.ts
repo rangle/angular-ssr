@@ -22,4 +22,17 @@ describe('MemoryVariantCache', () => {
 
     await cache.get('http://localhost/2', {foo: false, bar: 2}); // not recreated, must be cached version
   });
+
+  it('moves URIs that have been requested to the front of the priority set', async () => {
+    const mockApplication = {renderUri: () => Promise.resolve({})};
+    const cache = new MemoryVariantCache<Variants>(mockApplication as any, 2);
+    await cache.get('http://localhost/1', {foo: true, bar: 0});
+    await cache.get('http://localhost/2', {foo: false, bar: 2});
+    await cache.get('http://localhost/3', {foo: false, bar: 2});
+    expect(cache.has('http://localhost/2', {foo: false, bar: 2})).toBeTruthy();
+    expect(cache.has('http://localhost/3', {foo: false, bar: 2})).toBeTruthy();
+    await cache.get('http://localhost/4', {foo: false, bar: 2});
+    expect(cache.has('http://localhost/1', {foo: true, bar: 0})).toBeFalsy();
+    expect(cache.has('http://localhost/2', {foo: false, bar: 2})).toBeFalsy();
+  });
 });

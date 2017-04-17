@@ -28,7 +28,7 @@ export class ServerPlatform implements PlatformRef {
 
   constructor(@Inject(Injector) public injector: Injector) {}
 
-  compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions>) {
+  compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []) {
     const compiler = this.getCompiler(compilerOptions);
 
     return compiler.compileModuleAsync(moduleType);

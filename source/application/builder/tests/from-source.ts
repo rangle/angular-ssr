@@ -5,7 +5,7 @@ import {Project} from '../../project';
 import {absoluteFile, absolutePath, pathFromRandomId} from '../../../filesystem';
 import {templateDocument, getApplicationProject, getApplicationRoot} from '../../../test/fixtures';
 
-describe('ApplicationFromSource', () => {
+describe('ApplicationBuilderFromSource', () => {
   it('can compile a project from source and render it', async () => {
     const builder = new ApplicationBuilderFromSource(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'), templateDocument);
 

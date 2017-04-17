@@ -1,6 +1,6 @@
 import {permutations} from '../permutations';
 
-describe('variants', () => {
+describe('Variants', () => {
   it('can return all permutations of variant options', () => {
     type AppVariants = {language: string, production: boolean, anonymous: boolean};
 

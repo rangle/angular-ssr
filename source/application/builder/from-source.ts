@@ -28,7 +28,7 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
       loader
         .then(l => l.load())
         .then(m => typeof m !== 'object'
-          ? platform.compileModule(m, [])
+          ? platform.compileModule(m)
           : m);
 
     class ApplicationFromSource extends ApplicationBase<V, any> {

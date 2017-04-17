@@ -2,6 +2,7 @@ import {join} from 'path';
 
 import {
   CompilerOptions,
+  Program,
   SourceFile,
   ScriptTarget,
   createCompilerHost,
@@ -9,24 +10,22 @@ import {
   createSourceFile,
 } from 'typescript';
 
-import {discoverRootModule} from '../root';
+import {collectModules, discoverRootModule} from '..';
 
-import {pathFromRandomId} from '../../../../filesystem';
+import {PathReference, pathFromRandomId} from '../../../../filesystem';
 
 import {randomId} from '../../../../static';
 
-describe('discoverRootModule', () => {
-  it('can discover root application module from TypeScript source', () => {
-    const root = pathFromRandomId().toString();
-
-    const moduleFile = sourceToSourceFile(root, `
+describe('Module discovery', () => {
+  const createExampleProgram = (root: PathReference): [string, Program] => {
+    const moduleFile = sourceToSourceFile(root.toString(), `
       import {NgModule} from '@angular/core';
 
       @NgModule()
       export class RootModule {}
     `);
 
-    const mainFile = sourceToSourceFile(root, `
+    const mainFile = sourceToSourceFile(root.toString(), `
       import {RootModule} from './${moduleFile.fileName.replace(/\.ts$/, String())}';
 
       platformBrowserDynamic().bootstrapModule(RootModule);
@@ -51,14 +50,27 @@ describe('discoverRootModule', () => {
 
     host.fileExists = filename => filename === moduleFile.fileName || filename === mainFile.fileName;
 
-    const program = createProgram([moduleFile.fileName, mainFile.fileName], options, host);
+    return [moduleFile.fileName, createProgram([moduleFile.fileName, mainFile.fileName], options, host)];
+  };
 
+  it('can locate root application module in a project', () => {
+    const root = pathFromRandomId();
+    const [moduleFile, program] = createExampleProgram(root);
     const descriptor = discoverRootModule(root, program);
     expect(descriptor).not.toBeNull();
-    expect(descriptor.source).toEqual(moduleFile.fileName.replace(/(^(\\|\/)|\.ts$)/g, String()));
-    expect(descriptor.symbol).toBe('RootModule');
+    expect(descriptor.source).toEqual(moduleFile.replace(/(^(\\|\/)|\.ts$)/g, String()));
+    expect(descriptor.symbol).toEqual('RootModule');
+  });
+
+  it('can discover all @NgModule classes in a project', () => {
+    const root = pathFromRandomId();
+    const [moduleFile, program] = createExampleProgram(root);
+    const modules = collectModules(root, program);
+    expect(modules).not.toBeNull();
+    expect(modules.length).toBe(1);
+    expect(modules[0].source).toEqual(moduleFile.replace(/\.(ts|js)$/i, String()));
+    expect(modules[0].symbol).toEqual('RootModule');
   });
 });
 
-const sourceToSourceFile = (root: string, code: string): SourceFile =>
-  createSourceFile(join(root, `${randomId()}.ts`), code, ScriptTarget.ES5, true);
+const sourceToSourceFile = (root: string, code: string): SourceFile => createSourceFile(join(root, `${randomId()}.ts`), code, ScriptTarget.ES5, true);

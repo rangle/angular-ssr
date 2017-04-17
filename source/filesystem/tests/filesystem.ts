@@ -4,7 +4,7 @@ import {FileType} from '../type';
 import {fileFromString, pathFromString, pathFromRandomId} from '../factories';
 import {randomId} from '../../static';
 
-describe('filesystem', () => {
+describe('Filesystem', () => {
   it('can create a file with text content', () => {
     const path = pathFromRandomId();
     path.mkdir();
