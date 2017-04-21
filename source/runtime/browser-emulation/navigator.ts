@@ -20,4 +20,4 @@ const navigator = {
   }
 };
 
-export const bindNavigator = (target: () => Window) => navigator;
+export const bindNavigator = (target: () => Window) => ({navigator});

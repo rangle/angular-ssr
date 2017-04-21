@@ -13,7 +13,7 @@ import {DocumentContainer} from '../document';
 import {RuntimeException} from '../../exception';
 
 if (typeof BrowserDomAdapter !== 'function') {
-  throw new RuntimeException('This application requires Angular 4');
+  throw new RuntimeException('Incompatible with ng2, upgrade to 4+');
 }
 
 setRootDomAdapter(new BrowserDomAdapter());

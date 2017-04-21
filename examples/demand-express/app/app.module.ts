@@ -12,7 +12,7 @@ import {LocaleComponent} from './locale.component';
 import {CookieService} from './cookie.service';
 import {LocaleService} from './locale.service';
 
-const {prebootClient} = require('preboot/__build/src/browser/preboot_browser');
+import {prebootClient} from 'preboot/__build/src/browser/preboot_browser';
 
 @NgModule({
   imports: [
@@ -38,10 +38,6 @@ const {prebootClient} = require('preboot/__build/src/browser/preboot_browser');
 })
 export class AppModule {
   constructor(router: Router) {
-    if (typeof prebootClient === 'undefined') {
-      return;
-    }
-
     const subscription = router.events.subscribe(event => {
       switch (true) {
         case event instanceof NavigationError:

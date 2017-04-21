@@ -3,7 +3,7 @@ import { FileReference, PrebootConfiguration, Project, OutputProducer } from '..
 export interface CommandLineOptions {
   debug: boolean;
   output: OutputProducer;
-  preboot: PrebootConfiguration;
+  preboot: PrebootConfiguration | boolean;
   project: Project;
   templateDocument: string;
   webpack?: FileReference;

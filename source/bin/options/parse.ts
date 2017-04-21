@@ -55,7 +55,7 @@ export const parseCommandLineOptions = (): CommandLineOptions => {
 
   const webpack = options['webpack'];
 
-  const preboot = getPrebootConfiguration(options['preboot'] as string);
+  const preboot: PrebootConfiguration | boolean = getPrebootConfiguration(enablePreboot);
 
   const project: Project = {
     applicationModule: {source, symbol},
@@ -98,8 +98,10 @@ const createHtmlOutput = (options): OutputProducer => {
   return new HtmlOutput(output, inline);
 };
 
+let enablePreboot: string | boolean = false;
+
 const parseCommandLine = () => {
-  return commander
+  const options = commander
     .version(version)
     .description(chalk.green('Prerender Angular applications'))
     .option('-d, --debug Enable debugging (stack traces and so forth)', false)
@@ -109,11 +111,14 @@ const parseCommandLine = () => {
     .option('-m, --module <path>', 'Path to root application module TypeScript file')
     .option('-s, --symbol <identifier>', 'Class name of application root module')
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', 'dist')
-    .option('-a, --application <application ID>', 'Optional application ID if your CLI configuration contains multiple apps')
-    .option('-b, --preboot [file or json]', 'Enable preboot and optionally read the preboot configuration from the specified JSON file (otherwise will use sensible defaults and automatically find the root element name)', null)
+    .option('-a, --application <applicationID>', 'Optional application ID if your CLI configuration contains multiple apps')
+    .option('-P, --preboot [boolean | json-file | json-text]', 'Enable or disable preboot with optional configuration file or JSON text (otherwise automatically find the root element and use defaults)')
     .option('-i, --inline', 'Inline of resources referenced in head > link')
-    .option('-I, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
-    .parse(process.argv);
+    .option('-I, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false);
+
+  options.on('preboot', value => enablePreboot = value || true);
+
+  return options.parse(process.argv);
 };
 
 const rootFromTsconfig = (tsconfig: FileReference): PathReference => {
@@ -152,23 +157,34 @@ const tsconfigFromRoot = (fromRoot: PathReference): FileReference => {
   return null;
 };
 
-const getPrebootConfiguration = (filenameOrJson: string): PrebootConfiguration => {
-  if (filenameOrJson == null || filenameOrJson.length === 0) {
-    return null;
+const getPrebootConfiguration = (filenameOrJson: string | boolean): PrebootConfiguration | boolean => {
+  if (typeof filenameOrJson !== 'string') {
+    return filenameOrJson == null ? false : filenameOrJson;
   }
 
+  switch (filenameOrJson as string) {
+    case 'true':
+    case 'false':
+    case '':
+      return filenameOrJson !== 'false';
+    default:
+      return parsePreboot(filenameOrJson as string);
+  }
+};
+
+const parsePreboot = (json: string): PrebootConfiguration | boolean => {
   let options: PrebootConfiguration;
 
-  if (filenameOrJson.startsWith('{')) {
+  if (json.trim().startsWith('{')) {
     try {
-      options = fromJson<PrebootConfiguration>(filenameOrJson);
+      options = fromJson<PrebootConfiguration>(json);
     }
     catch (exception) {
       throw new ConfigurationException('Preboot configuration: invalid JSON document', exception);
     }
   }
-  else {
-    const file = absoluteFile(cwd(), filenameOrJson);
+  else if (json.length > 0) {
+    const file = absoluteFile(cwd(), json);
 
     if (file.exists() === false || file.type() !== FileType.File) {
       throw new ConfigurationException(`Preboot configuration file does not exist or is not a file: ${file.toString()}`);
@@ -176,12 +192,15 @@ const getPrebootConfiguration = (filenameOrJson: string): PrebootConfiguration =
 
     options = fromJson<PrebootConfiguration>(file.content());
   }
+  else {
+    return true;
+  }
 
   const validation = validatePrebootOptionsAgainstSchema(options);
 
   if (validation.errors.length > 0) {
-    throw new ConfigurationException(`Preboot configuration ${filenameOrJson} is invalid: ${validation.toString()}`)
+    throw new ConfigurationException(`Preboot configuration ${json} is invalid: ${validation.toString()}`)
   }
 
   return options;
-};
+}

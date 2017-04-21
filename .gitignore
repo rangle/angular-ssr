@@ -1,11 +1,10 @@
+.DS_Store
+
+.vscode
+
 build
 coverage
 node_modules
-.vscode
-
-yarn-error.log
-
-nohup.out
 
 **/*.orig
 **/*.rej
@@ -20,10 +19,11 @@ source/**/*.shim.ngstyle.ts
 source/**/*.shim.ts
 source/**/*.shim.js
 source/**/*.metadata.json
-source/**/*.js.map
+source/**/*.map
+
+yarn-error.log
+yarn.lock
+
+nohup.out
 
 npm-debug.*
-
-.DS_Store
-
-yarn.lock
