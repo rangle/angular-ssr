@@ -43,4 +43,4 @@ const matchMedia = (queryString: string) => {
   };
 };
 
-export const bindStyle = (target: () => Window) => ({getComputedStyle, getMatchedCSSRules, matchMedia});
+export const bindStyle = (target: () => Window) => [true, {getComputedStyle, getMatchedCSSRules, matchMedia}];

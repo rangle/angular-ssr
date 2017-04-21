@@ -8,4 +8,4 @@ function open(url: string, name: string, specs, replace) {
   throw new NotSupportedException();
 };
 
-export const bindControl = (target: () => Window) => ({open, close: close.bind(target), stop});
+export const bindControl = (target: () => Window) => [false, {open, close: close.bind(target), stop}];

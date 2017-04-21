@@ -5,4 +5,4 @@ const btoa = (value: string | Buffer): string =>
     ? value.toString('base64')
     : new Buffer(value.toString(), 'binary').toString('base64');
 
-export const bindBase64 = (target: () => Window) => ({atob, btoa});
+export const bindBase64 = (target: () => Window) => [false, {atob, btoa}];

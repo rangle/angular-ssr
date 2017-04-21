@@ -2,4 +2,4 @@ function addEventListener(type: string, listener: EventListenerOrEventListenerOb
   return this().addEventListener(type, listener, useCapture);
 }
 
-export const bindEvents = (target: () => Window) => ({addEventListener: addEventListener.bind(target)});
+export const bindEvents = (target: () => Window) => [false, {addEventListener: addEventListener.bind(target)}];

@@ -14,26 +14,37 @@ import {bindStorage} from './storage';
 import {bindStyle} from './style';
 import {bindTypes} from './types';
 
-export const upgradeWindow = (target, window: () => Window): void => {
-  const fills = {
-    ...domino.impl,
-    ...bindTypes,
-    ...bindAnimation(window),
-    ...bindBase64(window),
-    ...bindControl(window),
-    ...bindEvents(window),
-    ...bindHttp(window),
-    ...bindInteractions(window),
-    ...bindMutation(window),
-    ...bindNavigator(window),
-    ...bindPosition(window),
-    ...bindSelection(window),
-    ...bindStorage(window),
-    ...bindStyle(window),
-  };
+Object.assign(global, {__domino_frozen__: false}); // allow overwrite
 
-  for (const k of Object.keys(fills).filter(k => typeof target[k] === 'undefined')) {
-    target[k] = fills[k];
+export const upgradeWindow = (target, window: () => Window): void => {
+  const fills = [
+    [true, domino.impl],
+    [true, bindTypes],
+    bindAnimation(window),
+    bindBase64(window),
+    bindControl(window),
+    bindEvents(window),
+    bindHttp(window),
+    bindInteractions(window),
+    bindMutation(window),
+    bindNavigator(window),
+    bindPosition(window),
+    bindSelection(window),
+    bindStorage(window),
+    bindStyle(window),
+  ];
+
+  for (const [overwrite, properties] of fills) {
+    for (const k in properties) {
+      if (overwrite || typeof target[k] === 'undefined') {
+        Object.defineProperty(target, k, {
+          configurable: true,
+          enumerable: false,
+          value: properties[k],
+          writable: false,
+        });
+      }
+    }
   }
 };
 

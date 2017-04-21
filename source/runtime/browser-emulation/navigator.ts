@@ -4,20 +4,31 @@ import {injectableFromZone} from '../../platform/zone/injector-map';
 
 import {FallbackOptions} from '../../static';
 
+let navigatorLanguage: string | null = null;
+
 const navigator = {
   get userAgent() {
     return 'Chrome';
   },
+  get languages() {
+    return [navigator.language];
+  },
   get language() {
-    const locale = injectableFromZone(Zone.current, LOCALE_ID);
-    if (locale) {
-      return locale;
+    if (navigatorLanguage != null) {
+      return navigatorLanguage;
     }
-    return FallbackOptions.locale;
+    let locale = injectableFromZone(Zone.current, LOCALE_ID);
+    if (locale == null) {
+      locale = FallbackOptions.locale;
+    }
+    return locale;
+  },
+  set language(locale: string) {
+    navigatorLanguage = locale;
   },
   get cookieEnabled() {
     return false;
   }
 };
 
-export const bindNavigator = (target: () => Window) => ({navigator});
+export const bindNavigator = (target: () => Window) => [true, {navigator}];

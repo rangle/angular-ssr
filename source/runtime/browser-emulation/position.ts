@@ -10,11 +10,11 @@ const scroll = () => {};
 
 const scrollTo = () => {};
 
-export const bindPosition = (target: () => Window) => ({
+export const bindPosition = (target: () => Window) => [false, {
   moveBy,
   moveTo,
   resizeBy,
   resizeTo,
   scroll,
   scrollTo
-});
+}];

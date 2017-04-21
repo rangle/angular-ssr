@@ -45,4 +45,4 @@ const createStorage = () => // Storage object supports [] operator, so we do too
     }
   });
 
-export const bindStorage = (target: () => Window) => ({localStorage: createStorage(), sessionStorage: createStorage()});
+export const bindStorage = (target: () => Window) => [true, {localStorage: createStorage(), sessionStorage: createStorage()}];
