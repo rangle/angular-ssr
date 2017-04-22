@@ -7,8 +7,17 @@ import {FallbackOptions} from '../../static';
 let navigatorLanguage: string | null = null;
 
 const navigator = {
-  get userAgent() {
-    return 'Chrome';
+  get appCodeName() {
+    return 'Mozilla';
+  },
+  get appName() {
+    return 'Netscape';
+  },
+  get appVersion() {
+    return '5.0';
+  },
+  get cookieEnabled() {
+    return false;
   },
   get languages() {
     return [navigator.language];
@@ -26,8 +35,14 @@ const navigator = {
   set language(locale: string) {
     navigatorLanguage = locale;
   },
-  get cookieEnabled() {
-    return false;
+  get product() {
+    return 'Gecko';
+  },
+  get userAgent() {
+    return 'Chrome';
+  },
+  get vendor() {
+    return 'Google Inc.';
   }
 };
 

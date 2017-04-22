@@ -1,10 +1,6 @@
-import {NotSupportedException} from '../../exception';
-
 const alert = (message: string) => {};
 
-const confirm = (message) => {
-  throw new NotSupportedException();
-}
+const confirm = (message) => true;
 
 const print = () => {};
 

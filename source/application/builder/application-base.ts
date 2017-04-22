@@ -35,14 +35,14 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
     return this.renderToStream(this.render);
   }
 
-  renderUri(uri: string, variant?: V): Promise<Snapshot<V>> {
+  async renderUri(uri: string, variant?: V): Promise<Snapshot<V>> {
     uri = resolveToAbsoluteUri(uri);
 
     const transition = composeTransitions(this.render.variants, variant);
 
     const vop: RenderVariantOperation<V> = {scope: this.render, uri, variant, transition};
 
-    return this.renderVariant(vop);
+    return await this.renderVariant(vop);
   }
 
   async discoverRoutes(): Promise<Array<Route>> {
@@ -89,7 +89,7 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
       }
     };
 
-    return forkZone(templateDocument, uri, execute);
+    return await forkZone(templateDocument, uri, execute);
   }
 }
 

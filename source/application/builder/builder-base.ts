@@ -26,56 +26,38 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
   }
 
   bootstrap(bootstrapper?: ApplicationBootstrapper) {
-    if (bootstrapper !== undefined) {
-      if (this.operation.bootstrappers == null) {
-        this.operation.bootstrappers = [];
-      }
-      this.operation.bootstrappers.push(bootstrapper);
+    if (this.operation.bootstrappers == null) {
+      this.operation.bootstrappers = [];
     }
-    return this.operation.bootstrappers || [];
+    this.operation.bootstrappers.push(bootstrapper);
   }
 
   postprocess(transform?: Postprocessor) {
-    if (transform !== undefined) {
-      if (this.operation.postprocessors == null) {
-        this.operation.postprocessors = [];
-      }
-      this.operation.postprocessors.push(transform);
+    if (this.operation.postprocessors == null) {
+      this.operation.postprocessors = [];
     }
-    return this.operation.postprocessors || [];
+    this.operation.postprocessors.push(transform);
   }
 
   variants(map: VariantsMap) {
-    if (map !== undefined) {
-      this.operation.variants = map;
-    }
-    return this.operation.variants;
+    this.operation.variants = map;
   }
 
   routes(routes?: Array<Route>) {
-    if (routes !== undefined) {
-      this.operation.routes = routes;
-    }
-    return this.operation.routes || [];
+    this.operation.routes = routes;
   }
 
   preboot(preboot?: PrebootConfiguration | boolean) {
-    if (preboot !== undefined) {
-      if (typeof preboot === 'boolean') {
-        this.operation.preboot = preboot ? {} as PrebootQueryable : null;
-      }
-      else {
-        this.operation.preboot = preboot as PrebootQueryable;
-      }
+    if (typeof preboot === 'boolean') {
+      this.operation.preboot = preboot ? {} as PrebootQueryable : null;
     }
-    return this.operation.preboot as PrebootConfiguration;
+    else {
+      this.operation.preboot = preboot as PrebootQueryable;
+    }
   }
 
   stateReader<R>(stateReader?: ApplicationStateReader<R>) {
-    if (stateReader !== undefined) {
-      this.operation.stateReader = stateReader;
-    }
-    return this.operation.stateReader as any;
+    this.operation.stateReader = stateReader;
   }
 
   stabilizeTimeout(milliseconds?: number): number | null {

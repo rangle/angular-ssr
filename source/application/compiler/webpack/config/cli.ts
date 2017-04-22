@@ -10,15 +10,35 @@ export class CliLoader implements ConfigurationLoader {
   load(project: Project) {
     const options = CliConfig.fromProject(project.basePath.toString());
 
-    const app = matchApplication(options.get('apps') || [], project.identifier);
+    const app = applicationFromIdentifier(options.get('apps'), project.identifier);
 
-    const cli = new NgCliWebpackConfig(baseOptions(project), app);
+    const composedOptions = {
+      target: project.environment,
+      environment: project.environment || process.env.NODE_ENV || 'prod',
+      outputPath: project.workingPath ? project.workingPath.toString() : null,
+      aot: false,
+      sourcemaps: true,
+      vendorChunk: false,
+      verbose: true,
+      progress: false,
+      extractCss: true,
+      watch: false,
+      outputHashing: null,
+      poll: null,
+      app: project.identifier ? project.identifier.toString() : null
+    };
+
+    const cli = new NgCliWebpackConfig(composedOptions, app);
 
     return cli.buildConfig();
   }
 }
 
-const matchApplication = (apps: Array<any>, identifier?: string | number) => {
+const applicationFromIdentifier = (apps: Array<any>, identifier?: string | number) => {
+  if (apps == null) {
+    throw new CompilerException(`No apps are defined in ng configuration`);
+  }
+
   switch (typeof identifier) {
     case 'object':
     case 'undefined':
@@ -43,23 +63,5 @@ const matchApplication = (apps: Array<any>, identifier?: string | number) => {
       })();
     default:
       throw new CompilerException(`Invalid application identifier type: ${typeof identifier}`)
-  }
-};
-
-const baseOptions = (project: Project) => {
-  return {
-    target: project.environment,
-    environment: project.environment || process.env.NODE_ENV || 'prod',
-    outputPath: project.workingPath ? project.workingPath.toString() : null,
-    aot: false,
-    sourcemaps: true,
-    vendorChunk: false,
-    verbose: true,
-    progress: false,
-    extractCss: false,
-    watch: false,
-    outputHashing: null,
-    poll: null,
-    app: project.identifier ? project.identifier.toString() : null
   }
 };

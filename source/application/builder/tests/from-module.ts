@@ -128,6 +128,19 @@ describe('ApplicationBuilderFromModule', () => {
     });
   });
 
+  it('should fail if state reader throws an exception or returns a rejected promise', async () => {
+    const application = loadApplicationFixtureFromModule(BasicRoutedModule,
+      builder => {
+        builder.stateReader(() => Promise.reject('This is an expected exception'));
+      });
+
+    const stream = await application.prerender();
+
+    return new Promise<void>((resolve, reject) => {
+      stream.subscribe(s => reject(new Error('Should have thrown an exception and failed')), resolve);
+    });
+  });
+
   it('should be able to transmit state from the server to the client in the prerendered document', async () => {
     const application = loadApplicationFixtureFromModule(BasicRoutedModule,
       builder => {
@@ -348,5 +361,19 @@ describe('ApplicationBuilderFromModule', () => {
     finally {
       application.dispose();
     }
+  });
+
+  it('should fail if postprocessor fails', async () => {
+    const application = loadApplicationFixtureFromModule(BasicInlineModule,
+      builder => builder.postprocess(
+        doc => {
+          throw new Error('This is an expected failure');
+        }));
+
+    const stream = await application.prerender();
+
+    return new Promise<void>((resolve, reject) => {
+      stream.subscribe(s => reject(new Error('Should have thrown an exception and failed')), resolve);
+    });
   });
 });

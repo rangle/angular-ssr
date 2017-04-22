@@ -14,15 +14,15 @@ import {
 
 import {PLATFORM_COLLECTOR_PROVIDERS} from './collectors';
 import {PLATFORM_RESOURCE_LOADER_PROVIDERS} from './resource-loader';
+
 import {ServerPlatform} from './platform';
-import {ZoneProperties} from './zone';
+
 import {randomizedApplicationId} from '../static';
 
 const baseProviders: Array<Provider> = [
   ...PLATFORM_COLLECTOR_PROVIDERS,
   {provide: APP_ID, useFactory: randomizedApplicationId},
   {provide: PlatformRef, useClass: ServerPlatform},
-  {provide: ZoneProperties, useClass: ZoneProperties},
 ];
 
 export const createStaticPlatform = createPlatformFactory(platformCore, 'node/static', baseProviders);
