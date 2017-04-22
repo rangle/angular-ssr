@@ -49,6 +49,7 @@ export class WebpackCompiler implements ApplicationCompiler {
         libraryTarget: 'commonjs2'
       },
       externals: [
+        'angular-ssr',
         '@angular/cli',
         '@angular/common',
         '@angular/compiler',

@@ -26,7 +26,7 @@ export class ApplicationBuilderFromModuleFactory<V> extends ApplicationBuilderBa
       }
     }
 
-    const moduleFactory = () => Promise.resolve(this.factory);
+    const moduleFactory = Promise.resolve(this.factory);
 
     return new ApplicationModuleFactory(platform, <RenderOperation> this.operation, moduleFactory);
   }

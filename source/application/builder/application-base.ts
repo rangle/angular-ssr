@@ -11,27 +11,25 @@ import {ServerPlatform, forkZone, executeBootstrap} from '../../platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Route, applicationRoutes, renderableRoutes} from '../../route';
 import {Snapshot, snapshot} from '../../snapshot';
-import {FallbackOptions} from '../../static';
 import {composeTransitions} from '../../variants';
 import {forkRender} from './fork';
-import {none} from '../../predicate';
 
 export abstract class ApplicationBase<V, M> implements Application<V> {
   constructor(
-    private platformImpl: ServerPlatform,
+    private platform: ServerPlatform,
     private render: RenderOperation,
-    private moduleFactory: () => Promise<NgModuleFactory<M>>
+    private moduleFactory: Promise<NgModuleFactory<M>>
   ) {}
 
   abstract dispose(): void;
 
   async prerender(): Promise<Observable<Snapshot<V>>> {
-    if (none(this.render.routes)) {
+    if (this.render.routes == null || this.render.routes.length === 0) {
       this.render.routes = renderableRoutes(await this.discoverRoutes());
+    }
 
-      if (none(this.render.routes)) {
-        return Observable.of();
-      }
+    if (this.render.routes.length === 0) {
+      return Observable.of();
     }
 
     return this.renderToStream(this.render);
@@ -48,9 +46,11 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
   }
 
   async discoverRoutes(): Promise<Array<Route>> {
-    const moduleFactory = await this.moduleFactory();
+    const moduleFactory = await this.moduleFactory;
 
-    return await applicationRoutes(this.platformImpl, moduleFactory, this.render.templateDocument);
+    const {templateDocument} = this.render;
+
+    return await applicationRoutes({platform: this.platform, moduleFactory, templateDocument});
   }
 
   private renderToStream(operation: RenderOperation): Observable<Snapshot<V>> {
@@ -75,12 +75,12 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
   private async renderVariant(operation: RenderVariantOperation<V>): Promise<Snapshot<V>> {
     const {uri, transition, scope: {bootstrappers, templateDocument}} = operation;
 
-    const moduleFactory = await this.moduleFactory();
+    const moduleFactory = await this.moduleFactory;
 
     const bootstrap = <M>(moduleRef: NgModuleRef<M>) => executeBootstrap(moduleRef, bootstrappers, transition);
 
     const execute = async () => {
-      const moduleRef = await this.platformImpl.bootstrapModuleFactory<M>(moduleFactory, bootstrap);
+      const moduleRef = await this.platform.bootstrapModuleFactory<M>(moduleFactory, bootstrap);
       try {
         return await snapshot(moduleRef, operation);
       }
@@ -92,6 +92,8 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
     return forkZone(templateDocument, uri, execute);
   }
 }
+
+import {FallbackOptions} from '../../static';
 
 let relativeUriWarning = false;
 

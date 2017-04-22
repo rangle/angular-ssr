@@ -1,3 +1,5 @@
+import {NgModuleFactory} from '@angular/core';
+
 import {
   ApplicationBootstrapper,
   ApplicationStateReader,
@@ -10,11 +12,14 @@ import {PrebootQueryable} from './preboot';
 
 import {Route} from '../route';
 
-// A render operation is an operation that forks into multiple concurrent suboperations,
-// which are represented with RenderVariantOperation<V, M>. Each route and variant
-// permutation will cause a separate parallel render operation and each of them instantiate
-// their own instance of the application. This is an internal contract, not part of the
-// public API
+import {ServerPlatform} from '../platform/platform';
+
+// Extract routes from a compiled and running application instance
+export interface RouteExtractionOperation<M> {
+  platform: ServerPlatform;
+  moduleFactory: NgModuleFactory<M>;
+  templateDocument: string;
+}
 
 export interface RenderOperation {
   // This is an HTML document containing the index.html build output of the application.
@@ -25,6 +30,10 @@ export interface RenderOperation {
 
   // An optional array of routes to render concurrently
   routes: Array<Route>;
+
+  // An optional platform factory function. If the API consumer wishes to construct their
+  // own platform implementation that
+  platform?: () => ServerPlatform;
 
   // An optional map of variants that describe the different states and request options
   // that we will render. Be careful because the space complexity of storing variants
@@ -61,9 +70,14 @@ export interface RenderOperation {
   stabilizeTimeout?: number;
 }
 
+// A render operation is an operation that forks into multiple concurrent suboperations,
+// which are represented with RenderVariantOperation<V, M>. Each route and variant
+// permutation will cause a separate parallel render operation and each of them instantiate
+// their own instance of the application. This is an internal contract, not part of the
+// public API
 export interface RenderVariantOperation<V> {
-  scope: RenderOperation;       /// parent render scope
-  uri: string;                     /// an absolute URI including protocol and hostname
+  scope: RenderOperation;          /// parent render scope
   transition?: ComposedTransition; /// variant transition function composed from {@link VariantMap} and {@link variant}
+  uri: string;                     /// an absolute URI including protocol and hostname
   variant?: V;                     /// variant options for this render operation
 }

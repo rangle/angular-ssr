@@ -33,7 +33,7 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
 
     class ApplicationFromSource extends ApplicationBase<V, any> {
       constructor(operation: RenderOperation) {
-        super(platform, operation, () => moduleFactory);
+        super(platform, operation, moduleFactory);
 
         applicationInstance = this;
       }

@@ -1,17 +1,19 @@
-import {NgModuleFactory, NgModuleRef} from '@angular/core';
+import {NgModuleRef} from '@angular/core';
 
 import {Location} from '@angular/common';
 
 import {Router, Routes} from '@angular/router';
 
-import {ServerPlatform, forkZone} from '../platform';
 import {Route} from './route';
 import {FallbackOptions} from '../static';
+import {RouteExtractionOperation} from '../application/operation';
+import {forkZone} from '../platform';
 import {routeToPathWithParameters} from './transform';
 import {waitForApplicationToBecomeStable, waitForRouterNavigation} from '../platform/application';
 
-export const applicationRoutes =
-    <M>(platform: ServerPlatform, moduleFactory: NgModuleFactory<M>, templateDocument: string): Promise<Array<Route>> => {
+export const applicationRoutes = <M>(operation: RouteExtractionOperation<M>): Promise<Array<Route>> => {
+  const {platform, moduleFactory, templateDocument} = operation;
+
   // NOTE(bond): The way that we attempt to extract routes from an NgModuleFactory is to actually
   // instantiate the application and then query the configuration from the Router module. This is
   // cleaner and much easier than attempting to collect all the routes from every @NgModule in the
@@ -28,16 +30,16 @@ export const applicationRoutes =
 
   const execute = async () => {
     const moduleRef = await platform.bootstrapModuleFactory<M>(moduleFactory);
-    try {
-      await waitForRouterNavigation(moduleRef);
 
-      await waitForApplicationToBecomeStable(moduleRef);
+    // We can do destruction after we have returned the routes, in the interest of performance.
+    const stable = Promise.all([
+      waitForRouterNavigation(moduleRef),
+      waitForApplicationToBecomeStable(moduleRef)
+    ]);
 
-      return extractRoutesFromModule(moduleRef);
-    }
-    finally {
-      moduleRef.destroy();
-    }
+    stable.then(() => moduleRef.destroy());
+
+    return extractRoutesFromModule(moduleRef);
   };
 
   return forkZone(templateDocument, FallbackOptions.fallbackUri, execute);
@@ -77,6 +79,10 @@ export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Rou
   const location: Location = moduleRef.injector.get(Location);
 
   return extractRoutesFromRouter(router, location);
+};
+
+export const applicationRenderableRoutes = async <M>(operation: RouteExtractionOperation<M>): Promise<Array<Route>> => {
+  return renderableRoutes(await applicationRoutes(operation));
 };
 
 export const renderableRoutes = (routes: Array<Route>): Array<Route> => {

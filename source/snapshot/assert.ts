@@ -2,8 +2,6 @@ import {Snapshot} from './snapshot';
 
 import {AggregateException, OutputException} from '../exception';
 
-import {none} from '../predicate';
-
 export const assertSnapshot = <V>(snapshot: Snapshot<V>) => {
   if (snapshot == null) {
     throw new OutputException('Cannot output a null application snapshot');
@@ -16,7 +14,7 @@ export const assertSnapshot = <V>(snapshot: Snapshot<V>) => {
       throw new AggregateException(snapshot.exceptions);
   }
 
-  if (none(snapshot.renderedDocument)) {
+  if (snapshot.renderedDocument == null || snapshot.renderedDocument.length === 0) {
     throw new OutputException('Received an application snapshot with an empty document!');
   }
 };

@@ -17,7 +17,6 @@ import {
 
 import {LocationImpl} from '../location';
 import {PlatformException} from '../../exception';
-import {none} from '../../predicate';
 import {typeToInjectorFunction} from '../../transformation/type-to-function';
 
 export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Promise<void> => {
@@ -76,7 +75,7 @@ export const executeBootstrap = async <M>(moduleRef: NgModuleRef<M>, bootstrappe
 };
 
 export const composeBootstrap = (bootstrappers: Array<ApplicationBootstrapper>): ApplicationBootstrapperFunction => {
-  if (none(bootstrappers)) {
+  if (bootstrappers == null || bootstrappers.length === 0) {
     return injector => {};
   }
 
