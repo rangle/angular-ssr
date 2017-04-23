@@ -1,6 +1,6 @@
 import {PrebootConfiguration} from '../contract';
 
-import {validatePrebootOptionsAgainstSchema} from './../schema';
+import {validatePrebootOptionsAgainstSchema} from '../schema';
 
 describe('Preboot schema validator', () => {
   it('can validate a comprehensive preboot configuration', () => {

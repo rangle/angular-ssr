@@ -6,13 +6,9 @@ const print = () => {};
 
 const prompt = (value: string) => String();
 
-function blur() {
-  this().blur();
-}
+function blur() {}
 
-function focus() {
-  this().focus();
-}
+function focus() {}
 
 export const bindInteractions = (target: () => Window) => [false, {
   alert,
@@ -20,5 +16,6 @@ export const bindInteractions = (target: () => Window) => [false, {
   confirm,
   print,
   prompt,
-  focus: focus.bind(target)
+  focus: focus.bind(target),
+  setImmediate,
 }];

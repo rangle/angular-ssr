@@ -2,9 +2,10 @@ import './assertions';
 
 import {ConsoleCollector} from '../collectors';
 import {DocumentContainer} from '../document';
-import {LocationImpl} from '../location/location';
 import {RuntimeModuleLoader} from '../module/runtime-loader';
+
 import {bootWindow} from '../../runtime/browser-emulation';
+
 import {injectableFromZone} from './injector-map';
 
 export const baseConsole = console;
@@ -16,27 +17,16 @@ Object.defineProperties(global, {
     }
   },
   document: {
-    get: () => {
-      let container: {document} = injectableFromZone(Zone.current, DocumentContainer);
-      if (container == null) {
-        container = bootWindow;
-      }
-      return container.document;
-    }
+    get: () => window.document
+  },
+  history: {
+    get: () => window.history
   },
   location: {
-    get: () => {
-      let location: Location = injectableFromZone(Zone.current, LocationImpl);
-      if (location == null) {
-        location = window.location;
-      }
-      return location;
-    }
+    get: () => window.location
   },
   navigator: {
-    get: () => {
-      return window.navigator;
-    },
+    get: () => window.navigator
   },
   window: {
     get: () => {

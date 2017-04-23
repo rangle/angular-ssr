@@ -6,7 +6,9 @@ const loaders = require('./webpack/loaders');
 
 module.exports = {
   target: 'node',
-  entry: './server/index.ts',
+  entry: {
+    server: ['./server/index.ts'],
+  },
   output: {
     filename: 'index.js',
     path: resolve(join(__dirname, 'dist-server')),

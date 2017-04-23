@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.84",
+  "version": "0.1.86",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -27,6 +27,17 @@
     "type": "git",
     "url": "git+https://github.com/clbond/angular-ssr.git"
   },
+  "keywords": [
+    "angular",
+    "isomorphic",
+    "ng",
+    "ng4",
+    "node",
+    "rangle",
+    "rendering",
+    "server-side rendering",
+    "ssr"
+  ],
   "contributors": [
     {
       "name": "Christopher Bond",

@@ -3,7 +3,7 @@ import {NgModuleRef, Provider, Type} from '@angular/core';
 import {Observable} from 'rxjs';
 
 import {Application, ApplicationBuilder, ApplicationBuilderFromModule} from '../../application';
-import {BasicInlineModule} from './application-basic-inline';
+import {BasicRoutedModule} from './application-routed';
 import {ServerPlatform, createJitPlatform, forkZone} from '../../platform';
 import {Snapshot} from '../../snapshot';
 import {templateDocument} from './document';
@@ -28,10 +28,10 @@ export const renderModuleFixture = async <M>(moduleType: Type<M>): Promise<Obser
 };
 
 export const runInsideApplication = async (uri: string, fn: (ref: NgModuleRef<any>) => void | Promise<void>, providers: Array<Provider> = []): Promise<void> => {
-  const platform: ServerPlatform = createJitPlatform(providers) as ServerPlatform;
+  const platform: ServerPlatform = createJitPlatform() as ServerPlatform;
   try {
     await forkZone(templateDocument, uri, async () => {
-      const moduleRef = await platform.bootstrapModule(BasicInlineModule);
+      const moduleRef = await platform.bootstrapModule(BasicRoutedModule, {}, providers);
       try {
         await Promise.resolve(fn(moduleRef));
       }

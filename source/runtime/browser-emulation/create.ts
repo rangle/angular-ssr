@@ -41,7 +41,7 @@ export const upgradeWindow = (target, window: () => Window): void => {
           configurable: true,
           enumerable: false,
           value: properties[k],
-          writable: false,
+          writable: true,
         });
       }
     }

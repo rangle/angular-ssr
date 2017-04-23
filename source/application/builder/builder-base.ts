@@ -1,3 +1,5 @@
+import {Provider} from '@angular/core';
+
 import {Application} from './application';
 import {ApplicationBuilder} from './builder';
 import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
@@ -37,6 +39,13 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
       this.operation.postprocessors = [];
     }
     this.operation.postprocessors.push(transform);
+  }
+
+  providers(providers: Array<Provider>) {
+    if (this.operation.providers == null) {
+      this.operation.providers = [];
+    }
+    this.operation.providers.push(...providers);
   }
 
   variants(map: VariantsMap) {

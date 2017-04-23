@@ -33,7 +33,7 @@ export class WebpackCompiler implements ApplicationCompiler {
       this.project.applicationModule);
 
     const entries = {
-      [this.project.applicationModule.source]: `.${sep}${this.project.applicationModule.source}.ts`
+      [this.project.applicationModule.source]: [`.${sep}${this.project.applicationModule.source}.ts`]
     };
 
     const base = this.loader.load(this.project);

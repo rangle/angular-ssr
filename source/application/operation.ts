@@ -1,4 +1,4 @@
-import {NgModuleFactory} from '@angular/core';
+import {NgModuleFactory, Provider} from '@angular/core';
 
 import {
   ApplicationBootstrapper,
@@ -63,6 +63,9 @@ export interface RenderOperation {
 
   // Optional preboot configuration, if preboot integration is desired
   preboot: PrebootQueryable;
+
+  // Optional providers to use in application bootstrap process
+  providers: Array<Provider>;
 
   // The number of milliseconds we will wait for the application zone to become stable on startup.
   // If this value is null, we will wait forever. It is recommended that you set this to a low

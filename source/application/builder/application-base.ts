@@ -73,14 +73,14 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
   }
 
   private async renderVariant(operation: RenderVariantOperation<V>): Promise<Snapshot<V>> {
-    const {uri, transition, scope: {bootstrappers, templateDocument}} = operation;
+    const {uri, transition, scope: {bootstrappers, providers, templateDocument}} = operation;
 
     const moduleFactory = await this.moduleFactory;
 
     const bootstrap = <M>(moduleRef: NgModuleRef<M>) => executeBootstrap(moduleRef, bootstrappers, transition);
 
     const execute = async () => {
-      const moduleRef = await this.platform.bootstrapModuleFactory<M>(moduleFactory, bootstrap);
+      const moduleRef = await this.platform.bootstrapModuleFactory<M>(moduleFactory, providers, bootstrap);
       try {
         return await snapshot(moduleRef, operation);
       }

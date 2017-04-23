@@ -9,6 +9,7 @@ import {
   NgModuleRef,
   NgZone,
   PlatformRef,
+  Provider,
   Type,
 } from '@angular/core';
 
@@ -20,8 +21,6 @@ import {mapZoneToInjector} from './zone';
 
 @Injectable()
 export class ServerPlatform implements PlatformRef {
-  private readonly compilers = new Map<string, Compiler>();
-
   private readonly references = new Set<NgModuleRef<any>>();
 
   private destroyers = new Array<() => void>();
@@ -34,16 +33,16 @@ export class ServerPlatform implements PlatformRef {
     return compiler.compileModuleAsync(moduleType);
   }
 
-  async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []): Promise<NgModuleRef<M>> {
+  async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = [], providers?: Array<Provider>): Promise<NgModuleRef<M>> {
     const moduleFactory = await this.compileModule(moduleType, compilerOptions);
 
-    return await this.bootstrapModuleFactory(moduleFactory);
+    return await this.bootstrapModuleFactory(moduleFactory, providers);
   }
 
-  async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>, bootstrap?: (moduleRef: NgModuleRef<M>) => void | Promise<void>): Promise<NgModuleRef<M>> {
+  async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>, providers?: Array<Provider>, bootstrap?: (moduleRef: NgModuleRef<M>) => void | Promise<void>): Promise<NgModuleRef<M>> {
     const zone = new NgZone({enableLongStackTrace: true});
 
-    const injector = createPlatformInjector(this.injector, zone);
+    const injector = createPlatformInjector(this.injector, zone, providers);
 
     const moduleRef = createInjector(injector, moduleFactory);
 
@@ -69,18 +68,9 @@ export class ServerPlatform implements PlatformRef {
   private getCompiler(compilerOptions?: CompilerOptions | Array<CompilerOptions>): Compiler {
     const options = array(compilerOptions || {});
 
-    const key = JSON.stringify(options);
+    const instantiate = (compilerFactory: CompilerFactory) => compilerFactory.createCompiler(options);
 
-    let compiler = this.compilers.get(key);
-    if (compiler == null) {
-      const instantiate = (compilerFactory: CompilerFactory) => compilerFactory.createCompiler(options);
-
-      compiler = instantiate(this.injector.get(CompilerFactory));
-
-      this.compilers.set(key, compiler);
-    }
-
-    return compiler;
+    return instantiate(this.injector.get(CompilerFactory));
   }
 
   onDestroy(callback: () => void) {
@@ -111,8 +101,6 @@ export class ServerPlatform implements PlatformRef {
     this.references.forEach(module => module.destroy());
 
     destroyers.forEach(handler => handler());
-
-    this.compilers.clear();
   }
 }
 
