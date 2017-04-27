@@ -5,6 +5,19 @@ import {SnapshotException} from '../../exception';
 const {createDocument} = require('domino');
 
 export const transformAndSerializeDocument = (processors: Array<Postprocessor>, document: Document): string => {
+  const renderedDocument = preprocess(processors, document);
+
+    if (/<!DOCTYPE html>/i.test(renderedDocument) === false) {
+      return `
+        <!DOCTYPE html>
+        ${renderedDocument}
+      `;
+    }
+
+    return renderedDocument;
+}
+
+const preprocess = (processors: Array<Postprocessor>, document: Document): string => {
   if (processors == null || processors.length === 0) {
     return document.documentElement.outerHTML;
   }

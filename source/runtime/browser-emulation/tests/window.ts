@@ -1,24 +1,11 @@
 import {runInsideApplication} from '../../../test/fixtures/module';
 
-import {FallbackOptions} from '../../../static';
-
 describe('window', () => {
   const uri = 'http://localhost/test-uri';
 
   it('is defined in the context of ng application execution', () => {
     return runInsideApplication(uri, () => {
       expect(window).not.toBeNull();
-
-      expect(history).not.toBeNull();
-      expect(window.history).not.toBeNull();
-      expect(window.history.state).toBeUndefined();
-
-      expect(location).not.toBeNull();
-      expect(window.location).not.toBeNull();
-
-      expect(navigator).not.toBeNull();
-      expect(window.navigator).not.toBeNull();
-      expect(window.navigator.language).toBe(FallbackOptions.locale);
     })
   });
 

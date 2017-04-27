@@ -54,7 +54,7 @@ execute()
 
     log.error(`Failed to render application: ${message}`);
 
-    process.exitCode = 1;
+    process.exit(1);
   });
 
 // Because we compile our outputs to a temporary path outside the filesystem structure of

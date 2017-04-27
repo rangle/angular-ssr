@@ -2,7 +2,7 @@ import {ApplicationBuilderFromSource} from '../from-source';
 
 import {templateDocument, getApplicationProject} from '../../../test/fixtures';
 
-describe('ApplicationBuilderFromSource > basic', () => {
+xdescribe('ApplicationBuilderFromSource > basic', () => {
   it('can compile a basic project from source and render it', async () => {
     const builder = new ApplicationBuilderFromSource(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'), templateDocument);
 

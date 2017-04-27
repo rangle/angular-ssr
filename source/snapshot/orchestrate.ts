@@ -54,11 +54,11 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
 
     tick(moduleRef);
 
-    const applicationState = await injectState(moduleRef, stateReader, container.document)
+    const applicationState = await injectState(moduleRef, stateReader, container.document);
 
     injectPreboot(moduleRef, vop); // conditional on config
 
-    const renderedDocument = transformAndSerializeDocument(postprocessors, container.document);
+    let renderedDocument = transformAndSerializeDocument(postprocessors, container.document);
 
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }

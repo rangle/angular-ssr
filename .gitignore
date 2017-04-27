@@ -11,6 +11,8 @@ node_modules
 **/*.swp
 **/*~
 
+.jest-cache
+
 source/**/*.ngfactory.ts
 source/**/*.ngfactory.js
 source/**/*.ngsummary.json

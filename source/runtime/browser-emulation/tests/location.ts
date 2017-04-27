@@ -3,6 +3,12 @@ import url = require('url');
 import {runInsideApplication} from '../../../test/fixtures/module';
 
 describe('location', () => {
+  it('is defined in the context of ng application execution', () => {
+    return runInsideApplication('http://localhost/', () => {
+      expect(location).not.toBeNull();
+    });
+  })
+
   it('describes the URI from the request', () => {
     const parsedUri = url.parse('http://localhost/test#/');
 

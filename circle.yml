@@ -3,9 +3,11 @@ machine:
     YARN_VERSION: 0.23.2
     PATH: "${PATH}:${HOME}/.yarn/bin"
   node:
-    version: 6.10.1
+    version: 7.9.0
 
 dependencies:
+  cache_directories:
+    - ".jest-cache"
   pre:
     - npm install -g yarn@${YARN_VERSION}
   override:
@@ -16,7 +18,7 @@ dependencies:
 
 test:
   override:
-    - ./node_modules/.bin/jest --logHeapUsage -w 24 --coverage=true:
+    - node --expose_gc ./node_modules/.bin/jest --logHeapUsage -w 24 --coverage=true:
         timeout: 900
   post:
     - cp -r coverage $CIRCLE_ARTIFACTS

@@ -1,17 +1,21 @@
-<md-toolbar color="primary">
-  <button class="app-icon-button">
-    <i class="material-icons app-toolbar-menu">menu</i>
-  </button>
+<md-sidenav [class.m2app-dark]="isDarkTheme">
+  <md-sidenav #sidenav mode="side" class="app-sidenav">
+    Sidenav
+  </md-sidenav>
 
-  Angular Material Example Application!
+  <md-toolbar color="primary">
+    <button class="app-icon-button" (click)="sidenav.toggle()">
+      <i class="material-icons app-toolbar-menu">menu</i>
+    </button>
 
-  <span class="app-toolbar-filler"></span>
+    Angular Material2 Example App
 
-  <button md-button (click)="isDarkTheme = !isDarkTheme">Toggle Dark Theme</button>
-</md-toolbar>
+    <span class="app-toolbar-filler"></span>
+    <button md-button (click)="isDarkTheme = !isDarkTheme">TOGGLE DARK THEME</button>
+  </md-toolbar>
 
-<div fxLayout="row" class="zero">
-  <div class="one">
+  <div class="app-content">
+
     <md-card>
       <button md-button>FLAT</button>
       <button md-raised-button md-tooltip="This is a tooltip!">RAISED</button>
@@ -32,39 +36,79 @@
       <md-radio-button name="symbol" disabled>Gamma</md-radio-button>
     </md-card>
 
+    <md-card class="app-input-section">
+      <md-input-container>
+        <input mdInput type="text" placeholder="First name">
+      </md-input-container>
+
+      <md-input-container>
+        <input mdInput type="text" #nickname placeholder="Nickname">
+        <md-hint align="end">
+          {{nickname.characterCount}} / 50
+        </md-hint>
+      </md-input-container>
+
+      <md-input-container>
+        <md-placeholder>
+          <i class="material-icons app-input-icon">android</i> Favorite phone
+        </md-placeholder>
+        <input mdInput type="text">
+      </md-input-container>
+
+      <md-input-container>
+        <input mdInput type="text" placeholder="Motorcycle model">
+        <span md-prefix>
+          <i class="material-icons app-input-icon">motorcycle</i>
+          &nbsp;
+        </span>
+      </md-input-container>
+    </md-card>
+
+    <md-card>
+      <md-list class="app-list">
+        <md-list-item *ngFor="let food of foods">
+          <h3 md-line>{{food.name}}</h3>
+          <p md-line class="demo-secondary-text">{{food.rating}}</p>
+        </md-list-item>
+      </md-list>
+    </md-card>
+
     <md-card>
       <md-spinner class="app-spinner"></md-spinner>
       <md-spinner color="accent" class="app-spinner"></md-spinner>
     </md-card>
-  </div>
-  <div fxLayout="vertical" fxLayout.md="row" class="two">
-    <div class="two_one">
-      <md-card>
-        <label>
-          Determinate progress bar - 50%
-            <md-progress-bar
-                class="app-progress"
-                color="accent"
-                mode="determinate"
-                [value]="50"
-                aria-label="Determinate progress-bar example"></md-progress-bar>
-        </label>
-      </md-card>
-    </div>
-    <div class="two_two">
-      <md-card>
-        <md-tab-group>
-          <md-tab label="Earth">
-            <p>EARTH</p>
-          </md-tab>
-          <md-tab label="Fire">
-            <p>FIRE</p>
-          </md-tab>
-        </md-tab-group>
-      </md-card>
-    </div>
-  </div>
-  <div fxFlex class="three">
+
+    <md-card>
+      <label>
+        Indeterminate progress-bar
+        <md-progress-bar
+            class="app-progress"
+            mode="indeterminate"
+            aria-label="Indeterminate progress-bar example"></md-progress-bar>
+      </label>
+
+      <label>
+        Determinate progress bar - {{progress}}%
+        <md-progress-bar
+            class="app-progress"
+            color="accent"
+            mode="determinate"
+            [value]="progress"
+            aria-label="Determinate progress-bar example"></md-progress-bar>
+      </label>
+    </md-card>
+
+    <md-card>
+      <md-tab-group>
+        <md-tab label="Earth">
+          <p>EARTH</p>
+        </md-tab>
+        <md-tab label="Fire">
+          <p>FIRE</p>
+        </md-tab>
+      </md-tab-group>
+    </md-card>
+
     <md-card>
       <md-icon>build</md-icon>
     </md-card>
@@ -80,9 +124,10 @@
       <button md-menu-item>Lime</button>
       <button md-menu-item>Banana</button>
     </md-menu>
-
-    <span class="app-action" [class.m2app-dark]="isDarkTheme">
-      <button md-fab><md-icon>check circle</md-icon></button>
-    </span>
   </div>
-</div>
+
+</md-sidenav>
+
+<span class="app-action" [class.m2app-dark]="isDarkTheme">
+  <button md-fab><md-icon>check circle</md-icon></button>
+</span>

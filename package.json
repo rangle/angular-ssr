@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.87",
+  "version": "0.1.89",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -104,7 +104,7 @@
     "bluebird": "^3.4.7",
     "chalk": "^1.1.3",
     "commander": "2.9.0",
-    "domino": "https://github.com/clbond/domino/archive/1.0.42.tar.gz",
+    "domino": "https://github.com/clbond/domino/archive/1.0.44.tar.gz",
     "es2015-imports-to-commonjs-loose": "^1.0.6",
     "jsonschema": "^1.1.1",
     "lru_map": "^0.3.3",
@@ -171,7 +171,8 @@
       "js",
       "json"
     ],
-    "verbose": true
+    "verbose": true,
+    "cacheDirectory": ".jest-cache"
   },
   "files": [
     "bin",
