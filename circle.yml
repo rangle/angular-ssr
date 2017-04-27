@@ -7,16 +7,10 @@ machine:
 
 dependencies:
   pre:
-    - |
-      if test ! -e ~/.yarn/bin/yarn -o $(yarn --version) != "${YARN_VERSION}"; then
-        curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version $YARN_VERSION
-      fi
+    - npm install -g yarn@${YARN_VERSION}
   override:
-    - yarn install
-
-checkout:
-  post:
     - yarn
+  post:
     - yarn run build
     - yarn run build-examples
 
