@@ -16,7 +16,7 @@ dependencies:
 
 test:
   override:
-    - ./node_modules/.bin/jest --logHeapUsage -w 24 --coverage=true:
+    - ./node_modules/.bin/jest --logHeapUsage -w 16 --coverage=true:
         timeout: 900
   post:
     - cp -r coverage $CIRCLE_ARTIFACTS
