@@ -3,7 +3,7 @@ machine:
     YARN_VERSION: 0.23.2
     PATH: "${PATH}:${HOME}/.yarn/bin"
   node:
-    version: 7.9
+    version: 6.10.1
 
 dependencies:
   pre:
@@ -16,7 +16,7 @@ dependencies:
 
 test:
   override:
-    - ./node_modules/.bin/jest --logHeapUsage -w 16 --coverage=true:
+    - ./node_modules/.bin/jest --logHeapUsage -w 24 --coverage=true:
         timeout: 900
   post:
     - cp -r coverage $CIRCLE_ARTIFACTS

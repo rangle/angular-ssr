@@ -136,7 +136,7 @@
     "coveralls": "^2.12.0",
     "jasmine": "^2.6.0",
     "jasmine-core": "2.6.1",
-    "jest": "19.1.0-alpha.eed82034 || >=19.1.0",
+    "jest": ">=19.0.2",
     "reflect-metadata": "^0.1.10",
     "tslint": "4.4.2",
     "typescript": ">=2.2.0",
@@ -148,6 +148,7 @@
     "automock": false,
     "bail": true,
     "browser": false,
+    "timers": "fake",
     "modulePaths": [
       "<rootDir>/source",
       "<rootDir>/node_modules",
