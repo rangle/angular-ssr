@@ -85,6 +85,10 @@ export const parseCommandLineOptions = (): CommandLineOptions => {
   };
 };
 
+let enablePreboot: boolean = false;
+
+let enableInline: boolean = true;
+
 const createOutput = (options): OutputProducer =>
   options['ipc']
     ? createInterprocessOutput(options)
@@ -101,18 +105,14 @@ const createHtmlOutput = (options): OutputProducer => {
 
   const output = pathFromString(outputString);
 
-  const inline = options['inline'] || false;
-
-  return new HtmlOutput(output, inline);
+  return new HtmlOutput(output, enableInline);
 };
-
-let enablePreboot: string | boolean = false;
 
 const parseCommandLine = () => {
   const options = commander
     .version(version)
     .description(chalk.green('Prerender Angular applications'))
-    .option('-e, --environment', 'Environment selector (dev, prod) (if not specified, will automatically choose based on --debug')
+    .option('-e, --environment <environment>', 'Environment selector (dev, prod) (if not specified, will automatically choose based on --debug')
     .option('-d, --debug', 'Enable debugging (stack traces and so forth)', false)
     .option('-p, --project <path>', 'Path to tsconfig.json file or project root (if tsconfig.json lives in the root)', cwd())
     .option('-w, --webpack <config>', 'Optional path to webpack configuration file')
@@ -122,10 +122,12 @@ const parseCommandLine = () => {
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', 'dist')
     .option('-a, --application <applicationID>', 'Optional application ID if your CLI configuration contains multiple apps')
     .option('-P, --preboot [boolean | json-file | json-text]', 'Enable or disable preboot with optional configuration file or JSON text (otherwise automatically find the root element and use defaults)')
-    .option('-i, --inline', 'Inline of resources referenced in head > link')
+    .option('-i, --inline [boolean]', 'Inline of resources referenced in links')
     .option('-I, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false);
 
   options.on('preboot', value => enablePreboot = value || true);
+
+  options.on('inline', value => enableInline = value == null ? true : value);
 
   return options.parse(process.argv);
 };

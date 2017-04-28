@@ -1,14 +1,17 @@
+import {join} from 'path';
+
+import {ApplicationFallbackOptions} from '../static';
+import {PathReference, fileFromString} from '../filesystem';
 import {RuntimeException} from '../exception';
-
-import {PathReference, absoluteFile} from '../filesystem';
-
 import {createModernWindow} from '../runtime/browser-emulation/create';
 
 export const inlineResources = (path: PathReference, rendered: string): string => {
   try {
-    const window = createModernWindow(rendered, 'about:none');
+    const uri = ApplicationFallbackOptions.fallbackUri;
+
+    const window = createModernWindow(rendered, uri);
     try {
-      const links = Array.from(window.document.querySelectorAll('head link[rel="stylesheet"]'));
+      const links = Array.from(window.document.querySelectorAll('link[rel="stylesheet"]'));
 
       for (const link of links) {
         const resource = readResource(window.document, path, link as HTMLLinkElement);
@@ -16,9 +19,7 @@ export const inlineResources = (path: PathReference, rendered: string): string =
           continue;
         }
 
-        link.remove();
-
-        window.document.head.appendChild(resource);
+        window.document.head.replaceChild(resource, link);
       }
 
       return window.document.documentElement.outerHTML;
@@ -37,7 +38,12 @@ const readResource = (document: Document, path: PathReference, link: HTMLLinkEle
     return null;
   }
 
-  const file = absoluteFile(path, link.href.replace(/([^\\])\//g, '$1\\'));
+  const href = Array.from(link.attributes).find(a => a.localName.toLowerCase() === 'href');
+  if (href == null) {
+    return null;
+  }
+
+  const file = fileFromString(join(path.toString(), href.value));
   if (file.exists() === false) {
     return null;
   }

@@ -23,7 +23,7 @@ export class CliLoader implements ConfigurationLoader {
       vendorChunk: false,
       verbose: true,
       progress: false,
-      extractCss: false,
+      extractCss: true,
       watch: false,
       outputHashing: null,
       poll: null,

@@ -40,11 +40,11 @@ export class HtmlOutput implements OutputProducer {
   async write<V>(snapshot: Snapshot<V>): Promise<void> {
     const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), Files.index));
 
-    log.info(`Rendered route ${pathFromUri(snapshot.uri)} to ${file} `);
-
     const rendered = this.inline
       ? inlineResources(file.parent(), snapshot.renderedDocument)
       : snapshot.renderedDocument;
+
+    log.info(`Rendered route ${pathFromUri(snapshot.uri)} to ${file}`);
 
     file.create(rendered);
 
