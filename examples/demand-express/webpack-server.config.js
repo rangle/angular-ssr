@@ -1,7 +1,5 @@
 const {join, resolve} = require('path');
 
-const {CheckerPlugin} = require('awesome-typescript-loader');
-
 const loaders = require('./webpack/loaders');
 
 module.exports = {
@@ -25,9 +23,7 @@ module.exports = {
       loaders.css
     ]
   },
-  plugins: [
-    new CheckerPlugin(),
-  ],
+  plugins: [],
   externals: [
     '@angular/cli',
     '@angular/common',
