@@ -12,7 +12,6 @@ module.exports = {
     path: resolve(join(__dirname, 'dist-server')),
     libraryTarget: 'commonjs2',
   },
-  devtool: 'source-map',
   resolve: {
     extensions: ['.ts', '.js', '.json'],
   },

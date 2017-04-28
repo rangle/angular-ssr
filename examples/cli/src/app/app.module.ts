@@ -7,8 +7,6 @@ import { MaterialModule } from '@angular/material';
 
 import { Subscription } from 'rxjs/Subscription';
 
-import { prebootClient } from 'preboot/__build/src/browser/preboot_browser';
-
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -25,12 +23,4 @@ import { AppComponent } from './app.component';
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-  constructor(ngZone: NgZone) {
-    const subscription = ngZone.onStable.subscribe(() => {
-      prebootClient().complete();
-
-      subscription.unsubscribe();
-    });
-  }
-}
+export class AppModule {}

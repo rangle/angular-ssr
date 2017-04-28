@@ -1,8 +1,4 @@
-<md-sidenav [class.m2app-dark]="isDarkTheme">
-  <md-sidenav #sidenav mode="side" class="app-sidenav">
-    Sidenav
-  </md-sidenav>
-
+<div [class.m2app-dark]="isDarkTheme">
   <md-toolbar color="primary">
     <button class="app-icon-button" (click)="sidenav.toggle()">
       <i class="material-icons app-toolbar-menu">menu</i>
@@ -125,8 +121,7 @@
       <button md-menu-item>Banana</button>
     </md-menu>
   </div>
-
-</md-sidenav>
+</div>
 
 <span class="app-action" [class.m2app-dark]="isDarkTheme">
   <button md-fab><md-icon>check circle</md-icon></button>

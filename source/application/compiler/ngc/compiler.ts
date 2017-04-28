@@ -54,7 +54,7 @@ export class NgcCompiler implements ApplicationCompiler {
   private async loadAndCompile(): Promise<Build> {
     const {ts, ng, sources} = projectToOptions(this.project);
 
-    const compilerHost = createCompilerHost(ts, true);
+    const compilerHost = createCompilerHost(ts, false);
 
     const program = createProgram(sources, ts, compilerHost);
 
