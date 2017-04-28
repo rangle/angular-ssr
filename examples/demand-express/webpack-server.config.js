@@ -41,6 +41,7 @@ module.exports = {
     '@angular/tsc-wrapped',
     '@angular/service-worker',
     'angular-ssr',
+    'express',
     function(context, request, callback) {
       const exclusions = [/\@ngrx/, /rxjs/, /zone\.js/, /reflect-metadata/];
 
