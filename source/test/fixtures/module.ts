@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 
 import {Application, ApplicationBuilder, ApplicationBuilderFromModule} from '../../application';
 import {BasicRoutedModule} from './application-routed';
-import {ServerPlatform, createJitPlatform, forkZone} from '../../platform';
+import { ServerPlatform, createJitPlatform, forkZone } from '../../platform';
 import {Snapshot} from '../../snapshot';
 import {templateDocument} from './document';
 
@@ -27,20 +27,43 @@ export const renderModuleFixture = async <M>(moduleType: Type<M>): Promise<Obser
   }
 };
 
-export const runInsideApplication = async (uri: string, fn: (ref: NgModuleRef<any>) => void | Promise<void>, providers: Array<Provider> = []): Promise<void> => {
+export interface RunInsideApplication {
+  run(fn: (moduleRef: NgModuleRef<any>) => void | Promise<void>): Promise<void>;
+
+  dispose(): void;
+}
+
+export const runInsideApplication = async (uri: string, providers: Array<Provider> = []): Promise<RunInsideApplication> => {
   const platform: ServerPlatform = createJitPlatform() as ServerPlatform;
-  try {
-    await forkZone(templateDocument, uri, async () => {
-      const moduleRef = await platform.bootstrapModule(BasicRoutedModule, {}, providers);
-      try {
-        await Promise.resolve(fn(moduleRef));
+
+  let moduleRef: NgModuleRef<any>;
+
+  let exception: Error;
+
+  const zone = forkZone(templateDocument, uri, {
+    onHandleError: function (parentZoneDelegate: ZoneDelegate, currentZone: Zone, targetZone: Zone, error) {
+      exception = error;
+    }
+  });
+
+  await zone.runGuarded<Promise<void>>(async () => {
+    moduleRef = await platform.bootstrapModule(BasicRoutedModule, {}, providers);
+  });
+
+  return {
+    run(fn: (moduleRef: NgModuleRef<any>) => void | Promise<void>): Promise<void> {
+      if (exception) {
+        return Promise.reject(exception);
       }
-      finally {
+      return zone.runGuarded<Promise<void>>(() => Promise.resolve(fn(moduleRef)));
+    },
+    dispose() {
+      try {
         moduleRef.destroy();
       }
-    });
-  }
-  finally {
-    platform.destroy();
-  }
+      finally {
+        platform.destroy();
+      }
+    }
+  };
 };

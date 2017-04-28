@@ -29,7 +29,12 @@ export class ApplicationBuilderFromSource<V> extends ApplicationBuilderBase<any>
         .then(l => l.load())
         .then(m => typeof m !== 'object'
           ? platform.compileModule(m)
-          : m);
+          : m)
+        .catch(exception => {
+          platform.destroy();
+
+          return Promise.reject(exception);
+        })
 
     class ApplicationFromSource extends ApplicationBase<V, any> {
       constructor(operation: RenderOperation) {

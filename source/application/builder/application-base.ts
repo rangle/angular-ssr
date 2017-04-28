@@ -7,7 +7,7 @@ import chalk = require('chalk');
 import uri = require('url');
 
 import {Application} from './application';
-import {ServerPlatform, forkZone, executeBootstrap} from '../../platform';
+import {ServerPlatform, forkZoneExecute, executeBootstrap} from '../../platform';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Route, applicationRoutes, renderableRoutes} from '../../route';
 import {Snapshot, snapshot} from '../../snapshot';
@@ -89,7 +89,7 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
       }
     };
 
-    return await forkZone(templateDocument, uri, execute);
+    return await forkZoneExecute(templateDocument, uri, execute);
   }
 }
 

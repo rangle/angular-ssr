@@ -106,6 +106,7 @@
     "commander": "2.9.0",
     "domino": "https://github.com/clbond/domino/archive/1.0.44.tar.gz",
     "es2015-imports-to-commonjs-loose": "^1.0.6",
+    "jest": "^19.0.2",
     "jsonschema": "^1.1.1",
     "lru_map": "^0.3.3",
     "mkdir-recursive": "^0.3.0",
@@ -118,6 +119,7 @@
     "scoped-logger": "^0.0.19",
     "source-map-support": "^0.4.11",
     "symbol-observable": "^1.0.4",
+    "typescript-babel-jest": "^1.0.3",
     "xhr2": "^0.1.4"
   },
   "devDependencies": {

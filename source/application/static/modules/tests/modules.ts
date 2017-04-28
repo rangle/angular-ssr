@@ -53,9 +53,17 @@ describe('Module discovery', () => {
     return [moduleFile.fileName, createProgram([moduleFile.fileName, mainFile.fileName], options, host)];
   };
 
+  let moduleFile: string;
+  let program: Program;
+  let root: PathReference;
+
+  beforeAll(() => {
+    root = pathFromRandomId();
+
+    [moduleFile, program] = createExampleProgram(root);
+  })
+
   it('can locate root application module in a project', () => {
-    const root = pathFromRandomId();
-    const [moduleFile, program] = createExampleProgram(root);
     const descriptor = discoverRootModule(root, program);
     expect(descriptor).not.toBeNull();
     expect(descriptor.source).toEqual(moduleFile.replace(/(^(\\|\/)|\.ts$)/g, String()));
@@ -63,8 +71,6 @@ describe('Module discovery', () => {
   });
 
   it('can discover all @NgModule classes in a project', () => {
-    const root = pathFromRandomId();
-    const [moduleFile, program] = createExampleProgram(root);
     const modules = collectModules(root, program);
     expect(modules).not.toBeNull();
     expect(modules.length).toBe(1);

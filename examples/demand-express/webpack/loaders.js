@@ -1,6 +1,6 @@
 exports.tsjit = {
   test: /\.ts$/,
-  use: ['awesome-typescript-loader', 'angular2-template-loader', 'angular-router-loader'],
+  use: ['awesome-typescript-loader?babelOptions={"compact":false}', 'angular2-template-loader', 'angular-router-loader'],
 };
 
 exports.html = {

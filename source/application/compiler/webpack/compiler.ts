@@ -39,7 +39,7 @@ export class WebpackCompiler implements ApplicationCompiler {
     const base = this.loader.load(this.project);
 
     const configuration = Object.assign(base, {
-      target: 'node',
+      target: 'async-node',
       context: this.project.basePath.toString(),
       devtool: false,
       entry: entries,

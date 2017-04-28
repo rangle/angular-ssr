@@ -1,18 +1,26 @@
 import url = require('url');
 
-import {runInsideApplication} from '../../../test/fixtures/module';
+import {RunInsideApplication, runInsideApplication} from '../../../test/fixtures/module';
 
 describe('location', () => {
+  let context: RunInsideApplication;
+
+  const parsedUri = url.parse('http://localhost/test#/');
+
+  beforeAll(async () => {
+    context = await runInsideApplication('http://localhost/test#/');
+  });
+
+  afterAll(() => context.dispose());
+
   it('is defined in the context of ng application execution', () => {
-    return runInsideApplication('http://localhost/', () => {
+    return context.run(async () => {
       expect(location).not.toBeNull();
     });
   })
 
   it('describes the URI from the request', () => {
-    const parsedUri = url.parse('http://localhost/test#/');
-
-    return runInsideApplication('http://localhost/test#/', () => {
+    return context.run(async () => {
       expect(window.location).not.toBeNull();
       expect(window.location.pathname).toBe(parsedUri.pathname);
       expect(window.location.hash).toBe(parsedUri.hash);

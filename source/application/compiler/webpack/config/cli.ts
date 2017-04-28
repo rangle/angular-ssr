@@ -12,16 +12,18 @@ export class CliLoader implements ConfigurationLoader {
 
     const app = applicationFromIdentifier(options.get('apps'), project.identifier);
 
+    const environment = project.environment || process.env.NODE_ENV || 'development';
+
     const composedOptions = {
       target: project.environment,
-      environment: project.environment || process.env.NODE_ENV || 'prod',
+      environment,
       outputPath: project.workingPath ? project.workingPath.toString() : null,
       aot: false,
       sourcemaps: true,
       vendorChunk: false,
       verbose: true,
       progress: false,
-      extractCss: true,
+      extractCss: false,
       watch: false,
       outputHashing: null,
       poll: null,

@@ -372,8 +372,21 @@ describe('ApplicationBuilderFromModule', () => {
 
     const stream = await application.prerender();
 
-    return new Promise<void>((resolve, reject) => {
-      stream.subscribe(s => reject(new Error('Should have thrown an exception and failed')), resolve);
-    });
+    try {
+      return await new Promise<void>((resolve, reject) => {
+        stream.subscribe(s => reject(new Error('Should have thrown an exception and failed')), resolve);
+      });
+    }
+    finally {
+      application.dispose();
+    }
+  });
+
+  afterEach(() => {
+    if (typeof gc === 'function') {
+      gc();
+    }
   });
 });
+
+declare const gc;

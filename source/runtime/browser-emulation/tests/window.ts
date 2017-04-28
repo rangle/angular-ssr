@@ -1,16 +1,22 @@
-import {runInsideApplication} from '../../../test/fixtures/module';
+import {RunInsideApplication, runInsideApplication} from '../../../test/fixtures/module';
 
 describe('window', () => {
-  const uri = 'http://localhost/test-uri';
+  let context: RunInsideApplication;
 
-  it('is defined in the context of ng application execution', () => {
-    return runInsideApplication(uri, () => {
-      expect(window).not.toBeNull();
-    })
+  beforeAll(async () => {
+    context = await runInsideApplication('http://localhost');
   });
 
-  it('provides polyfills for browser functions', () => {
-    return runInsideApplication('http://localhost/', () => {
+  afterAll(async () => context.dispose());
+
+  it('is defined in the context of ng application execution', async () => {
+    return await context.run(async () => {
+      expect(window).not.toBeNull();
+    });
+  });
+
+  it('provides polyfills for browser functions', async () => {
+    return await context.run(async () => {
       expect(typeof window.addEventListener).toBe('function');
       expect(typeof window.alert).toBe('function');
       expect(typeof window.clearImmediate).not.toBe('function');
@@ -29,20 +35,20 @@ describe('window', () => {
     });
   });
 
-  it('blur', () => {
-    return runInsideApplication('http://localhost/', () => {
+  it('blur', async () => {
+    return await context.run(async () => {
       expect(() => window.blur()).not.toThrow();
     });
   });
 
-  it('focus', () => {
-    return runInsideApplication('http://localhost/', () => {
+  it('focus', async () => {
+    return await context.run(async () => {
       expect(() => window.focus()).not.toThrow();
     });
   });
 
-  it('getSelection', () => {
-    return runInsideApplication('http://localhost/', () => {
+  it('getSelection', async () => {
+    return await context.run(async () => {
       let selection: Selection;
       expect(() => selection = window.getSelection()).not.toThrow();
       expect(selection).not.toBeNull();
@@ -52,16 +58,31 @@ describe('window', () => {
     });
   });
 
-  it('alert / confirm / prompt / print', () => {
-    return runInsideApplication('http://localhost/', () => {
+  it('alert', async () => {
+    return await context.run(async () => {
       expect(typeof alert).toBe('function');
+      expect(() => window.alert('Alert')).not.toThrow();
+    });
+  });
+
+  it('confirm', async () => {
+    return await context.run(async () => {
       expect(typeof confirm).toBe('function');
-      expect(typeof print).toBe('function');
+      expect(window.confirm('Yes?')).toBe(true);
+    });
+  });
+
+  it('prompt', async () => {
+    return await context.run(async () => {
       expect(typeof prompt).toBe('function');
       expect(window.prompt('Hello')).toBe('');
-      expect(window.confirm('Yes?')).toBe(true);
-      expect(() => window.alert('Alert')).not.toThrow();
+    });
+  });
+
+  it('print', async () => {
+    return await context.run(async () => {
+      expect(typeof print).toBe('function');
       expect(() => window.print()).not.toThrow();
-    })
+    });
   });
 });
