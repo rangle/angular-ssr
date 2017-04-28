@@ -3,7 +3,7 @@ import url = require('url');
 import {Route} from './route';
 import {RouteException} from '../exception';
 
-import {FallbackOptions} from '../static';
+import {ApplicationFallbackOptions} from '../static';
 
 export const routeToPath = (route: Route): string => {
   const split = route.path.reduce<Array<string>>((p, c) => [...p, ...c.split('/')], []);
@@ -32,7 +32,7 @@ export const routeToPathWithParameters = (route: Route): string => {
 }
 
 export const routeToUri = (route: Route): string => {
-  let resultUri = `${FallbackOptions.fallbackUri}${routeToPath(route)}`;
+  let resultUri = `${ApplicationFallbackOptions.fallbackUri}${routeToPath(route)}`;
 
   if (route.queryString) {
     if (route.queryString.startsWith('?')) {

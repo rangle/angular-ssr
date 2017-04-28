@@ -5,7 +5,7 @@ import {Location} from '@angular/common';
 import {Router, Routes} from '@angular/router';
 
 import {Route} from './route';
-import {FallbackOptions} from '../static';
+import {ApplicationFallbackOptions} from '../static';
 import {RouteExtractionOperation} from '../application/operation';
 import {forkZoneExecute} from '../platform';
 import {routeToPathWithParameters} from './transform';
@@ -42,7 +42,7 @@ export const applicationRoutes = <M>(operation: RouteExtractionOperation<M>): Pr
     return extractRoutesFromModule(moduleRef);
   };
 
-  return forkZoneExecute(templateDocument, FallbackOptions.fallbackUri, execute);
+  return forkZoneExecute(templateDocument, ApplicationFallbackOptions.fallbackUri, execute);
 };
 
 export const extractRoutesFromRouter = (router: Router, location: Location): Array<Route> => {

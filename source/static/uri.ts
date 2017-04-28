@@ -1,4 +1,4 @@
-export namespace FallbackOptions {
+export namespace ApplicationFallbackOptions {
   // NOTE(bond): In general, it is better if your application supplies complete absolute URIs when
   // doing things like demand rendering and so forth. But in the event that you just pass relative
   // URIs instead (because that is what you get by default from express), then the library will

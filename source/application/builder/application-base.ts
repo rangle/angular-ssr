@@ -93,7 +93,7 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
   }
 }
 
-import {FallbackOptions} from '../../static';
+import {ApplicationFallbackOptions} from '../../static';
 
 let relativeUriWarning = false;
 
@@ -101,10 +101,10 @@ const resolveToAbsoluteUri = (relativeUri: string): string => {
   if (relativeUri == null ||
       relativeUri.length === 0 ||
       relativeUri === '/') {
-    return FallbackOptions.fallbackUri;
+    return ApplicationFallbackOptions.fallbackUri;
   }
 
-  const resolved = uri.resolve(FallbackOptions.fallbackUri, relativeUri);
+  const resolved = uri.resolve(ApplicationFallbackOptions.fallbackUri, relativeUri);
 
   if (resolved !== relativeUri) {
     if (relativeUriWarning === false) {

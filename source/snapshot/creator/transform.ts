@@ -7,14 +7,11 @@ const {createDocument} = require('domino');
 export const transformAndSerializeDocument = (processors: Array<Postprocessor>, document: Document): string => {
   const renderedDocument = preprocess(processors, document);
 
-    if (/<!DOCTYPE html>/i.test(renderedDocument) === false) {
-      return `
-        <!DOCTYPE html>
-        ${renderedDocument}
-      `;
-    }
-
+  if (/<!doctype html>/i.test(renderedDocument)) {
     return renderedDocument;
+  }
+
+  return `<!doctype html>${renderedDocument}`;
 }
 
 const preprocess = (processors: Array<Postprocessor>, document: Document): string => {

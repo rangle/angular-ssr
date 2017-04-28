@@ -1,12 +1,12 @@
 import {LOCALE_ID} from '@angular/core';
 
-import {RunInsideApplication, runInsideApplication} from '../../../test/fixtures/module';
+import {ApplicationTestContext, createApplicationTestContext} from '../../../test/fixtures';
 
 describe('navigator', () => {
-  let context: RunInsideApplication;
+  let context: ApplicationTestContext;
 
   beforeAll(async () => {
-    context = await runInsideApplication('http://localhost', [{provide: LOCALE_ID, useFactory: () => 'fr-FR'}]);
+    context = await createApplicationTestContext('http://localhost/', [{provide: LOCALE_ID, useFactory: () => 'fr-FR'}]);
   });
 
   afterAll(() => context.dispose());

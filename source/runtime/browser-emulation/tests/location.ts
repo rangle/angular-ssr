@@ -1,14 +1,14 @@
 import url = require('url');
 
-import {RunInsideApplication, runInsideApplication} from '../../../test/fixtures/module';
+import {ApplicationTestContext, createApplicationTestContext} from '../../../test/fixtures';
 
 describe('location', () => {
-  let context: RunInsideApplication;
+  let context: ApplicationTestContext;
 
   const parsedUri = url.parse('http://localhost/test#/');
 
   beforeAll(async () => {
-    context = await runInsideApplication('http://localhost/test#/');
+    context = await createApplicationTestContext('http://localhost/test#/');
   });
 
   afterAll(() => context.dispose());

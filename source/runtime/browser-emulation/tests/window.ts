@@ -1,10 +1,10 @@
-import {RunInsideApplication, runInsideApplication} from '../../../test/fixtures/module';
+import {ApplicationTestContext, createApplicationTestContext} from '../../../test/fixtures';
 
 describe('window', () => {
-  let context: RunInsideApplication;
+  let context: ApplicationTestContext;
 
   beforeAll(async () => {
-    context = await runInsideApplication('http://localhost');
+    context = await createApplicationTestContext();
   });
 
   afterAll(async () => context.dispose());

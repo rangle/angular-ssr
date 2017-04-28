@@ -2,7 +2,7 @@ import {LOCALE_ID} from '@angular/core';
 
 import {injectableFromZone} from '../../platform/zone/injector-map';
 
-import {FallbackOptions} from '../../static';
+import {ApplicationFallbackOptions} from '../../static';
 
 let navigatorLanguage: string | null = null;
 
@@ -28,7 +28,7 @@ const navigator = {
     }
     let locale = injectableFromZone(Zone.current, LOCALE_ID);
     if (locale == null) {
-      locale = FallbackOptions.locale;
+      locale = ApplicationFallbackOptions.locale;
     }
     return locale;
   },
