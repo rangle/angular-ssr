@@ -389,4 +389,4 @@ describe('ApplicationBuilderFromModule', () => {
   });
 });
 
-declare const gc;
+declare const gc: () => void;

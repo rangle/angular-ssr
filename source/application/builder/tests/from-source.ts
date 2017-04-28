@@ -95,4 +95,4 @@ describe('ApplicationBuilderFromSource', () => {
   });
 });
 
-declare const gc;
+declare const gc: () => void;

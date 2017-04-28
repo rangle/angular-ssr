@@ -43,6 +43,7 @@ export class WebpackCompiler implements ApplicationCompiler {
       context: this.project.basePath.toString(),
       devtool: false,
       entry: entries,
+      cache: false,
       output: {
         path: this.project.workingPath.toString(),
         filename: '[id].js',
@@ -78,7 +79,7 @@ export class WebpackCompiler implements ApplicationCompiler {
       plugins: removeProblematicPlugins(base.plugins || [])
     });
 
-    const compiler = webpack(configuration);
+    let compiler = webpack(configuration);
 
     return new Promise<ModuleLoader>((resolve, reject) => {
       compiler.run((error, stats) => {
@@ -90,6 +91,12 @@ export class WebpackCompiler implements ApplicationCompiler {
         }
         else {
           resolve(new WebpackModuleLoader(this.project, stats['compilation'].chunks));
+        }
+
+        compiler = undefined;
+
+        if (typeof gc === 'function') {
+          gc();
         }
       });
     });
@@ -110,3 +117,4 @@ const removeProblematicPlugins = (plugins: Array<any>): Array<any> => {
   });
 };
 
+declare const gc: () => void;
