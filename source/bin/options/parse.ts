@@ -43,15 +43,23 @@ export const parseCommandLineOptions = (): CommandLineOptions => {
   const source = options['module'] ? options['module'].replace(/\.(js|ts)$/, String()) : null;
   const symbol = options['symbol'];
 
-  const environment = options['environment'];
+  const debug = options['debug'] || false;
+
+  let environment: string = options['environment'];
+  if (environment == null || environment.length === 0) {
+    if (debug) {
+      environment = 'dev';
+    }
+    else {
+      environment = 'prod';
+    }
+  }
 
   const template = fileFromString(options['template']);
 
   if (template.exists() === false) {
     throw new ConfigurationException(`HTML template document does not exist: ${options['template']}`);
   }
-
-  const debug = options['debug'] || false;
 
   const webpack = options['webpack'];
 
@@ -104,7 +112,8 @@ const parseCommandLine = () => {
   const options = commander
     .version(version)
     .description(chalk.green('Prerender Angular applications'))
-    .option('-d, --debug Enable debugging (stack traces and so forth)', false)
+    .option('-e, --environment', 'Environment selector (dev, prod) (if not specified, will automatically choose based on --debug')
+    .option('-d, --debug', 'Enable debugging (stack traces and so forth)', false)
     .option('-p, --project <path>', 'Path to tsconfig.json file or project root (if tsconfig.json lives in the root)', cwd())
     .option('-w, --webpack <config>', 'Optional path to webpack configuration file')
     .option('-t, --template <path>', 'HTML template document', 'dist/index.html')
