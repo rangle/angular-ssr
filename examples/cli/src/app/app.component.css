@@ -1,5 +1,7 @@
-div.m2app-dark {
-  background: black;
+.m2app-dark {
+  background: #444;
+  color: #ddd;
+  font-family: Ubuntu, Monaco, Open Sans, sans-serif;
 }
 
 .app-content {
@@ -16,6 +18,7 @@ div.m2app-dark {
 
 .app-toolbar-filler {
   flex: 1 1 auto;
+  text-align: right;
 }
 
 .app-toolbar-menu {

@@ -3,14 +3,13 @@ import {FormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NavigationEnd, NavigationError, RouterModule, Router} from '@angular/router';
-import {MdSelectModule} from '@angular/material';
+import {MaterialModule} from '@angular/material';
 
-import {BlogComponent} from './blog.component';
+import {BlogComponent, BlogService} from './blog';
+import {LocaleComponent, LocaleService} from './locale';
 import {RootComponent} from './root.component';
-import {LocaleComponent} from './locale.component';
 
-import {CookieService} from './cookie.service';
-import {LocaleService} from './locale.service';
+import {CookieService} from './cookie/cookie.service';
 
 import {prebootClient} from 'preboot/__build/src/browser/preboot_browser';
 
@@ -23,7 +22,7 @@ import {prebootClient} from 'preboot/__build/src/browser/preboot_browser';
       {path: '', pathMatch: 'full', 'redirectTo': 'blog/1'},
       {path: 'blog/:id', component: BlogComponent},
     ]),
-    MdSelectModule
+    MaterialModule.forRoot(),
   ],
   declarations: [
     BlogComponent,
@@ -31,6 +30,7 @@ import {prebootClient} from 'preboot/__build/src/browser/preboot_browser';
     LocaleComponent
   ],
   providers: [
+    BlogService,
     CookieService,
     LocaleService
   ],

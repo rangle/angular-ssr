@@ -36,4 +36,4 @@ describe('NgcCompiler', () => {
   });
 });
 
-declare const gc;
+declare const gc: () => void;

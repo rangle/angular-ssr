@@ -44,7 +44,7 @@ const assertions = (text: string) => {
     throw new Error(`HTML document is missing client-side script bundle in <script> tag: ${text}`);
   }
 
-  if (/This is blog ID/i.test(application.textContent) === false) {
+  if (/Sed ut perspiciatis unde omnis iste natus error sit voluptatem/i.test(application.textContent) === false) {
     throw new Error(`Server returned a document that does not contain the rendered blog element: ${text}`);
   }
 };

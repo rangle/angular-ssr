@@ -1,0 +1,16 @@
+div {
+  margin: 2em;
+}
+
+.content {
+  font-size: 1.2em;
+}
+
+.author, .id {
+  color: #555;
+  font-weight: bold;
+}
+
+.id {
+  font-size: small;
+}

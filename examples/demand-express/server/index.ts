@@ -1,37 +1,45 @@
 import express = require('express');
 
-import {enableProdMode} from '@angular/core';
-
 import {ApplicationBuilderFromModule} from 'angular-ssr';
 
+import {Injectable, enableProdMode} from '@angular/core';
+
 import {AppModule} from '../app/app.module';
-
+import {LocaleService} from '../app/locale/locale.service';
+import {StateTransition} from 'angular-ssr';
 import {absoluteUri, configure, listen} from './http';
-
-import {TransitionLocale, Variants} from './variants';
-
 import {index} from './paths';
 
-const http = express();
-
-configure(http);
-
 enableProdMode();
+
+@Injectable()
+export class TransitionLocale implements StateTransition<string> {
+  constructor(private service: LocaleService) {}
+
+  transition(locale: string) {
+    this.service.locale(locale);
+  }
+}
+
+export interface Variants {
+  locale: string;
+}
 
 const builder = new ApplicationBuilderFromModule<Variants, AppModule>(AppModule, index);
 
 builder.variants({
-  locale: {
-    values: ['en-US', 'fr-FR'],
+  locale: { // select a locale based on renderUri arguments
     transition: TransitionLocale
   }
 });
 
-builder.preboot({
-  appRoot: 'application'
-});
+builder.preboot();
 
 const application = builder.build();
+
+const http = express();
+
+configure(http);
 
 http.get(/.*/, async (request, response) => {
   try {

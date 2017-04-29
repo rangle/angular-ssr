@@ -56,19 +56,27 @@ export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V>
     this.operation.routes = routes;
   }
 
-  preboot(preboot?: PrebootConfiguration | boolean) {
-    if (typeof preboot === 'boolean') {
-      this.operation.preboot = preboot ? {} as PrebootQueryable : null;
-    }
-    else {
-      this.operation.preboot = preboot as PrebootQueryable;
-    }
+  preboot(preboot: PrebootConfiguration | boolean = true) {
+    const config = typeof preboot === 'boolean'
+      ? preboot === true
+        ? {} as PrebootQueryable
+        : null
+      : preboot as PrebootQueryable;
+
+    this.operation.preboot = config;
   }
 
   stateReader<R>(stateReader?: ApplicationStateReader<R>) {
     this.operation.stateReader = stateReader;
   }
 
+  // Wait for n milliseconds for the app to become stable (all asynchronous operations finished)
+  // before serializing the DOM. If the value is zero, we will not wait at all, but this is inadvisable.
+  // Best practice is to set this value very low for on-demand rendering (150ms approx) and much higher
+  // for build-time rendering (since performance is not a concern in that case). Depending on what
+  // your application does -- eg. HTTP requests -- you may need to adjust this value. Generally we
+  // will wait for all async operations to finish, unless they take longer than {@link milliseconds}
+  // in which case we will render the app as-is.
   stabilizeTimeout(milliseconds?: number): number | null {
     if (milliseconds !== undefined) {
       this.operation.stabilizeTimeout = milliseconds;
