@@ -1,4 +1,4 @@
-import { FileReference, PrebootConfiguration, Project, OutputProducer } from '../../index';
+import {FileReference, PrebootConfiguration, Project, OutputProducer} from '../../index';
 
 export interface CommandLineOptions {
   debug: boolean;

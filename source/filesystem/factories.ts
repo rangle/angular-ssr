@@ -1,4 +1,3 @@
-
 import {tmpdir} from 'os';
 
 import {dirname, join, resolve} from 'path';

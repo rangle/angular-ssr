@@ -3,8 +3,7 @@
     {{blog.author.name}}
     <span class="email"><a [href]="'mailto:' + blog.author.email">{{blog.author.email}}</a></span>
   </div>
-  <div class="content">
+  <blockquote class="content">
     <div>{{blog.content}}</div>
-  </div>
-  <div class="id">(Note: Blog ID: <span style="font-family: monospace">{{id | async}}</span>)</div>
+  </blockquote>
 </div>

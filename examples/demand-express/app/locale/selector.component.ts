@@ -2,11 +2,11 @@ import {Component} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {LocaleService} from './locale.service';
+import {LocaleService} from './service';
 
 @Component({
   selector: 'locale-selector',
-  templateUrl: './locale.component.html',
+  templateUrl: './selector.component.html',
   styles: [`
     :host {
       margin: 2em;
@@ -16,7 +16,7 @@ import {LocaleService} from './locale.service';
     }`
   ]
 })
-export class LocaleComponent {
+export class LocaleSelectorComponent {
   public locale: Observable<string>;
 
   constructor(public service: LocaleService) {

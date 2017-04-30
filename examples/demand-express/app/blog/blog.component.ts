@@ -6,9 +6,9 @@ import {Observable} from 'rxjs';
 
 import 'rxjs/add/operator/map';
 
-import {Blog} from './blog.model';
-import {BlogService} from './blog.service';
-import {LocaleService} from '../locale/locale.service';
+import {Blog} from './model';
+import {BlogService} from './service';
+import {LocaleService} from '../locale';
 
 @Component({
   selector: 'blog-component',
@@ -16,21 +16,23 @@ import {LocaleService} from '../locale/locale.service';
   styleUrls: ['./blog.component.css']
 })
 export class BlogComponent {
-  private id: Observable<number>;
-
   private locale: Observable<string>;
 
   private blogs: Observable<Array<Blog>>;
 
   constructor(
-    blogService: BlogService,
+    private blogService: BlogService,
     localeService: LocaleService,
     route: ActivatedRoute
   ) {
+    this.blogs = this.blogService.load('en-US');
+
     this.locale = localeService.locale();
 
-    this.locale.subscribe(locale => this.blogs = blogService.load(locale));
+    this.locale.subscribe(locale => this.update(locale));
+  }
 
-    this.id = route.params.map(p => +p['id']);
+  private update(locale: string) {
+    this.blogs = this.blogService.load(locale || 'en-US');
   }
 }

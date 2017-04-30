@@ -17,6 +17,8 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js', '.json'],
   },
+  externals: [
+  ],
   plugins: [
     new HtmlWebpackPlugin({
       template: './app/index.html',

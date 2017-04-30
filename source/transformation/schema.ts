@@ -5,11 +5,9 @@ export {ValidatorResult};
 export class JsonSchema {
   constructor(private schema: Schema) {}
 
-  add(schema: Schema) {}
+  private readonly validator = new Validator();
 
   validate<T>(document: T): ValidatorResult {
-    const validator = new Validator();
-
-    return validator.validate(document, this.schema, {allowUnknownAttributes: false});
+    return this.validator.validate(document, this.schema, {allowUnknownAttributes: false});
   }
 }

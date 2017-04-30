@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 
 import {Observable, ReplaySubject} from 'rxjs';
 
-import {CookieService} from '../cookie/cookie.service';
+import {CookieService} from '../cookie';
 
 @Injectable()
 export class LocaleService {

@@ -1,4 +1,4 @@
-import {connected } from 'process';
+import {connected} from 'process';
 
 import {RuntimeException} from '../exception';
 import {OutputProducer} from './producer';

@@ -1,3 +1,5 @@
 export * from './blog.component';
-export * from './blog.model';
-export * from './blog.service';
+export * from './model';
+export * from './module';
+export * from './service';
+export * from './schema';

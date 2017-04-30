@@ -1,12 +1,11 @@
 import express = require('express');
 
-import {ApplicationBuilderFromModule} from 'angular-ssr';
+import {ApplicationBuilderFromModule, StateTransition} from 'angular-ssr';
 
 import {Injectable, enableProdMode} from '@angular/core';
 
-import {AppModule} from '../app/app.module';
-import {LocaleService} from '../app/locale/locale.service';
-import {StateTransition} from 'angular-ssr';
+import {RootModule} from '../app/root.module';
+import {LocaleService} from '../app/locale';
 import {absoluteUri, configure, listen} from './http';
 import {index} from './paths';
 
@@ -25,7 +24,7 @@ export interface Variants {
   locale: string;
 }
 
-const builder = new ApplicationBuilderFromModule<Variants, AppModule>(AppModule, index);
+const builder = new ApplicationBuilderFromModule<Variants, RootModule>(RootModule, index);
 
 builder.variants({
   locale: { // select a locale based on renderUri arguments
@@ -33,7 +32,7 @@ builder.variants({
   }
 });
 
-builder.preboot();
+builder.preboot(true);
 
 const application = builder.build();
 

@@ -1,4 +1,4 @@
-import {Component, ViewEncapsulation} from '@angular/core';
+import {Component, NgZone, ViewEncapsulation} from '@angular/core';
 
 import {MdDialog, MdSnackBar} from '@angular/material';
 
@@ -24,10 +24,16 @@ export class RootComponent {
 
   private timer;
 
-  constructor(private dialog: MdDialog, private snackbar: MdSnackBar) {}
+  constructor(
+    private dialog: MdDialog,
+    private snackbar: MdSnackBar,
+    private zone: NgZone
+  ) {}
 
   ngOnInit() {
-    const update = () => this.progress = (this.progress + Math.floor(Math.random() * 4) + 1) % 100;
+    const update = () => this.zone.run(() => {
+      this.progress = (this.progress + Math.floor(Math.random() * 4) + 1) % 100;
+    });
 
     this.timer = setInterval(() => update, 200);
   }

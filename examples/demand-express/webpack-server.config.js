@@ -49,6 +49,7 @@ module.exports = {
     },
   ],
   node: {
+    process: true,
     __dirname: true,
     __filename: true
   }

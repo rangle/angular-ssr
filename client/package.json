@@ -1,0 +1,28 @@
+{
+  "name": "@angular-ssr/client",
+  "version": "0.1.98",
+  "description": "Browser companion library for angular-ssr",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
+  "engines": {
+    "node": ">=6.9",
+    "npm": ">=3.10"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clbond/angular-ssr.git"
+  },
+  "author": {
+    "name": "Christopher Bond",
+    "email": "cb@clbond.org",
+    "url": "https://clbond.org/"
+  },
+
+  "contributors": [
+    {
+      "name": "rangle.io",
+      "url": "https://rangle.io/"
+    }
+  ]
+}

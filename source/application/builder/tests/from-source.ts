@@ -2,7 +2,7 @@ import {join} from 'path';
 
 import {Project} from './../../project';
 import {ApplicationBuilderFromSource} from '../from-source';
-import {templateDocument, getApplicationProject, getApplicationRoot } from '../../../test/fixtures';
+import {templateDocument, getApplicationProject, getApplicationRoot} from '../../../test/fixtures';
 import {pathFromRandomId, absoluteFile, absolutePath} from '../../../filesystem';
 
 describe('ApplicationBuilderFromSource', () => {
@@ -80,7 +80,7 @@ describe('ApplicationBuilderFromSource', () => {
       expect(snapshot.uri).toBe('http://localhost/');
       expect(snapshot.variant).toBeUndefined();
       expect(snapshot.applicationState).toBeUndefined();
-      const expr = /This is blog ID/;
+      const expr = /Sed ut perspiciatis unde/;
       expect(expr.test(snapshot.renderedDocument)).toBeTruthy();
     }
     finally {
