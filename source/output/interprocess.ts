@@ -17,7 +17,7 @@ export class InterprocessOutput implements OutputProducer {
     this.send(snapshot);
   }
 
-  async exception(exception: Error) {
+  async exception(exception: Error & {originalStack?: string, zoneAwareStack?: string}) {
     this.send({
       exception: {
         name: exception.name,

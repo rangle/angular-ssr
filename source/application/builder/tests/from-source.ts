@@ -47,7 +47,7 @@ describe('ApplicationBuilderFromSource', () => {
       expect(snapshot.uri).toBe('http://localhost/one');
       expect(snapshot.variant).toBeUndefined();
       expect(snapshot.applicationState).toBeUndefined();
-      const expr = /<application ng-version="([^"]+)"><router-outlet><\/router-outlet><basic-lazy-component ng-version="([^"]+)">Lazy loaded component!<\/basic-lazy-component><\/application>/;
+      const expr = /<application ng-version="([^"]+)"><router-outlet><\/router-outlet><basic-lazy-component( ng-version="([^"]+)")?>Lazy loaded component!<\/basic-lazy-component><\/application>/;
       expect(expr.test(snapshot.renderedDocument)).toBeTruthy();
     }
     finally {
