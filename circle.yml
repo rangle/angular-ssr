@@ -18,8 +18,7 @@ dependencies:
 
 test:
   override:
-    - node --expose_gc --always_compact --max-old-space-size=8192 ./node_modules/jest/bin/jest.js -w 18 --coverage=true --logHeapUsage --forceExit:
+    - node --always_compact  ./node_modules/jest/bin/jest.js -w 32 --resetModules --coverage=false:
         timeout: 900
   post:
-    - cp -r coverage $CIRCLE_ARTIFACTS
-    - ./bin/coverage.sh
+    - if test -d coverage; then cp -r coverage $CIRCLE_ARTIFACTS && ./bin/coverage.sh; fi

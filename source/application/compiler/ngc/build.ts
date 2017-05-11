@@ -30,23 +30,18 @@ export class Build implements Disposable {
   resolveCandidates(source: string): string | null {
     const roots = [...this.roots, ...this.outputPaths, this.basePath];
 
-    const candidates = flatten<string>(roots.map(r => [
-      `${join(r.toString(), source)}`,
-      `${join(r.toString(), source.replace(/\//g, sep))}`,
-      `${join(r.toString(), source.replace(/\\/g, '/'))}`,
-      `${r.toString()}/${source}`,
-      `${r.toString()}/${source}`.replace(/\//g, sep),
-      `${r.toString()}/${source}`.replace(/\\/g, '/')
-    ]));
+    const candidates = flatten<string>(roots.map(r => {
+      const combined = join(r.toString(), source);
 
-    for (const candidate of candidates) {
-      const array = this.map.get(candidate);
-      if (array) {
-        return candidate;
-      }
-    }
+      return [
+        combined,
+        combined.replace(/\//g, sep),
+        combined.replace(/\\/g, '/'),
+        combined.replace(/\//g, '\\')
+      ];
+    }));
 
-    return null;
+    return candidates.find(c => this.map.has(c));
   }
 
   resolve(module: ModuleDeclaration): [string | null, string | null] {

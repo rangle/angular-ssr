@@ -24,6 +24,7 @@ module.exports = {
   },
   plugins: [],
   externals: [
+    '@angular/animations',
     '@angular/cli',
     '@angular/common',
     '@angular/compiler',

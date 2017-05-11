@@ -42,8 +42,8 @@ export class WebpackCompiler implements ApplicationCompiler {
       target: 'node',
       context: this.project.basePath.toString(),
       devtool: false,
+      cache: true,
       entry: entries,
-      cache: false,
       output: {
         path: this.project.workingPath.toString(),
         filename: '[id].js',
@@ -51,6 +51,7 @@ export class WebpackCompiler implements ApplicationCompiler {
       },
       externals: [
         'angular-ssr',
+        '@angular/animations',
         '@angular/cli',
         '@angular/common',
         '@angular/compiler',
@@ -74,7 +75,7 @@ export class WebpackCompiler implements ApplicationCompiler {
         },
       ],
       stats: {
-        chunks: true,
+        chunks: true
       },
       plugins: removeProblematicPlugins(base.plugins || [])
     });

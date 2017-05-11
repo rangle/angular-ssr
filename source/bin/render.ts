@@ -1,12 +1,17 @@
 import './vendor';
 
+import {dirname} from 'path';
+
+import {env, exit} from 'process';
+
 import chalk = require('chalk');
+
+const Module = require('module');
 
 import {
   ApplicationPrerenderer,
   ApplicationBuilderFromSource,
   Files,
-  PathReference,
   log,
   pathFromString,
 } from '../index';
@@ -15,7 +20,7 @@ import {parseCommandLineOptions} from './options';
 
 const options = parseCommandLineOptions();
 
-patchModuleSearch(options.project.basePath, pathFromString(__dirname));
+adjustEnvironment();
 
 log.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
@@ -54,31 +59,23 @@ execute()
 
     log.error(`Failed to render application: ${message}`);
 
-    process.exit(1);
+    exit(1);
   });
 
-// Because we compile our outputs to a temporary path outside the filesystem structure of
-// the project, we must tweak the module search paths to look inside the project node
-// modules folder as well as our own modules folder. Otherwise we are going to encounter
-// require exceptions when the application attempts to load libraries.
-function patchModuleSearch(...roots: Array<PathReference>) {
-  const Module = require('module');
+function adjustEnvironment() {
+  // Because we compile our outputs to a temporary path outside the filesystem structure of
+  // the project, we must tweak the module search paths to look inside the project node
+  // modules folder as well as our own modules folder. Otherwise we are going to encounter
+  // require exceptions when the application attempts to load libraries.
+  const roots = [options.project.basePath, pathFromString(dirname(module.filename))];
 
-  const paths = Module._nodeModulePaths;
+  const search = roots.map(r => r.findInAncestor(Files.modules)).filter(f => f != null).map(f => f.toString());
 
-  const search = new Array<string>();
-
-  for (const root of roots) {
-    for (let iterator = root; iterator; iterator = iterator.parent()) {
-      const modules = iterator.findInAncestor(Files.modules);
-      if (modules == null) {
-        break;
-      }
-      search.push(modules.toString());
-    }
-  }
+  const originalCall = Module._nodeModulePaths;
 
   Module._nodeModulePaths = function (from) {
-    return [...paths.call(this, from), ...search];
+    return [...originalCall.call(this, from), ...search];
   };
+
+  Object.assign(env, {NG_RENDER: true});
 }

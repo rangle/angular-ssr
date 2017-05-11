@@ -14,7 +14,7 @@ import {pathFromUri} from '../route';
 export class HtmlOutput implements OutputProducer {
   private path: PathReference;
 
-  constructor(path: PathReference | string, private inline: boolean = true) {
+  constructor(path: PathReference | string, private inline: boolean) {
     this.path = pathFromString(path);
   }
 
@@ -40,7 +40,7 @@ export class HtmlOutput implements OutputProducer {
   async write<V>(snapshot: Snapshot<V>): Promise<void> {
     const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), Files.index));
 
-    const rendered = this.inline
+    const rendered = this.inline === true
       ? inlineResources(file.parent(), snapshot.renderedDocument)
       : snapshot.renderedDocument;
 

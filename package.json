@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.99",
+  "version": "0.1.100",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -129,10 +129,11 @@
       "<rootDir>/examples/demand-express/node_modules"
     ],
     "testPathIgnorePatterns": [
-      "/node_modules/"
+      "node_modules/.*"
     ],
     "transformIgnorePatterns": [
-      "/node_modules/"
+      "node_modules/.*",
+      ".*\\.js"
     ],
     "setupTestFrameworkScriptFile": "<rootDir>/source/test/fixtures/dependencies.js",
     "transform": {
@@ -146,7 +147,9 @@
       "json"
     ],
     "verbose": true,
-    "cacheDirectory": ".jest-cache"
+    "cacheDirectory": ".jest-cache",
+    "collectCoverageFrom": ["source/**/*.ts"],
+    "coveragePathIgnorePatterns": [".*\\.(shim\\.ngstyle|ngfactory)\\.ts"]
   },
   "files": [
     "bin",
