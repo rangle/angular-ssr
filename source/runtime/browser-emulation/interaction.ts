@@ -18,4 +18,5 @@ export const bindInteractions = (target: () => Window) => [false, {
   prompt,
   focus: focus.bind(target),
   setImmediate,
+  clearImmediate,
 }];

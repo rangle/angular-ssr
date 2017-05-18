@@ -17,6 +17,7 @@ describe('window', () => {
     expect(typeof window.prompt).toBe('function');
     expect(typeof window.stop).toBe('function');
     expect(typeof window.setImmediate).toBe('function');
+    expect(typeof window.clearImmediate).toBe('function');
     expect(typeof window.requestAnimationFrame).toBe('function');
     expect(typeof window.cancelAnimationFrame).toBe('function');
   });
