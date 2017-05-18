@@ -44,6 +44,12 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
 
     location.initializationComplete();
 
+    const initializer: ApplicationInitStatus & {runInitializers?: () => void} = applicationInit;
+
+    if (typeof initializer.runInitializers === 'function') {
+      initializer.runInitializers();
+    }
+
     applicationInit.donePromise.then(() => {
       if (bootstrapFactories.length > 0) {
         for (const component of bootstrapFactories) {

@@ -60,6 +60,7 @@ export class WebpackCompiler implements ApplicationCompiler {
         '@angular/forms',
         '@angular/http',
         '@angular/platform-browser',
+        '@angular/platform-browser-dynamic',
         '@angular/router',
         '@angular/tsc-wrapped',
         '@angular/service-worker',
