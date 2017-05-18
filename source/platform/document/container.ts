@@ -42,7 +42,11 @@ export class DocumentContainer implements OnDestroy {
     // NOTE(bond): Calling this more than once is probably not a smart idea and this code should
     // either be removed or refactored. Perhaps this event should just be dispatched on bootWindow
     // creation instead of when we are ready to clone from it when creating a new DOM.
-    bootWindow.document.dispatchEvent(new Event('DOMContentLoaded'));
+    const event = new Event('DOMContentLoaded');
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
+    bootWindow.document.dispatchEvent(event);
 
     if (document.title) {
       this.document.title = document.title;
