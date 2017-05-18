@@ -2,7 +2,7 @@ import commander = require('commander');
 
 import chalk = require('chalk');
 
-import {dirname, join, resolve} from 'path';
+import {join} from 'path';
 
 import {cwd} from 'process';
 
@@ -22,7 +22,8 @@ import {
   fromJson,
   pathFromRandomId,
   pathFromString,
-  validatePrebootOptionsAgainstSchema
+  validatePrebootOptionsAgainstSchema,
+  makeAbsolute
 } from '../../index';
 
 import {CommandLineOptions} from './options';
@@ -133,14 +134,16 @@ const parseCommandLine = () => {
 };
 
 const rootFromTsconfig = (tsconfig: FileReference): PathReference => {
-  const parsed = fromJson<{extends?: string}>(tsconfig.content());
+  const parsed = fromJson<{extends?: string, compilerOptions}>(tsconfig.content());
 
-  if (parsed.extends) {
-    return pathFromString(resolve(dirname(join(tsconfig.parent().toString(), parsed.extends))));
+  if (parsed.compilerOptions) {
+    const root = parsed.compilerOptions.baseUrl || parsed.compilerOptions.sourceRoot;
+
+    if (root) {
+      return pathFromString(makeAbsolute(tsconfig.parent(), root));
+    }
   }
-  else {
-    return tsconfig.parent();
-  }
+  return tsconfig.parent();
 };
 
 const tsconfigFromRoot = (fromRoot: PathReference): FileReference => {
@@ -154,9 +157,9 @@ const tsconfigFromRoot = (fromRoot: PathReference): FileReference => {
 
   for (const tsc of Files.tsconfig) {
     const candidates = [
-      fromRoot,
       ...Array.from(fromRoot.directories()),
-      ...Array.from(fromRoot.parent().directories())
+      ...Array.from(fromRoot.parent().directories()),
+      fromRoot,
     ].filter(p => /(\\|\/)e2e(\\|\/)/.test(p.toString()) === false);
 
     const found = candidates.map(d => fileFromString(join(d.toString(), tsc))).find(c => c.exists());

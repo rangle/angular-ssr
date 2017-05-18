@@ -7,6 +7,7 @@ import {
   ModuleResolutionKind,
   ModuleKind,
   Program,
+  ScriptTarget,
 } from 'typescript';
 
 import {CompilerException} from '../../exception';
@@ -23,9 +24,16 @@ export interface CompilationOptions {
 export const projectToOptions = (project: Project): CompilationOptions => {
   const tsc = new Tsc();
 
+  const defaultOptions: CompilerOptions = {
+    target: ScriptTarget.ES5,
+    module: ModuleKind.CommonJS,
+    moduleResolution: ModuleResolutionKind.NodeJs
+  };
+
   const {parsed, ngOptions: ng} = tsc.readConfiguration(
     project.tsconfig.toString(),
-    project.basePath.toString());
+    project.basePath.toString(),
+    defaultOptions);
 
   const ts = adjustOptions(parsed.options);
 

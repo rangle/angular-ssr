@@ -6,7 +6,6 @@ describe('window', () => {
   it('provides polyfills for browser functions', async () => {
     expect(typeof window.addEventListener).toBe('function');
     expect(typeof window.alert).toBe('function');
-    expect(typeof window.clearImmediate).not.toBe('function');
     expect(typeof window.close).toBe('function');
     expect(typeof window.confirm).toBe('function');
     expect(typeof window.dispatchEvent).toBe('function');
