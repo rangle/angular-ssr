@@ -91,7 +91,7 @@ const templateFileToTemplateString = (fileOrTemplate: string): string => {
   if (file.exists()) {
     return file.content();
   }
-  else if (/<html>/i.test(fileOrTemplate) === false) {
+  else if (/<html/i.test(fileOrTemplate) === false) {
     throw new ConfigurationException(`Invalid template file or missing <html> element: ${fileOrTemplate}`);
   }
   return fileOrTemplate;
