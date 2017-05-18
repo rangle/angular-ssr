@@ -10,6 +10,8 @@ import {
   ScriptTarget,
 } from 'typescript';
 
+import {relative} from 'path';
+
 import {CompilerException} from '../../exception';
 import {ModuleDeclaration, Project} from '../project';
 import {PathReference} from '../../filesystem';
@@ -24,23 +26,20 @@ export interface CompilationOptions {
 export const projectToOptions = (project: Project): CompilationOptions => {
   const tsc = new Tsc();
 
-  const defaultOptions: CompilerOptions = {
-    target: ScriptTarget.ES5,
-    module: ModuleKind.CommonJS,
-    moduleResolution: ModuleResolutionKind.NodeJs
-  };
-
   const {parsed, ngOptions: ng} = tsc.readConfiguration(
     project.tsconfig.toString(),
-    project.basePath.toString(),
-    defaultOptions);
+    project.basePath.toString());
 
   const ts = adjustOptions(parsed.options);
 
+  ng.basePath = project.basePath.toString();
   ts.declaration = true;
   ng.declaration = true;
+  ng.genDir = ts.outDir ? relative(project.basePath.toString(), ts.outDir) : null;
   ng.basePath = project.basePath.toString();
-  ng.generateCodeForLibraries = true;
+  ng.skipMetadataEmit = false;
+  ng.skipTemplateCodegen = false;
+  ng.enableLegacyTemplate = true;
 
   const sources = parsed.fileNames.filter(file => testHeuristic(file) === false);
 
@@ -50,6 +49,7 @@ export const projectToOptions = (project: Project): CompilationOptions => {
 const adjustOptions = (baseOptions?: CompilerOptions): CompilerOptions => {
   return Object.assign({}, baseOptions, {
     declaration: true,
+    target: ScriptTarget.ES5,
     module: ModuleKind.CommonJS,
     moduleResolution: ModuleResolutionKind.NodeJs,
     noEmitHelpers: false,

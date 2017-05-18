@@ -36,7 +36,7 @@ There are two ways you can use `angular-ssr`:
 	* It will query your router configuration and collect all your application routes into a flattened array (eg. `/`, `/foo`, `/bar`)
 		* Note that your application should not be using the hash location strategy if you wish to do server-side rendering. Otherwise this will generate a directory structure containing `#` as part of the path and this is probably not what you want. Just use the regular location strategy instead of `useHash` or `HashLocationStrategy`.
 	* For each of the discovered routes, it will instantiate your application and render that route to a static `.html` file in `dist` (or, if you specified an alternate output directory using `--output`, it will write the files there). It instantiates the application using the existing `dist/index.html` file that was produced as part of your normal application build as a template. The pre-rendered content will be inserted into that template and written out as a new `.html` file based on the route: e.g., `/foo/index.html`.
-	* The drawback to this approach is that the content is generated at build time, **so if your routes contain some dynamic data that needs to be rendered on the server**, you will instead need to [write a simple HTTP server using express and koa and do on-demand server-side rendering](#on-demand-server-side-rendering-and-caching).
+	* The drawback to this approach is that the content is generated at build time, **so if your routes contain some dynamic data that needs to be rendered on the server**, you will instead need to [write a simple HTTP server using express or koa and do on-demand server-side rendering](#on-demand-server-side-rendering-and-caching).
 2. If you need to do on-demand rendering (using the API) instead of build-time rendering (using `ng-render`) because your application contains a lot of dynamic data or due to some other constraint, no problem. It just means that you will have to build a separate webpack program output: either a NodeJS HTTP server, or a NodeJS application whose sole purpose is to do prerendering. You will follow these rough steps:
 	* Install `angular-ssr` as a dependency: `npm install angular-ssr --save`
 	* If you already have multiple webpack configs (one for server and one for client), then you can skip down to the next section and begin writing code to interface with `angular-ssr`.
@@ -543,6 +543,8 @@ The `examples/cli` folder contains a project that was generated with `ng new`, a
 A project using express and `angular-ssr` lives in the [`examples/demand-express`](https://github.com/clbond/angular-ssr/tree/master/examples/demand-express) directory.
 
 ## On-demand rendering using koa
+
+*NOTE*: This has not been implemented yet but you can easily adapt the express example for koa
 
 A project using koa and `angular-ssr` lives in the [`examples/demand-koa`](https://github.com/clbond/angular-ssr/tree/master/examples/demand-koa) directory.
 

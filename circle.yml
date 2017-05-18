@@ -18,7 +18,7 @@ dependencies:
 
 test:
   override:
-    - node --always_compact  ./node_modules/jest/bin/jest.js -w 18 --coverage=false:
+    - node --always_compact ./node_modules/jest/bin/jest.js -w 18 --coverage=false --logHeapUsage:
         timeout: 900
   post:
     - if test -d coverage; then cp -r coverage $CIRCLE_ARTIFACTS && ./bin/coverage.sh; fi
