@@ -60,6 +60,10 @@ export const snapshot = async <M, V>(moduleRef: NgModuleRef<M>, vop: RenderVaria
 
     let renderedDocument = transformAndSerializeDocument(postprocessors, container.document);
 
+    if (/^<\!DOCTYPE html>/i.test(renderedDocument) === false) { // ensure result has a doctype
+      renderedDocument = `<!DOCTYPE html>${renderedDocument}`;
+    }
+
     return <Snapshot<V>> Object.assign(snapshot, {renderedDocument, applicationState});
   }
   finally {
