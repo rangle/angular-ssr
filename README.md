@@ -2,7 +2,16 @@
 [![Coverage Status](https://coveralls.io/repos/github/clbond/angular-ssr/badge.svg)](https://coveralls.io/github/clbond/angular-ssr)
 [![npm](https://img.shields.io/npm/v/angular-ssr.svg)](https://www.npmjs.com/package/angular-ssr)
 
-# Render your Angular 4 applications as part of your build process or inside of a NodeJS HTTP server
+# Advanced server-side rendering for Angular 4+ applications
+
+- [x] Exposes a complete DOM implementation to your application and therefore works with `@angular/material`, [bootstrap](http://getbootstrap.com/css/), [jQuery](https://jquery.com/)
+- [x] Broad compatibility with just about any third-party libraries you are using (including direct DOM manipulation)
+- [x] On-demand rendering through NodeJS server
+- [x] Single-command build-time rendering (`ng-render`)
+- [x] Extremely fast: well written applications can be rendered on demand and served in under 100ms
+- [x] Completely solves the issue of loading a page with nothing but a loading animation inside of it
+- [x] Render your entire application on the server and return an immediately renderable document as part of the very first HTTP request, instantly
+- [x] Seamless [preboot](https://github.com/angular/preboot) integration
 
 - [Introduction](#introduction)
 - [The simplest possible case: an application with no built-in HTTP server and no need for on-demand rendering](#the-simplest-possible-case-an-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
@@ -11,6 +20,7 @@
   - [On-demand server-side rendering and caching](#on-demand-server-side-rendering-and-caching)
     - [Caching](#caching)
   - [Single-use server-side rendering as part of a build process](#single-use-server-side-rendering-as-part-of-a-build-process)
+    - [preboot](#preboot)
   - [Variants](#variants)
     - [Client code](#client-code)
     - [Server code](#server-code)
@@ -205,6 +215,22 @@ renderer.renderTo(html)
     console.error('Failed to render due to uncaught exception', exception);
   });
 ```
+
+## preboot
+
+`angular-ssr` integrates with preboot seamlessly. Simply call:
+
+```typescript
+builder.preboot(true);
+```
+
+or
+
+```
+builder.preboot({appRoot: 'application}, ...otherOptions});
+```
+
+Then simply call `prebootClient().complete()` from your client-side entrypoint (`main.ts`).
 
 ## Variants
 
