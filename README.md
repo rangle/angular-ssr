@@ -232,6 +232,35 @@ builder.preboot({appRoot: 'application}, ...otherOptions});
 
 Then simply call `prebootClient().complete()` from your client-side entrypoint (`main.ts`).
 
+Note that for applications which use `@angular/router`, you do _not_ want to call `complete()` until the router has finished rendering your application. Otherwise the server-rendered document will be hidden before the client-rendered document is ready, producing a white flash that is perceptible to users. Whereas if you call `complete()` after routing is finished, there is no flash and it is a completely seamless transition, invisible to the user:
+
+```typescript
+@NgModule({
+  ...
+})
+export class AppComponent {
+  constructor(router: Router) {
+    const subscription = router.events.subscribe(e => {
+      switch (true) {
+        case e instanceof NavigationError:
+        case e instanceof NavigationComplete:
+          prebootClient().complete(); // Call complete() here to avoid screen flicker and ensure a seamless transition!
+          subscription.unsubscribe();
+          break;
+      }
+    });
+  }
+}
+```
+
+If you are not using `@angular/router`, you can just call it after client bootstrap completes:
+
+```typescript
+const complete = () => prebootClient().complete();
+
+platformBrowserDynamic().bootstrapModule(AppModule).then(complete, complete);
+```
+
 ## Variants
 
 Now we arrive at the most complex use case. Here we wish to do prerendering and demand rendering inside a NodeJS HTTP server, but we also wish to render variants of each page. For example, our application may support multiple languages. `angular-ssr` supports this using a concept called a _variant_. A variant is essentially a key, a set of unique values, and a _transition function_ which can place the application in the specified state.
