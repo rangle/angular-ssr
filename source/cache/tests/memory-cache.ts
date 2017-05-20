@@ -29,4 +29,31 @@ describe('MemoryCache', () => {
 
     await cache.get('http://localhost/1'); // must be cached instance
   });
+
+  it('respects time-to-live expiry', () => {
+    let called = 0;
+
+    const mockApplication = {
+      renderUri: () => {
+        called++;
+        return Promise.resolve({});
+      }
+    } as any;
+
+    const cache = new MemoryCache(mockApplication, 1, 1);
+    cache.get('http://localhost/1');
+    expect(called).toBe(1);
+
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        cache.get('http://localhost/1');
+        if (called !== 2) {
+          reject(new Error('Cache should have missed twice'));
+        }
+        else {
+          resolve();
+        }
+      }, 10);
+    });
+  });
 });

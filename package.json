@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.1.109",
+  "version": "0.1.110",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -20,7 +20,7 @@
     "watch": "tsc --watch",
     "pretest": "npm run lint && npm run build",
     "lint": "tslint --project tsconfig.json --type-check",
-    "test": "jest --coverage=true -w 32",
+    "test": "jest --coverage=true -w 64",
     "test:watch": "jest --watch"
   },
   "repository": {
@@ -122,7 +122,6 @@
     "automock": false,
     "bail": true,
     "browser": false,
-    "timers": "fake",
     "modulePaths": [
       "<rootDir>/source",
       "<rootDir>/node_modules",
@@ -148,7 +147,6 @@
     ],
     "verbose": true,
     "cacheDirectory": ".jest-cache",
-    "collectCoverageFrom": ["source/**/*.ts"],
     "coveragePathIgnorePatterns": [".*\\.(shim\\.ngstyle|ngfactory)\\.ts"]
   },
   "files": [

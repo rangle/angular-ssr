@@ -1,23 +1,30 @@
-import {LRUMap} from 'lru_map';
-
 import {Application} from '../application';
 import {Cache} from './cache';
+import {LRUMap} from 'lru_map';
+import {Pair} from './pair';
 import {Snapshot} from '../snapshot';
 
 export class MemoryCache implements Cache {
-  private cache: LRUMap<string, Snapshot<void>>;
+  private cache: LRUMap<string, Pair<void>>;
 
-  constructor(private application: Application<void | {}>, cacheSize = 1 << 16) {
-    this.cache = new LRUMap<string, Snapshot<void>>(cacheSize);
+  constructor(
+    private application: Application<void | {}>,
+    private cacheSize = 1 << 16,
+    private ttl = 1 << 18,
+  ) {
+    this.cache = new LRUMap<string, Pair<void>>(this.cacheSize);
   }
 
   async get(uri: string): Promise<Snapshot<void>> {
-    let snapshot = this.cache.get(uri);
-    if (snapshot == null) {
-      snapshot = <Snapshot<any>> await this.application.renderUri(uri);
-      this.cache.set(uri, snapshot);
+    let pair = this.cache.get(uri);
+    if (pair == null || (Date.now() - pair.time) >= this.ttl) {
+      pair = {
+        snapshot: await this.application.renderUri(uri) as Snapshot<void>,
+        time: Date.now()
+      };
+      this.cache.set(uri, pair);
     }
-    return snapshot;
+    return pair.snapshot;
   }
 
   has(uri: string): boolean {
