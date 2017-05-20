@@ -5,13 +5,11 @@ import {
   ApplicationStateReader,
   ComposedTransition,
   Postprocessor,
-  VariantsMap
+  VariantsMap,
 } from './contracts';
 
 import {PrebootQueryable} from './preboot';
-
 import {Route} from '../route';
-
 import {ServerPlatform} from '../platform/platform';
 
 // Extract routes from a compiled and running application instance
@@ -71,6 +69,9 @@ export interface RenderOperation {
   // If this value is null, we will wait forever. It is recommended that you set this to a low
   // value if you are doing on-demand rendering. For build-time rendering, high values are fine.
   stabilizeTimeout?: number;
+
+  // Do not fail the entire render process if some routes fail to render
+  pessimistic?: boolean;
 }
 
 // A render operation is an operation that forks into multiple concurrent suboperations,

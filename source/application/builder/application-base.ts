@@ -7,9 +7,11 @@ import chalk = require('chalk');
 import uri = require('url');
 
 import {Application} from './application';
-import {ServerPlatform, forkZoneExecute, executeBootstrap} from '../../platform';
+import {ApplicationFallbackOptions} from '../../static';
+import {PrerenderOptions} from './options';
 import {RenderOperation, RenderVariantOperation} from '../operation';
 import {Route, applicationRoutes, renderableRoutes} from '../../route';
+import {ServerPlatform, executeBootstrap, forkZoneExecute} from '../../platform';
 import {Snapshot, snapshot} from '../../snapshot';
 import {composeTransitions} from '../../variants';
 import {forkRender} from './fork';
@@ -23,7 +25,9 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
 
   abstract dispose(): void;
 
-  async prerender(): Promise<Observable<Snapshot<V>>> {
+  async prerender(options: PrerenderOptions = {pessimistic: false}): Promise<Observable<Snapshot<V>>> {
+    this.render.pessimistic = options.pessimistic || false;
+
     if (this.render.routes == null || this.render.routes.length === 0) {
       this.render.routes = renderableRoutes(await this.discoverRoutes());
     }
@@ -61,7 +65,9 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
         subject.next(await this.renderVariant(suboperation));
       }
       catch (exception) {
-        subject.error(exception);
+        if (operation.pessimistic === false) {
+          subject.error(exception);
+        }
       }
     };
 
@@ -93,7 +99,6 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
   }
 }
 
-import {ApplicationFallbackOptions} from '../../static';
 
 let relativeUriWarning = false;
 

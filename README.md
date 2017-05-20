@@ -13,14 +13,16 @@
 - [x] Render your entire application on the server and return an immediately renderable document as part of the very first HTTP request, instantly
 - [x] Seamless [preboot](https://github.com/angular/preboot) integration
 
+- [Advanced server-side rendering for Angular 4+ applications](#advanced-server-side-rendering-for-angular-4-applications)
 - [Introduction](#introduction)
 - [The simplest possible case: an application with no built-in HTTP server and no need for on-demand rendering](#the-simplest-possible-case-an-application-with-no-built-in-http-server-and-no-need-for-on-demand-rendering)
   - [Additional examples](#additional-examples)
 - [Use cases](#use-cases)
   - [On-demand server-side rendering and caching](#on-demand-server-side-rendering-and-caching)
+    - [Prerendering](#prerendering)
     - [Caching](#caching)
   - [Single-use server-side rendering as part of a build process](#single-use-server-side-rendering-as-part-of-a-build-process)
-    - [preboot](#preboot)
+  - [preboot](#preboot)
   - [Variants](#variants)
     - [Client code](#client-code)
     - [Server code](#server-code)
@@ -97,8 +99,10 @@ Additional examples are available in the [Examples](#example-projects) section.
 ## On-demand server-side rendering and caching
 
 I think this is likely to be the most common usage of `angular-ssr`:
-* You have an HTTP server application that you build as part of your application using webpack. Your HTTP server is written in TypeScript. (If your HTTP server is written in JavaScript, the library will still work in the same way, but you won't be able to copy-paste the code below.)
-* When you build your application, you are outputting two targets: your actual Angular client application, and your HTTP server application. We are going to focus on the server application here because there will be zero changes to your application code.
+- [x] You have an HTTP server application that you build as part of your application using webpack
+- [x] When you build your application, you are outputting two targets: your actual Angular client application, and your HTTP server application
+
+We are going to focus on the server application here because there will be zero changes to your client application code.
 
 Your actual HTTP server code will look something like the following:
 
@@ -143,13 +147,17 @@ const absoluteUri = (request: express.Request): string => {
 };
 ```
 
-If you wish to do _prerendering_ (rendering of all routes that do not take parameters), which is appropriate for applications that are mostly static controls and so forth, then you can write a bit more code like this:
+### Prerendering
+
+Pre-rendering is the process of rendering of all routes that do not take parameters at server startup time instead of when thoseroutes are first requested. This may or may not be appropriate for your application, depending on its content and what is rendered inside of those routes. Perhaps you really do want to render them on-demand with a short TTL. You have to choose what makes sense for your application. If you do want to do prerendering, the code in your server will look vaguely like this:
 
 ```typescript
 // Pre-render all routes that do not take parameters (angular-ssr will discover automatically).
 // This is completely optional and may not make sense for your application if even parameterless
-// routes contain dynamic content. If you don't want prerendering, skip to the next block of code
-const prerender = async () => {
+// routes contain dynamic content. If you don't want prerendering, skip to the next block of code.
+// It is best to ignore errors that happen inside this code because it's strictly a performance
+// enhancement, so if it fails, you do not want your server to fail as well.
+const prerender = async (): Promise<void> => {
   const snapshots = await application.prerender();
 
   snapshots.subscribe(snapshot => {

@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.9.0",
+  "version": "0.9.10",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -20,7 +20,7 @@
     "watch": "tsc --watch",
     "pretest": "npm run lint && npm run build",
     "lint": "tslint --project tsconfig.json --type-check",
-    "test": "jest --coverage=true -w 64",
+    "test": "jest --coverage=true -w 18",
     "test:watch": "jest --watch"
   },
   "repository": {
