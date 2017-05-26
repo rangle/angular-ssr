@@ -5,6 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
+    "noImplicitUseStrict": true,
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitThis": false,
