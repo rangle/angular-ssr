@@ -1,6 +1,6 @@
 import express = require('express');
 
-import {ApplicationBuilderFromModule, StateTransition} from 'angular-ssr';
+import {applicationBuilderFromModule, StateTransition} from 'angular-ssr';
 
 import {Injectable, enableProdMode} from '@angular/core';
 
@@ -24,7 +24,7 @@ export interface Variants {
   locale: string;
 }
 
-const builder = new ApplicationBuilderFromModule<Variants, RootModule>(RootModule, index);
+const builder = applicationBuilderFromModule<Variants>(RootModule, index);
 
 builder.variants({
   locale: { // select a locale based on renderUri arguments

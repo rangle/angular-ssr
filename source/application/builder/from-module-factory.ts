@@ -1,33 +1,25 @@
 import {NgModuleFactory} from '@angular/core';
 
-import {FileReference} from '../../filesystem';
-
 import {Application} from './application';
-import {ApplicationBase} from './application-base';
-import {ApplicationBuilderBase} from './builder-base';
+import {ApplicationBuilder} from './builder';
+import {ApplicationImpl, ApplicationBuilderImpl} from './impl';
 import {RenderOperation} from '../operation';
 import {ServerPlatform, createJitPlatform} from '../../platform';
 
-export class ApplicationBuilderFromModuleFactory<V> extends ApplicationBuilderBase<any> {
-  constructor(private factory: NgModuleFactory<any>, templateDocument?: FileReference | string) {
-    super();
+export const applicationBuilderFromModuleFactory = <V = {}>(factory: NgModuleFactory<any>, templateDocument?: string): ApplicationBuilder<V> => {
+  let platform: ServerPlatform = null;
 
-    if (templateDocument) {
-      this.templateDocument(templateDocument.toString());
+  const dispose = async () => {
+    if (platform) {
+      await platform.destroy();
     }
   }
 
-  build(): Application<V> {
-    const platform = createJitPlatform([]) as ServerPlatform;
+  const build = (operation: RenderOperation): Application<V> => {
+    platform = createJitPlatform([]) as ServerPlatform;
 
-    class ApplicationModuleFactory extends ApplicationBase<V, any> {
-      dispose() {
-        platform.destroy();
-      }
-    }
-
-    const moduleFactory = Promise.resolve(this.factory);
-
-    return new ApplicationModuleFactory(platform, <RenderOperation> this.operation, moduleFactory);
+    return new ApplicationImpl(platform, operation, Promise.resolve(factory), undefined, dispose);
   }
-}
+
+  return new ApplicationBuilderImpl(build, dispose, templateDocument);
+};

@@ -1,9 +1,9 @@
 import {Observable} from 'rxjs';
 
 import {Application} from '../application';
-import {ApplicationPrerenderer} from '../prerenderer';
+import {applicationPrerenderer} from '../prerenderer';
 
-describe('ApplicationPrerenderer', () => {
+describe('applicationPrerenderer', () => {
   const application: Application<any> = {
     renderUri(uri: string, variant?) {
       return Promise.resolve({
@@ -13,7 +13,7 @@ describe('ApplicationPrerenderer', () => {
         uri
       });
     },
-    async prerender() {
+    prerender() {
       return Observable.create(async (publish) => {
         publish.next(await this.renderUri('http://localhost/1'));
         publish.next(await this.renderUri('http://localhost/2'));
@@ -28,7 +28,7 @@ describe('ApplicationPrerenderer', () => {
   };
 
   it('prerenders an application to an OutputProducer', async (done) => {
-    const renderer = new ApplicationPrerenderer(application);
+    const renderer = applicationPrerenderer(application);
 
     let count = 3;
 

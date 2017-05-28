@@ -1,7 +1,7 @@
 import {absoluteFile, absolutePath, pathFromRandomId} from '../../../filesystem';
 import {getApplicationProject, getApplicationRoot, templateDocument} from '../../../test/fixtures';
 
-import {ApplicationBuilderFromSource} from '../from-source';
+import {applicationBuilderFromSource} from '../from-source';
 import {Project} from './../../project';
 import {join} from 'path';
 
@@ -10,17 +10,17 @@ import {join} from 'path';
 // (even for paid plans). So we have to disable them on CI.
 const disable = (description: string, fn) => {};
 
-describe('ApplicationBuilderFromSource', () => {
+describe('applicationBuilderFromSource', () => {
   const nonci = process.env.CI ? disable : it;
 
   const ci = process.env.CI ? it : disable;
 
   nonci('can compile a basic project from source and render it', async () => {
-    const builder = new ApplicationBuilderFromSource(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'), templateDocument);
+    const builder = applicationBuilderFromSource(getApplicationProject('source/test/fixtures/application-basic-inline', 'BasicInlineModule'), templateDocument);
 
     const application = builder.build();
 
-    const snapshots = await application.prerender();
+    const snapshots = application.prerender();
 
     try {
       return await new Promise((resolve, reject) => {
@@ -44,7 +44,7 @@ describe('ApplicationBuilderFromSource', () => {
   });
 
  nonci('can compile from source and render lazy-loaded routes', async () => {
-    const builder = new ApplicationBuilderFromSource(getApplicationProject('source/test/fixtures/application-lazy-routed', 'BasicLazyRoutedModule'), templateDocument);
+    const builder = applicationBuilderFromSource(getApplicationProject('source/test/fixtures/application-lazy-routed', 'BasicLazyRoutedModule'), templateDocument);
 
     const application = builder.build();
 
@@ -77,7 +77,7 @@ describe('ApplicationBuilderFromSource', () => {
       workingPath: pathFromRandomId(),
     };
 
-    const builder = new ApplicationBuilderFromSource(project, join(project.basePath.toString(), 'app', 'index.html'));
+    const builder = applicationBuilderFromSource(project, join(project.basePath.toString(), 'app', 'index.html'));
 
     const application = builder.build();
 

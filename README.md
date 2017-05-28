@@ -107,7 +107,7 @@ We are going to focus on the server application here because there will be zero 
 Your actual HTTP server code will look something like the following:
 
 ```typescript
-import {ApplicationBuilderFromModule} from 'angular-ssr';
+import {applicationBuilderFromModule} from 'angular-ssr';
 
 import {join} from 'path';
 
@@ -119,7 +119,7 @@ import url = require('url');
 
 const dist = join(process.cwd(), 'dist');
 
-const builder = new ApplicationBuilderFromModule(AppModule, join(dist, 'index.html'));
+const builder = applicationBuilderFromModule(AppModule, join(dist, 'index.html'));
 
 const application = builder.build();
 
@@ -152,20 +152,16 @@ const absoluteUri = (request: express.Request): string => {
 Pre-rendering is the process of rendering of all routes that do not take parameters at server startup time instead of when thoseroutes are first requested. This may or may not be appropriate for your application, depending on its content and what is rendered inside of those routes. Perhaps you really do want to render them on-demand with a short TTL. You have to choose what makes sense for your application. If you do want to do prerendering, the code in your server will look vaguely like this:
 
 ```typescript
-// Pre-render all routes that do not take parameters (angular-ssr will discover automatically).
+// Pre-render all routes that do not take parameters (angular-ssr will discover them automatically).
 // This is completely optional and may not make sense for your application if even parameterless
 // routes contain dynamic content. If you don't want prerendering, skip to the next block of code.
 // It is best to ignore errors that happen inside this code because it's strictly a performance
 // enhancement, so if it fails, you do not want your server to fail as well.
-const prerender = async (): Promise<void> => {
-  const snapshots = await application.prerender();
-
-  snapshots.subscribe(snapshot => {
-    app.get(snapshot.uri, (req, res) => {
-      res.send(snapshot.renderedDocument);
-    });
-  });
-};
+application.prerender().subscribe(
+  snapshot => {
+    app.get(snapshot.uri, (req, res) => res.send(snapshot.renderedDocument));
+  },
+  exception => {});
 ```
 
 This bit is completely optional.
@@ -199,9 +195,9 @@ In this case, your code will look something like this:
 
 ```typescript
 import {
-  ApplicationBuilderFromModule,
-  ApplicationPrerenderer,
   HtmlOutput,
+  applicationBuilderFromModule,
+  applicationPrerenderer
 } from 'angular-ssr';
 
 import {join} from 'path';
@@ -210,13 +206,13 @@ import {AppModule} from '../src/app.module';
 
 const dist = join(process.cwd(), 'dist');
 
-const builder = new ApplicationBuilderFromModule(AppModule, join(dist, 'index.html'));
+const builder = applicationBuilderFromModule(AppModule, join(dist, 'index.html'));
 
 const application = builder.build();
 
 const html = new HtmlOutput(dist);
 
-const renderer = new ApplicationPrerenderer(application);
+const renderer = applicationPrerenderer(application);
 
 renderer.renderTo(html)
   .catch(exception => {
@@ -394,7 +390,7 @@ export class LocaleTransition implements StateTransition<string> {
 
 type Variants = {locale: string};
 
-const builder = new ApplicationBuilderFromModule<Variants>(AppModule, join(process.cwd(), 'dist', 'index.html'));
+const builder = applicationBuilderFromModule<Variants>(AppModule, join(process.cwd(), 'dist', 'index.html'));
 
 builder.variants({
   locale: {
@@ -432,27 +428,26 @@ The example in `examples/demand-express` has working code that implements what w
 
 The main contract that you use to define the behaviour of your application in a server context is called [`ApplicationBuilder`](https://github.com/clbond/angular-ssr/blob/master/source/application/builder/builder.ts). It has thorough comments and explains all the ways that you can configure your application when doing server-side rendering. `ApplicationBuilder` is an implementation of the [Builder pattern](https://en.wikipedia.org/wiki/Builder_pattern). You use it to configure your application and then once you are finished configuring, you call the [`build()`](https://github.com/clbond/angular-ssr/blob/master/source/application/builder/builder.ts#L15) method to get an instance of `Application<V>` (where `V` is an object describing the variants your application understands, or `void` if you are not using variants).
 
-`ApplicationBuilder` is an interface. It has three concrete implementations that you can instantiate, depending on which suits your needs:
+`ApplicationBuilder` is an interface. There are three different factory functions, each of which returns an `ApplciationBuilder` appropriate for a specific use-case:
 
-* `ApplicationBuilderFromModule<V, M>`
-  * If your code has access to the root `@NgModule` definition (obtained through `import` or `require()`), then this is probably the `ApplicationBuilder` that you want to use. It takes a module type and a template HTML document: `dist/index.html`, the **build output** `index.html` that contains all of the `<script>` tags necessary to bootstrap the client application inside the browser. If you use the **source** `index.html` instead, your server will render the application correctly but the client application will fail to boot inside the browser.
-* `ApplicationBuilderFromModuleFactory<V>`
-  * If your application code has already been run through `ngc` and produced `.ngfactory.js` files, then you can pass your root `@NgModule`'s NgFactory -- not the module definition itself, but its compilation output -- to `ApplicationFromModuleFactory<V>` and you can skip the template compilation process. This results in superior startup performance, but after startup, there is no performance difference between `ApplicationBuilderFromModuleFactory` and any of the other `ApplicationBuilder`s.
-* `ApplicationBuilderFromSource<V>`
+* `applicationBuilderFromModule<V, M>(module: Type<M>, templateDocument?: string): Application<V>`
+  * If your code has access to the root `@NgModule` definition (obtained through `import` or `require()`), then this is probably the `ApplicationBuilder` factory that you want to use. It takes a module type and a template HTML document: `dist/index.html`, the **build output** `index.html` that contains all of the `<script>` tags necessary to bootstrap the client application inside the browser. If you use the **source** `index.html` instead, your server will render the application correctly but the client application will fail to boot inside the browser.
+* `applicationBuilderFromModuleFactory<V, M>(moduleFactory: NgModueFactory<M>, templateDocument?: string): Application<V>`
+  * If your application code has already been run through `ngc` and produced `.ngfactory.js` files, then you can pass your root `@NgModule`'s NgFactory type -- not the module definition itself, but its compilation output -- to `applicationFromModuleFactory` and you can skip the template compilation process. This results in superior startup performance, but after startup, there is no performance difference between `applicationBuilderFromModuleFactory` and any of the other `ApplicationBuilder` factories.
+* `applicationBuilderFromSource<V>(project: Project, templateDocument?: string): Application<V>`
   * You can use this for projects that use `@angular/cli` if you wish to use inplace compilation to generate an `NgModuleFactory` from raw source code and execute that to render your application on the server. That said, it is probably fairly unlikely that you will ever use this class: its main purpose is for the implementation of the `ng-render` command.
 
 The typical usage of `ApplicationBuilder` looks something like:
 
 ```typescript
-const builder = new ApplicationBuilderFromModule(MyModule);
-builder.templateDocument(indexHtmlFile);
+const builder = applicationBuilderFromModule(MyModule, index);
 
 const application = builder.build();
 
 const renderedDocument = application.renderUri('http://localhost/');
 ```
 
-The entire purpose of `ApplicationBuilder` is to produce an `Application<V>` object. The `Application<V>` interface that you get from `ApplicationBuilder` is the primary API that you will use to render your application. It contains several methods:
+The entire purpose of `ApplicationBuilder` is to produce an `Application<V>` object. The `Application<V>` interface that you get from `ApplicationBuilder::build()` is the primary API that you will use to render your application. It contains several methods:
 
 ```typescript
 export interface Application<V> extends Disposable {
@@ -462,7 +457,7 @@ export interface Application<V> extends Disposable {
   // Prerender all of the routes provided from the ApplicationBuilder. If no routes were
   // provided, they will be discovered using discoverRoutes() and filtered down to the
   // routes that do not require parameters (eg /blog/:id will be excluded, / will not)
-  prerender(): Promise<Observable<Snapshot<V>>>;
+  prerender(): Observable<Snapshot<V>>;
 
   // Discover all of the routes defined in all the NgModules of this application
   discoverRoutes(): Promise<Array<Route>>;
@@ -478,7 +473,7 @@ Many applications may wish to transfer some state from the server to the client 
 On the server, we tell our `ApplicationBuilder` about our state reader class:
 
 ```typescript
-const builder = new ApplicationBuilderFromModule(AppModule, htmlTemplate);
+const builder = applicationBuilderFromModule(AppModule, htmlTemplate);
 builder.stateReader(MyStateReader);
 
 const application = builder.build();
@@ -589,7 +584,8 @@ export class InjectStateIntoApplication implements Bootstrap {
   }
 }
 
-const builder = new ApplicationBuilderFromModule(AppModule, index);
+const builder = applicationBuilderFromModule(AppModule, index);
+
 builder.bootstrap(InjectStateIntoApplication);
 ```
 

@@ -9,9 +9,9 @@ import chalk = require('chalk');
 const Module = require('module');
 
 import {
-  ApplicationPrerenderer,
-  ApplicationBuilderFromSource,
   Files,
+  applicationBuilderFromSource,
+  applicationPrerenderer,
   log,
   pathFromString,
 } from '../index';
@@ -24,7 +24,7 @@ adjustEnvironment();
 
 log.info(`Rendering application from source (working path: ${options.project.workingPath})`);
 
-const builder = new ApplicationBuilderFromSource(options.project, options.templateDocument);
+const builder = applicationBuilderFromSource(options.project, options.templateDocument);
 
 builder.preboot(options.preboot);
 
@@ -35,7 +35,7 @@ builder.stabilizeTimeout(16000);
 
 const application = builder.build();
 
-const applicationRenderer = new ApplicationPrerenderer(application);
+const applicationRenderer = applicationPrerenderer(application);
 
 const execute = async () => {
   try {

@@ -1,29 +1,27 @@
 import {Type} from '@angular/core';
 
-import {FileReference} from '../../filesystem';
-
 import {Application} from './application';
-import {ApplicationBase} from './application-base';
-import {ApplicationBuilderBase} from './builder-base';
+import {ApplicationBuilder} from './builder';
+import {ApplicationImpl, ApplicationBuilderImpl} from './impl';
 import {RenderOperation} from '../operation';
 import {ServerPlatform, createJitPlatform} from '../../platform';
 
-export class ApplicationBuilderFromModule<V, M> extends ApplicationBuilderBase<V> {
-  constructor(private moduleType: Type<M>, templateDocument?: FileReference | string) {
-    super(templateDocument);
-  }
+export const applicationBuilderFromModule = <V = {}>(moduleType: Type<any>, templateDocument?: string): ApplicationBuilder<V> => {
+  let platform: ServerPlatform = null;
 
-  build(): Application<V> {
-    const platform = createJitPlatform() as ServerPlatform;
-
-    class ApplicationFromModule extends ApplicationBase<V, M> {
-      dispose() {
-        platform.destroy();
-      }
+  const dispose = async () => {
+    if (platform) {
+      await platform.destroy();
     }
-
-    const promise = platform.compileModule(this.moduleType);
-
-    return new ApplicationFromModule(platform, <RenderOperation> this.operation, promise);
   }
-}
+
+  const build = (operation: RenderOperation): Application<V> => {
+    platform = createJitPlatform() as ServerPlatform;
+
+    const promise = platform.compileModule(moduleType);
+
+    return new ApplicationImpl(platform, operation, promise, undefined, dispose);
+  }
+
+  return new ApplicationBuilderImpl(build, dispose, templateDocument);
+};

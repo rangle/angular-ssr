@@ -4,21 +4,21 @@ import {
   trimDocument
 } from '../../../test/fixtures';
 
-import {ApplicationBuilderFromModuleFactory} from '../from-module-factory';
+import {applicationBuilderFromModuleFactory} from '../from-module-factory';
 import {ServerPlatform, createJitPlatform} from '../../../platform';
 import {assertSnapshot} from '../../../snapshot';
 
-describe('ApplicationBuilderFromModuleFactory', () => {
+describe('applicationBuilderFromModuleFactory', () => {
   it('should be able to render a Hello World application with inline template', async () => {
     const platform = createJitPlatform() as ServerPlatform;
     try {
       const moduleFactory = await platform.compileModule(BasicInlineModule);
 
-      const factory = new ApplicationBuilderFromModuleFactory(moduleFactory, templateDocument);
+      const factory = applicationBuilderFromModuleFactory(moduleFactory, templateDocument);
 
       const application = factory.build();
       try {
-        const snapshots = await application.prerender();
+        const snapshots = application.prerender();
 
         return await new Promise((resolve, reject) => {
           snapshots.subscribe(

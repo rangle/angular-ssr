@@ -6,37 +6,44 @@ import chalk = require('chalk');
 
 import uri = require('url');
 
-import {Application} from './application';
-import {ApplicationFallbackOptions} from '../../static';
-import {PrerenderOptions} from './options';
-import {RenderOperation, RenderVariantOperation} from '../operation';
-import {Route, applicationRoutes, renderableRoutes} from '../../route';
-import {ServerPlatform, executeBootstrap, forkZoneExecute} from '../../platform';
-import {Snapshot, snapshot} from '../../snapshot';
-import {composeTransitions} from '../../variants';
-import {forkRender} from './fork';
+import {Application} from '../application';
+import {ApplicationFallbackOptions} from '../../../static';
+import {ModuleDeclaration} from '../../project';
+import {PrerenderOptions} from '../options';
+import {RenderOperation, RenderVariantOperation} from '../../operation';
+import {Route, applicationRoutes, renderableRoutes} from '../../../route';
+import {ServerPlatform, executeBootstrap, forkZoneExecute} from '../../../platform';
+import {Snapshot, snapshot} from '../../../snapshot';
+import {composeTransitions} from '../../../variants';
+import {forkRender} from '../fork';
 
-export abstract class ApplicationBase<V, M> implements Application<V> {
+export class ApplicationImpl<V, M> implements Application<V> {
   constructor(
-    private platform: ServerPlatform,
-    private render: RenderOperation,
-    private moduleFactory: Promise<NgModuleFactory<M>>
+    private readonly platform: ServerPlatform,
+    private readonly render: RenderOperation,
+    private readonly moduleFactory: Promise<NgModuleFactory<M>>,
+    public readonly load: (module: ModuleDeclaration) => Promise<any>,
+    public readonly dispose: () => void | Promise<void>
   ) {}
 
-  abstract dispose(): void;
-
-  async prerender(options: PrerenderOptions = {pessimistic: false}): Promise<Observable<Snapshot<V>>> {
+  prerender(options: PrerenderOptions = {pessimistic: false}): Observable<Snapshot<V>> {
     this.render.pessimistic = options.pessimistic || false;
 
-    if (this.render.routes == null || this.render.routes.length === 0) {
-      this.render.routes = renderableRoutes(await this.discoverRoutes());
-    }
+    return Observable.create(async (observe) => {
+      if (this.render.routes == null || this.render.routes.length === 0) {
+        this.render.routes = renderableRoutes(await this.discoverRoutes());
+      }
 
-    if (this.render.routes.length === 0) {
-      return Observable.of();
-    }
-
-    return this.renderToStream(this.render);
+      if (this.render.routes.length === 0) {
+        observe.complete();
+      }
+      else {
+        this.renderToStream(this.render).subscribe(
+          observe.next.bind(observe),
+          observe.error.bind(observe),
+          observe.complete.bind(observe));
+      }
+    });
   }
 
   async renderUri(uri: string, variant?: V): Promise<Snapshot<V>> {
@@ -98,7 +105,6 @@ export abstract class ApplicationBase<V, M> implements Application<V> {
     return await forkZoneExecute(templateDocument, uri, execute);
   }
 }
-
 
 let relativeUriWarning = false;
 

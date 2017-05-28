@@ -12,6 +12,9 @@ export class RuntimeModuleLoader {
     if (this.application == null) {
       throw new RuntimeException('You cannot use the RuntimeModuleLoader with no ApplicationRuntimeProject provided');
     }
+    if (typeof this.application.load !== 'function') {
+      throw new RuntimeException(`This type of application does not support lazy loading (only applicationBuilderFromSource() does)`);
+    }
     return this.application.load({source: moduleId, symbol: null}, false);
   }
 }

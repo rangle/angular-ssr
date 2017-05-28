@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.9.11",
+  "version": "0.10.1",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -147,7 +147,10 @@
     ],
     "verbose": true,
     "cacheDirectory": ".jest-cache",
-    "coveragePathIgnorePatterns": [".*\\.(shim\\.ngstyle|ngfactory)\\.ts"]
+    "coveragePathIgnorePatterns": [".*\\.(shim\\.ngstyle|ngfactory)\\.ts"],
+    "globals": {
+      "__TS_CONFIG__": "tsconfig.json"
+    }
   },
   "files": [
     "bin",

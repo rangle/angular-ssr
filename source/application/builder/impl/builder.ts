@@ -1,24 +1,30 @@
 import {Provider} from '@angular/core';
 
-import {Application} from './application';
-import {ApplicationBuilder} from './builder';
-import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../contracts';
-import {ConfigurationException} from '../../exception';
-import {FileReference, fileFromString} from '../../filesystem';
-import {PrebootQueryable, PrebootConfiguration} from '../preboot';
-import {RenderOperation} from '../operation';
-import {Route} from '../../route';
+import {ApplicationBuilder} from '../builder';
+import {Application} from '../application';
+import {ApplicationBootstrapper, ApplicationStateReader, Postprocessor, VariantsMap} from '../../contracts';
+import {ConfigurationException} from '../../../exception';
+import {FileReference, fileFromString} from '../../../filesystem';
+import {PrebootQueryable, PrebootConfiguration} from '../../preboot';
+import {RenderOperation} from '../../operation';
+import {Route} from '../../../route';
 
-export abstract class ApplicationBuilderBase<V> implements ApplicationBuilder<V> {
+export class ApplicationBuilderImpl<V> implements ApplicationBuilder<V> {
   protected operation: Partial<RenderOperation> = {stabilizeTimeout: 5000};
 
-  constructor(templateDocument?: FileReference | string) {
+  constructor(
+    public readonly builder: (operation: RenderOperation) => Application<V>,
+    public readonly dispose: () => Promise<void>,
+    templateDocument?: FileReference | string
+  ) {
     if (templateDocument) {
       this.templateDocument(templateDocument.toString());
     }
   }
 
-  abstract build(): Application<V>;
+  build(): Application<V> {
+    return this.builder(this.operation as RenderOperation);
+  }
 
   templateDocument(template?: string) {
     if (template != null) {

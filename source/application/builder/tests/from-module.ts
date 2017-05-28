@@ -16,7 +16,7 @@ import {ConsoleType, assertSnapshot} from '../../../snapshot';
 
 import {extractRoutesFromRouter} from '../../../route';
 
-describe('ApplicationBuilderFromModule', () => {
+describe('applicationBuilderFromModule', () => {
   it('should require a template document in order to render', () => {
     try {
       const application = loadApplicationFixtureFromModule(BasicInlineModule, builder => builder.templateDocument(String()));
@@ -33,10 +33,8 @@ describe('ApplicationBuilderFromModule', () => {
   it('should be able to render a Hello World application with inline template', async () => {
     const application = loadApplicationFixtureFromModule(BasicInlineModule);
     try {
-      const snapshots = await application.prerender();
-
       return await new Promise((resolve, reject) => {
-        snapshots.subscribe(
+        application.prerender().subscribe(
           snapshot => {
             assertSnapshot(snapshot);
             const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
@@ -58,10 +56,8 @@ describe('ApplicationBuilderFromModule', () => {
   it('should be able to render a Hello World application with external template', async () => {
     const application = loadApplicationFixtureFromModule(BasicExternalModule);
     try {
-      const snapshots = await application.prerender();
-
       return await new Promise((resolve, reject) => {
-        snapshots.subscribe(
+        application.prerender().subscribe(
           snapshot => {
             assertSnapshot(snapshot);
             const expr = /<application ng-version="([^"]+)"><div>Hello!<\/div><\/application>/;
@@ -83,10 +79,8 @@ describe('ApplicationBuilderFromModule', () => {
   it('should be able to render a Hello World application with external template and SCSS styles', async () => {
     const application = loadApplicationFixtureFromModule(BasicExternalStyledModule);
     try {
-      const snapshots = await application.prerender();
-
       return await new Promise((resolve, reject) => {
-        snapshots.subscribe(
+        application.prerender().subscribe(
           snapshot => {
             assertSnapshot(snapshot);
             const expr = /div\[_ngcontent-([^\]]+)\] { background-color: black;/;
@@ -134,7 +128,7 @@ describe('ApplicationBuilderFromModule', () => {
         builder.stateReader(() => Promise.reject('This is an expected exception'));
       });
 
-    const stream = await application.prerender();
+    const stream = application.prerender();
 
     return new Promise<void>((resolve, reject) => {
       stream.subscribe(s => reject(new Error('Should have thrown an exception and failed')), resolve);
@@ -153,7 +147,7 @@ describe('ApplicationBuilderFromModule', () => {
       });
 
     try {
-      const snapshots = await application.prerender();
+      const snapshots = application.prerender();
 
       return await new Promise((resolve, reject) => {
         snapshots.subscribe(
@@ -195,7 +189,7 @@ describe('ApplicationBuilderFromModule', () => {
   it('can collect console log statements that happen during application execution', async () => {
     const application = loadApplicationFixtureFromModule(BasicRoutedModule);
     try {
-      const snapshots = await application.prerender();
+      const snapshots = application.prerender();
 
       return await new Promise((resolve, reject) => {
         snapshots.subscribe(
@@ -222,7 +216,7 @@ describe('ApplicationBuilderFromModule', () => {
       b => b.preboot({appRoot: 'application'}));
 
     try {
-      const snapshots = await application.prerender();
+      const snapshots = application.prerender();
 
       return await new Promise((resolve, reject) => {
         snapshots.subscribe(
@@ -247,7 +241,7 @@ describe('ApplicationBuilderFromModule', () => {
   it('can auto-detect root component selector when injecting preboot code', async () => {
     const application = loadApplicationFixtureFromModule(BasicInlineModule, b => b.preboot(true));
     try {
-      const snapshots = await application.prerender();
+      const snapshots = application.prerender();
 
       return await new Promise((resolve, reject) => {
         snapshots.subscribe(
@@ -274,7 +268,7 @@ describe('ApplicationBuilderFromModule', () => {
       b => b.preboot({appRoot: 'application'}));
 
     try {
-      const snapshots = await application.prerender();
+      const snapshots = application.prerender();
 
       return await new Promise((resolve, reject) => {
         snapshots.subscribe(
@@ -311,7 +305,7 @@ describe('ApplicationBuilderFromModule', () => {
       });
 
     try {
-      const snapshots = await application.prerender();
+      const snapshots = application.prerender();
 
       return await new Promise((resolve, reject) => {
         snapshots.subscribe(
@@ -341,7 +335,7 @@ describe('ApplicationBuilderFromModule', () => {
       b => b.postprocess((document, rendered) => rendered.replace('Hello!', 'What up sucka!')));
 
     try {
-      const snapshots = await application.prerender();
+      const snapshots = application.prerender();
 
       return await new Promise((resolve, reject) => {
         snapshots.subscribe(
@@ -370,7 +364,7 @@ describe('ApplicationBuilderFromModule', () => {
           throw new Error('This is an expected failure');
         }));
 
-    const stream = await application.prerender();
+    const stream = application.prerender();
 
     try {
       return await new Promise<void>((resolve, reject) => {
