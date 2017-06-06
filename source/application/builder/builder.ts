@@ -60,6 +60,9 @@ export interface ApplicationBuilder<V> {
   // Configure how long we will wait for the application to stabilize itself before assuming it
   // never will stabilize and failing the render operation. For build-time rendering, this can
   // be a comfortably high number. For on-demand rendering, you should set this very low so
-  // that you can catch performance problems.
+  // that you can catch performance problems. To completely disable, call it and specify zero
+  // milliseconds as the timeout argument (builder.stabilizeTimeout(0)). This may cause render
+  // operations to hang indefinitely if your application has macrotasks or microtasks that
+  // do not complete (eg setInterval).
   stabilizeTimeout(milliseconds?: number): number | null
 }

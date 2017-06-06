@@ -13,20 +13,17 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
 
   return new Promise<void>(resolve => {
     let timer;
-    if (typeof timeout === 'number') {
+
+    if (typeof timeout === 'number' && timeout > 0) {
       timer = setTimeout(() => {
         console.warn(chalk.yellow(`Timed out while waiting for NgZone to become stable after ${timeout}ms! This is a serious performance problem!`));
         console.warn(chalk.yellow('This likely means that your application is stuck in an endless loop of change detection or some other pattern of misbehaviour'));
         console.warn(chalk.yellow('In a normal application, a zone becomes stable very quickly'));
-        console.warn('You can adjust the zone stable timeout (or disable it) with stabilizeTimeout in ApplicationBuilder');
+        console.warn('Proceeding with render operation even though the zone is not stable: this is a very dangerous thing to do!')
+        console.warn('You can adjust the zone-becomes-stable timeout with ApplicationBuilder::stabilizeTimeout(), or zero to disable');
         resolve();
       },
       timeout);
-    }
-
-    const finish = () => {
-      clearTimeout(timer);
-      resolve();
     }
 
     const combined = Observable.combineLatest(applicationRef.isStable, requests.requestsPending(),
@@ -36,8 +33,13 @@ export const waitForApplicationToBecomeStable = async <M>(moduleRef: NgModuleRef
 
     const subscription = combined.subscribe(v => {
       if (v === true) {
-        finish();
-        subscription.unsubscribe();
+        if (subscription) {
+          subscription.unsubscribe();
+        }
+        if (timer != null) {
+          clearTimeout(timer);
+        }
+        resolve();
       }
     });
   });

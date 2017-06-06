@@ -430,11 +430,11 @@ The main contract that you use to define the behaviour of your application in a 
 
 `ApplicationBuilder` is an interface. There are three different factory functions, each of which returns an `ApplciationBuilder` appropriate for a specific use-case:
 
-* `applicationBuilderFromModule<V, M>(module: Type<M>, templateDocument?: string): Application<V>`
+* `applicationBuilderFromModule<Variants = {}>(module: Type<any>, templateDocument?: string): Application<V>`
   * If your code has access to the root `@NgModule` definition (obtained through `import` or `require()`), then this is probably the `ApplicationBuilder` factory that you want to use. It takes a module type and a template HTML document: `dist/index.html`, the **build output** `index.html` that contains all of the `<script>` tags necessary to bootstrap the client application inside the browser. If you use the **source** `index.html` instead, your server will render the application correctly but the client application will fail to boot inside the browser.
-* `applicationBuilderFromModuleFactory<V, M>(moduleFactory: NgModueFactory<M>, templateDocument?: string): Application<V>`
+* `applicationBuilderFromModuleFactory<Variants = {}>(moduleFactory: NgModueFactory<any>, templateDocument?: string): Application<V>`
   * If your application code has already been run through `ngc` and produced `.ngfactory.js` files, then you can pass your root `@NgModule`'s NgFactory type -- not the module definition itself, but its compilation output -- to `applicationFromModuleFactory` and you can skip the template compilation process. This results in superior startup performance, but after startup, there is no performance difference between `applicationBuilderFromModuleFactory` and any of the other `ApplicationBuilder` factories.
-* `applicationBuilderFromSource<V>(project: Project, templateDocument?: string): Application<V>`
+* `applicationBuilderFromSource<Variants = {}>(project: Project, templateDocument?: string): Application<V>`
   * You can use this for projects that use `@angular/cli` if you wish to use inplace compilation to generate an `NgModuleFactory` from raw source code and execute that to render your application on the server. That said, it is probably fairly unlikely that you will ever use this class: its main purpose is for the implementation of the `ng-render` command.
 
 The typical usage of `ApplicationBuilder` looks something like:
@@ -468,18 +468,19 @@ Note that because `Application<V>` extends the [`Disposable` interface](https://
 
 ## State transfer from server to client
 
-Many applications may wish to transfer some state from the server to the client as part of application bootstrap. `angular-ssr` makes this easy. Simply tell your `ApplicationBuilder` object about your state reader class or function, and any state returned from it will be made available in a service called `StateTransfer<T>`.
+Many applications may wish to transfer some state from the server to the client as part of application bootstrap. `angular-ssr` makes this easy. Simply tell your `ApplicationBuilder` object about your state reader class or function, and any state returned from it will be made available in `window.bootstrapApplicationState` in the client application.
 
 On the server, we tell our `ApplicationBuilder` about our state reader class:
 
 ```typescript
 const builder = applicationBuilderFromModule(AppModule, htmlTemplate);
+
 builder.stateReader(MyStateReader);
 
 const application = builder.build();
 ```
 
-Your `ServerStateReader` class implementation might look like this:
+Your `MyStateReader` class implementation might look like this:
 
 ```typescript
 import {Injectable} from '@angular/core';
@@ -489,17 +490,11 @@ import {Store} from '@ngrx/store';
 import {StateReader} from 'angular-ssr';
 
 @Injectable()
-export class MyStateReader implements StateReader<TransmissibleState> {
+export class MyStateReader implements StateReader<any> {
   constructor(private store: Store<AppState>) {}
 
-  getState(): Promise<TransmissibleState> {
-    return this.store.select(s => this.transmissibleState(s)).toPromise();
-  }
-
-  private transmissibleState(s: AppState): TransmissibleState {
-    return {
-      foo: s.foo
-    };
+  getState() {
+    return this.store.select().toPromise();
   }
 }
 ```
@@ -544,17 +539,17 @@ Alternatively, you can provide your own caching mechanism and just call `applica
 
 The problems you are most likely to run into revolve around zone stability.
 
-If you are familiar with Angular 4, you know that all application code executes inside of a zone. The same is true of applications running in `angular-ssr`. Each render operation causes a new zone to be forked from the `<root>` zone. All operations (synchronous or asynchronous) then execute inside of that zone. `angular-ssr` also uses zones to map global objects like `document` and `window` to the correct values even if multiple render operations are executing concurrently. Lastly, the library uses zone.js determine whether your application is _stable_. Stable means that **all macrotasks and microtasks have completed**. The library will wait for your zone to become stable before it attempts to do any of the following:
+If you are familiar with Angular 4+, you know that all application code executes inside of a zone. The same is true of applications running in `angular-ssr`. Each render operation causes a new zone to be forked from the `<root>` zone. All operations then execute inside of that zone. `angular-ssr` also uses zones to map global objects like `document` and `window` to the correct values even if multiple render operations are executing concurrently. Lastly, the library uses zone.js determine whether your application is _stable_. Stable means that **all macrotasks and microtasks have completed**. The library will wait for your zone to become stable before it attempts to do any of the following:
 
 * Reading state through the `StateReader<T>` construct described above
 * Rendering the application into an HTML document
 * Executing postprocessor transformations
 
-This is fairly easy to understand. There are lots of resources online that can provide additional information and guidance on zone:
+This is fairly easy to understand. There are lots of resources online that can provide additional information and guidance on zone.js:
 
 * [Zone Primer from Google](https://docs.google.com/document/d/1F5Ug0jcrm031vhSMJEOgp1l-Is-Vf0UCNDY-LsQtAIY)
 * [Zone APIs](https://github.com/angular/zone.js/blob/master/dist/zone.js.d.ts)
-* [zone.js training materials from Rangle.io](https://angular-2-training-book.rangle.io/handout/zones/)
+* [Zone.js training materials from Rangle.io](https://angular-2-training-book.rangle.io/handout/zones/)
 * [Understanding zones](https://blog.thoughtram.io/angular/2016/01/22/understanding-zones.html)
 
 Many issues can surface if your application zone fails to become stable quickly:
@@ -566,9 +561,9 @@ Timed out while waiting for NgZone to become stable after 5000ms! This is a seri
 This likely means that your application is stuck in an endless loop of change detection or some other pattern of misbehaviour
 In a normal application, a zone becomes stable very quickly
 
-At this point, the SSR library will just assume that the application will never stabilize and will go ahead with the render anyway. This is very dangerous because your application may be in the middle of some kind of state transition or waiting for a network response. So it is very important to ensure that your application becomes stable quickly when running on the server, otherwise you risk poor performance and mangled responses.
+At this point, the SSR library will just assume that the application will never stabilize and will go ahead with the render anyway. This is very dangerous because your application may be in the middle of some kind of state transition or waiting for a network response. Additionally, since it had to wait 5 seconds to determine that your application will never become stable, that time has been added to the overall HTTP response time. So it is very important to ensure that your application becomes stable quickly when running on the server, otherwise you risk poor performance and mangled responses. As a general rule you should try to get your application to become _zone stable_ in 150ms or less. The more you exceed that limit, the worse the perceived performance of the application.
 
-If your application requests large amounts of data on startup and it takes a while, one potential solution is to pre-request the data it needs and store it in some sort of cache. Presumably you would update this cache periodically with new data. Then instead of requesting data directly from the running application on the server, you can inject it using a bootstrapper:
+If your application requests large amounts of data on startup and it takes a while, one potential solution is to pre-request the data it needs and store it in some sort of cache with a low TTL. Presumably you would update this cache periodically with new data. You would update the data _outside_ the context of a request handler (for example, on a timer). Then you can inject that data into your application using `ApplicationBuilder`:
 
 ```typescript
 const cachedState = // some construct that you use to store init state across requests
@@ -576,11 +571,11 @@ const cachedState = // some construct that you use to store init state across re
 import {Bootstrap} from 'angular-ssr';
 
 @Injectable()
-export class InjectStateIntoApplication implements Bootstrap {
-  constructor(private store: Store<AppState>) {}
+class InjectStateIntoApplication implements Bootstrap {
+  constructor(private service: MyService) {}
 
   bootstrap() {
-    store.dispatch({type: 'INJECT_CACHED_STATE', payload: cachedState});
+    this.service.updateState(cachedState);
   }
 }
 
@@ -589,7 +584,9 @@ const builder = applicationBuilderFromModule(AppModule, index);
 builder.bootstrap(InjectStateIntoApplication);
 ```
 
-This means that we will not have to wait for HTTP requests to finish before we render the application, increasing performance and reducing the risk of sending a bad document in the HTTP response.
+This means that we will not have to wait for HTTP requests to finish before we render the application, increasing performance.
+
+As a general rule, it is best to avoid making HTTP requests as part of your server-side rendering operation **if you are doing on-demand rendering**, unless you are certain the request will finish quickly. The data retrieval and caching strategies that make the most sense for you must be decided on a per-application basis.
 
 # Example projects
 
@@ -618,7 +615,12 @@ A project using koa and `angular-ssr` lives in the [`examples/demand-koa`](https
 	* However, it is important to note that while your application will have access to `document` and `window` on the server, **any operations designed to get the pixel size or location of any particular elements is likely to fail or return all zeros**. This is because there is no rendering happening in the process. You are given a working DOM implementation, but that doesn't make it a browser. So adding, removing and manipulating DOM elements is OK, but if you are trying to query the size of certain elements, that is not a strategy that is going to work on code running on the server. You must avoid that, but mostly everything else is fair game.
 4. Can I use jQuery plugins?
 	* For the most part, yes, but again with the caveat that anything which tries to query pixel sizes is going to fail or return zeros. Generally speaking it is **best to avoid jQuery plugins in Angular 4 applications**, but you can probably still make it work with `angular-ssr`.
+5. What changes are coming in the future?
+	* The `angular-ssr` package will be split into `@angular-ssr/server`, `@angular-ssr/client` and a couple other packages. This will allow us to build some cool client-side features that will integrate with the server-side rendering functionality.
+	* As `@angular/platform-server` fills out and matures, `angular-ssr` will eventually become obsolete. The Angular team is working on a lot of great features (with some inspiration from `angular-ssr` -- for instance, a real DOM implementation!). These changes will ultimately make `angular-ssr` redundant. But the cost of transitioning from `angular-ssr` to `platform-server` will be minimal because the API surface of both libraries are tiny. So I would recommend using `angular-ssr` today and upgrading to `platform-server` in the next 6 months or a year or so.
 
 # Comments, queries, or rants
 
-Direct your vitriol to chris.bond@rangle.io or post an issue on this GitHub repo!
+Direct your vitriol to cb@clbond.org or post an issue on this GitHub repo!
+
+Please, if you submit an issue, include a link to your repository or some code that reproduces the issue. This is just good `git` etiquette and reduces the maintenance burden that the project places on me.

@@ -32,10 +32,12 @@ export const applicationRoutes = <M>(operation: RouteExtractionOperation<M>): Pr
     const moduleRef = await platform.bootstrapModuleFactory<M>(moduleFactory);
 
     // We can do destruction after we have returned the routes, in the interest of performance.
-    const stable = Promise.all([
+    const promises = [
       waitForRouterNavigation(moduleRef),
       waitForApplicationToBecomeStable(moduleRef)
-    ]);
+    ];
+
+    const stable = Promise.all(promises);
 
     stable.then(() => moduleRef.destroy());
 

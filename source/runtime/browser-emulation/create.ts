@@ -17,8 +17,10 @@ import {bindTypes} from './types';
 Object.assign(global, {__domino_frozen__: false}); // allow overwrite
 
 export const upgradeWindow = (target, window: () => Window): void => {
+  const {impl: DOM} = domino;
+
   const fills = [
-    [true, domino.impl],
+    [true, DOM],
     [true, bindTypes],
     bindAnimation(window),
     bindBase64(window),
