@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -83,7 +83,7 @@
     "jsonschema": "^1.1.1",
     "lru_map": "^0.3.3",
     "mkdir-recursive": "^0.3.0",
-    "node-fetch": "^1.6.3",
+    "node-fetch": "^1.7.1",
     "npm": "^4.4.4",
     "npm-run-all": "^4.0.2",
     "preboot": "^4.5.2",
