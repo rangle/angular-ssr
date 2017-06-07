@@ -109,6 +109,9 @@ const removeProblematicPlugins = (plugins: Array<any>): Array<any> => {
   const problematic = [/Commons/, /HtmlWebpackPlugin/];
 
   return plugins.filter(plugin => {
+    if (plugin.constructor == webpack.DefinePlugin) {
+      return true;
+    }
     if (plugin.constructor === Object) {
       return false;
     }
