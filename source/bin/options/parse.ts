@@ -156,11 +156,8 @@ const tsconfigFromRoot = (fromRoot: PathReference): FileReference => {
   }
 
   for (const tsc of Files.tsconfig) {
-    const candidates = [
-      ...Array.from(fromRoot.directories()),
-      ...Array.from(fromRoot.parent().directories()),
-      fromRoot,
-    ].filter(p => /(\\|\/)e2e(\\|\/)/.test(p.toString()) === false);
+    const candidates = Array.from(fromRoot.directories()).concat(fromRoot)
+      .filter(p => /(\\|\/)e2e(\\|\/)/.test(p.toString()) === false);
 
     const found = candidates.map(d => fileFromString(join(d.toString(), tsc))).find(c => c.exists());
     if (found) {
