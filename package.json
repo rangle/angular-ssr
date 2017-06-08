@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -54,7 +54,7 @@
     "url": "https://github.com/clbond/angular-ssr/issues"
   },
   "peerDependencies": {
-    "@angular/cli": ">=1.0.0",
+    "@angular/cli": ">=1.1.0",
     "@angular/common": ">=4.0.0 <5.0.0",
     "@angular/compiler": ">=4.0.0 <5.0.0",
     "@angular/compiler-cli": ">=4.0.0 <5.0.0",
@@ -72,7 +72,7 @@
     "webpack": "^2.3.3"
   },
   "dependencies": {
-    "@angular/cli": "^1.0.0",
+    "@angular/cli": ">=1.1.0",
     "@types/chalk": "^0.4.31",
     "@types/node-fetch": "^1.6.7",
     "@types/webpack": "^2.2.15",
