@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.10.6",
+  "version": "0.10.7",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -79,7 +79,7 @@
     "bluebird": "^3.4.7",
     "chalk": "^1.1.3",
     "commander": "2.9.0",
-    "domino": "https://github.com/clbond/domino/archive/1.0.44.tar.gz",
+    "domino": "https://github.com/clbond/domino/archive/1.0.45.tar.gz",
     "jsonschema": "^1.1.1",
     "lru_map": "^0.3.3",
     "mkdir-recursive": "^0.3.0",
@@ -90,7 +90,7 @@
     "rimraf": "2.5.4",
     "rxjs": "^5.0.1",
     "scoped-logger": "^0.0.19",
-    "source-map-support": "^0.4.11",
+    "source-map-support": ">=0.1.0",
     "symbol-observable": "^1.0.4",
     "xhr2": "^0.1.4"
   },

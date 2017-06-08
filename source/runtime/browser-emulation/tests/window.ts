@@ -27,11 +27,13 @@ describe('window', () => {
 
   it('focus', async () => {
     expect(() => window.focus()).not.toThrow();
+    expect(() => typeof HTMLElement.prototype.focus === 'function').toBeTruthy();
   });
 
   it('getSelection', async () => {
     let selection: Selection;
     expect(() => selection = window.getSelection()).not.toThrow();
+    expect(() => selection = window.document.getSelection()).not.toThrow();
     expect(selection).not.toBeNull();
     expect(selection.anchorNode).toBeNull();
     expect(selection.baseNode).toBeNull();

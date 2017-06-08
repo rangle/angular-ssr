@@ -16,10 +16,25 @@ import {bindTypes} from './types';
 
 Object.assign(global, {__domino_frozen__: false}); // allow overwrite
 
+const conditionalOverwrite = (target, fills: Array<any>) => {
+  for (const [overwrite, properties] of fills) {
+    for (const k in properties) {
+      if (overwrite || typeof target[k] === 'undefined') {
+        Object.defineProperty(target, k, {
+          configurable: true,
+          enumerable: false,
+          value: properties[k],
+          writable: true,
+        });
+      }
+    }
+  }
+};
+
 export const upgradeWindow = (target, window: () => Window): void => {
   const {impl: DOM} = domino;
 
-  const fills = [
+  conditionalOverwrite(target, [
     [true, DOM],
     [true, bindTypes],
     bindAnimation(window),
@@ -34,19 +49,12 @@ export const upgradeWindow = (target, window: () => Window): void => {
     bindSelection(window),
     bindStorage(window),
     bindStyle(window),
-  ];
+  ]);
 
-  for (const [overwrite, properties] of fills) {
-    for (const k in properties) {
-      if (overwrite || typeof target[k] === 'undefined') {
-        Object.defineProperty(target, k, {
-          configurable: true,
-          enumerable: false,
-          value: properties[k],
-          writable: true,
-        });
-      }
-    }
+  if (target.document) {
+    conditionalOverwrite(target.document, [
+      bindSelection(() => window().document)
+    ]);
   }
 };
 
