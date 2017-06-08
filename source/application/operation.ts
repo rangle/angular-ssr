@@ -72,6 +72,9 @@ export interface RenderOperation {
 
   // Do not fail the entire render process if some routes fail to render
   pessimistic?: boolean;
+
+  // Enable 'blacklist by default' route rendering behaviour (each route you wish to render must be marked with `server: true')
+  blacklist?: boolean;
 }
 
 // A render operation is an operation that forks into multiple concurrent suboperations,

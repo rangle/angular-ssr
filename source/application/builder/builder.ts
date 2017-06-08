@@ -57,6 +57,9 @@ export interface ApplicationBuilder<V> {
   // your application bootstraps.
   preboot(preboot?: PrebootConfiguration | boolean): void;
 
+  // Enable or disable blacklisting (all server-rendered routes must be marked with server: true
+  blacklist(blacklist?: boolean): void;
+
   // Configure how long we will wait for the application to stabilize itself before assuming it
   // never will stabilize and failing the render operation. For build-time rendering, this can
   // be a comfortably high number. For on-demand rendering, you should set this very low so

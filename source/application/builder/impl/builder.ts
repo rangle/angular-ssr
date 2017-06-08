@@ -72,6 +72,12 @@ export class ApplicationBuilderImpl<V> implements ApplicationBuilder<V> {
     this.operation.preboot = config;
   }
 
+  blacklist(enable?: boolean) {
+    if (enable != null) {
+      this.operation.blacklist = enable;
+    }
+  }
+
   stateReader<R>(stateReader?: ApplicationStateReader<R>) {
     this.operation.stateReader = stateReader;
   }

@@ -82,13 +82,19 @@ export const parseCommandLineOptions = (): CommandLineOptions => {
     preboot,
     project,
     templateDocument: template.content(),
-    webpack
+    webpack,
+    blacklist
   };
 };
 
+// Enable preboot integration
 let enablePreboot: boolean = false;
 
+// Inline CSS resources in the compiled HTML output
 let enableInline: boolean = true;
+
+// Enable 'blacklist by default' route rendering behaviour (each route you wish to render must be marked with `server: true')
+let blacklist: boolean = false;
 
 const createOutput = (options): OutputProducer =>
   options['ipc']
@@ -124,11 +130,14 @@ const parseCommandLine = () => {
     .option('-a, --application <applicationID>', 'Optional application ID if your CLI configuration contains multiple apps')
     .option('-P, --preboot [boolean | json-file | json-text]', 'Enable or disable preboot with optional configuration file or JSON text (otherwise automatically find the root element and use defaults)')
     .option('-i, --inline [boolean]', 'Inline of resources referenced in links')
-    .option('-I, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false);
+    .option('-I, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
+    .option('-b, --blacklist [boolean]', 'Blacklist all routes by default such that all routes which should be rendered must be specially marked with "server: true" in the route definition', false)
 
-  options.on('preboot', value => enablePreboot = value || true);
+  options.on('preboot', value => enablePreboot = value == null ? true : value);
 
   options.on('inline', value => enableInline = value == null ? true : value);
+
+  options.on('blacklist', value => blacklist = value == null ? false : value);
 
   return options.parse(process.argv);
 };

@@ -2,7 +2,7 @@ import {NgModuleRef} from '@angular/core';
 
 import {Location} from '@angular/common';
 
-import {Router, Routes} from '@angular/router';
+import {Router, Routes, Route as AngularRoute} from '@angular/router';
 
 import {Route} from './route';
 import {ApplicationFallbackOptions} from '../static';
@@ -58,12 +58,12 @@ export const extractRoutesFromRouter = (router: Router, location: Location): Arr
 
   const flatten = (parent: Array<string>, routes: Routes): Array<Route> =>
     routes.reduce(
-      (prev, route) => {
+      (prev, route: AngularRoute & {server?: boolean}) => {
         const prepared = location.prepareExternalUrl(parent.concat(route.path || []).join('/'));
 
         const path = prepared.replace(/(^\.|\*\*?)/g, String()).split(/\//g).filter(v => v);
 
-        return prev.concat({path}, flatten(path, route.children || []));
+        return prev.concat({path, server: route.server}, flatten(path, route.children || []));
       },
       empty);
 
@@ -72,7 +72,7 @@ export const extractRoutesFromRouter = (router: Router, location: Location): Arr
 
 const singleRoute: Route = {path: []};
 
-export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Route> => {
+const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Route> => {
   const router: Router = moduleRef.injector.get(Router, null);
   if (router == null) {
     return [singleRoute];
@@ -81,10 +81,6 @@ export const extractRoutesFromModule = <M>(moduleRef: NgModuleRef<M>): Array<Rou
   const location: Location = moduleRef.injector.get(Location);
 
   return extractRoutesFromRouter(router, location);
-};
-
-export const applicationRenderableRoutes = async <M>(operation: RouteExtractionOperation<M>): Promise<Array<Route>> => {
-  return renderableRoutes(await applicationRoutes(operation));
 };
 
 export const renderableRoutes = (routes: Array<Route>): Array<Route> => {

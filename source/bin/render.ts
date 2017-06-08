@@ -28,6 +28,8 @@ const builder = applicationBuilderFromSource(options.project, options.templateDo
 
 builder.preboot(options.preboot);
 
+builder.blacklist(options.blacklist);
+
 // Since we are doing rendering at build time, there is no need to enforce quick zone stabilization.
 // We can bump it up so that the process does not fail if an HTTP request takes a long time or
 // something along those lines prevents the app zone from stabilizing quickly.

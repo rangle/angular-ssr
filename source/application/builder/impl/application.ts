@@ -34,14 +34,19 @@ export class ApplicationImpl<V, M> implements Application<V> {
         this.render.routes = renderableRoutes(await this.discoverRoutes());
       }
 
+      if (this.render.blacklist) { // route blacklisting
+        this.render.routes = this.render.routes.filter((r: Route & {server?: boolean}) => r.server === true);
+      }
+
       if (this.render.routes.length === 0) {
         observe.complete();
       }
       else {
-        this.renderToStream(this.render).subscribe(
-          observe.next.bind(observe),
-          observe.error.bind(observe),
-          observe.complete.bind(observe));
+        this.renderToStream(this.render)
+          .subscribe(
+            observe.next.bind(observe),
+            observe.error.bind(observe),
+            observe.complete.bind(observe));
       }
     });
   }
