@@ -19,7 +19,7 @@ export const inlineResources = (path: PathReference, rendered: string): string =
           continue;
         }
 
-        window.document.head.replaceChild(resource, link);
+        link.parentElement.replaceChild(resource, link);
       }
 
       return window.document.documentElement.outerHTML;
