@@ -137,7 +137,7 @@ const parseCommandLine = () => {
 
   options.on('inline', value => enableInline = value == null ? true : value);
 
-  options.on('blacklist', value => blacklist = value == null ? false : value);
+  options.on('blacklist', value => blacklist = value == null ? true : value);
 
   return options.parse(process.argv);
 };
