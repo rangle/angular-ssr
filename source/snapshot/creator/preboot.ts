@@ -24,22 +24,23 @@ export const injectPreboot = <M>(moduleRef: NgModuleRef<M>, vop: RenderVariantOp
 
   const autodetect = noSeparateRoots === true && noSingleRoot === true;
   if (autodetect) {
-    const {bootstrapFactories} = moduleRef as {bootstrapFactories?};
+    const {_bootstrapComponents} = moduleRef as {_bootstrapComponents?};
 
-    if (bootstrapFactories == null || bootstrapFactories.length === 0) {
+    if (_bootstrapComponents == null || _bootstrapComponents.length === 0) {
       throw new ConfigurationException(`Cannot auto-detect preboot root because no components are defined in module 'bootstrap' properties`);
     }
 
     const selectors = c => {
-      if (c.factory == null ||
-          c.factory.selector == null ||
-          c.factory.selector.length === 0) {
+      const component = Reflect.getOwnMetadata('annotations', c).find(c => c.toString() === '@Component');
+      if (component == null ||
+          component.selector == null ||
+          component.selector.length === 0) {
         return null;
       }
-      return c.factory.selector.split(/[\s,]/g).filter(v => v);
+      return component.selector.split(/[\s,]/g).filter(v => v);
     };
 
-    preboot.appRoot = flatten<string>(bootstrapFactories.map(selectors)).filter(v => v);
+    preboot.appRoot = flatten<string>(_bootstrapComponents.map(selectors)).filter(v => v);
   }
 
   const container = moduleRef.injector.get(DocumentContainer);

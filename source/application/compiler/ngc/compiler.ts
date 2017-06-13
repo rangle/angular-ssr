@@ -1,6 +1,6 @@
 import {Provider} from '@angular/core';
 
-import {AotCompiler} from '@angular/compiler';
+import {toTypeScript} from '@angular/compiler';
 
 import {MetadataWriterHost} from '@angular/tsc-wrapped';
 
@@ -35,8 +35,8 @@ import {projectToOptions, loadApplicationModule} from '../options';
 export class NgcCompiler implements ApplicationCompiler {
   constructor(private project: Project) {}
 
-  createPlatform(providers: Array<Provider>) {
-    return createStaticPlatform(providers) as ServerPlatform;
+  createPlatform(providers: Array<Provider>): ServerPlatform {
+    return createStaticPlatform(providers) as any;
   }
 
   async compile(): Promise<ModuleLoader> {
@@ -110,10 +110,12 @@ export class NgcCompiler implements ApplicationCompiler {
     return build;
   }
 
-  private async generateTemplateCode(compilerHost: CompilerHost, ngCompilerHost: AngularCompilerHost, compiler: AotCompiler, program: Program, build: Build) {
+  private async generateTemplateCode(compilerHost: CompilerHost, ngCompilerHost: AngularCompilerHost, compiler, program: Program, build: Build) {
     const filenames = program.getSourceFiles().map(sf => ngCompilerHost.getCanonicalFileName(sf.fileName));
 
-    const generatedModules = await compiler.compileAll(filenames);
+    const analyzedModules = await compiler.analyzeModulesAsync(filenames);
+
+    const generatedModules = compiler.emitAllImpls(analyzedModules);
 
     return generatedModules.map(
       generatedModule => {
@@ -121,7 +123,9 @@ export class NgcCompiler implements ApplicationCompiler {
 
         const emitPath = ngCompilerHost.calculateEmitPath(generatedModule.genFileUrl);
 
-        compilerHost.writeFile(emitPath, generatedModule.source, false, function () {}, [sourceFile]);
+        const source = generatedModule.source || toTypeScript(generatedModule, String());
+
+        compilerHost.writeFile(emitPath, source, false, function () {}, [sourceFile]);
 
         build.emit(emitPath, [sourceFile]);
 

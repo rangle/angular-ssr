@@ -34,17 +34,17 @@ export class ServerPlatform implements PlatformRef {
   }
 
   async bootstrapModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = [], providers?: Array<Provider>): Promise<NgModuleRef<M>> {
-    const moduleFactory = await this.compileModule(moduleType, compilerOptions);
+    const module = await this.compileModule(moduleType, compilerOptions);
 
-    return await this.bootstrapModuleFactory(moduleFactory, providers);
+    return await this.bootstrapModuleFactory(module, providers);
   }
 
-  async bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>, providers?: Array<Provider>, bootstrap?: (moduleRef: NgModuleRef<M>) => void | Promise<void>): Promise<NgModuleRef<M>> {
+  async bootstrapModuleFactory<M>(module: NgModuleFactory<M>, providers?: Array<Provider>, bootstrap?: (moduleRef: NgModuleRef<M>) => void | Promise<void>): Promise<NgModuleRef<M>> {
     const zone = new NgZone({enableLongStackTrace: true});
 
     const injector = createPlatformInjector(this.injector, zone, providers);
 
-    const moduleRef = createInjector(injector, moduleFactory);
+    const moduleRef = module.create(injector);
 
     const unmap = mapZoneToInjector(Zone.current, moduleRef.injector);
 
@@ -53,8 +53,6 @@ export class ServerPlatform implements PlatformRef {
 
       this.references.delete(moduleRef);
     });
-
-    moduleRef.create();
 
     if (typeof bootstrap === 'function') {
       await Promise.resolve(bootstrap(moduleRef));
@@ -103,11 +101,3 @@ export class ServerPlatform implements PlatformRef {
     destroyers.forEach(handler => handler());
   }
 }
-
-type InstantiableModule<M> = NgModuleRef<M> & {create: () => void};
-
-// It would be great if we did not have to access this private member, but the fact is we need a reference to the
-// injector instance before create() is called on it, so that we can apply the zone mapping before any instantiation
-// of modules or components happens. Otherwise, if someone attempts to start an HTTP request from inside of a module
-// constructor it will fail with nasty messages about how there is no zone mapping.
-const createInjector = <M>(injector: Injector, moduleFactory: NgModuleFactory<M>): InstantiableModule<M> => new moduleFactory['_injectorClass'](injector);

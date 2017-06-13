@@ -19,14 +19,14 @@ describe('NgcCompiler', () => {
     const module = await loader.lazy({source: 'source/test/fixtures/application-basic-external', symbol: 'BasicExternalModule'});
     expect(module).not.toBeNull();
     expect(typeof module).toBe('object');
-    expect(module.constructor.name).toBe('NgModuleFactory');
+    expect(/NgModuleFactory/.test(module.constructor.name)).toBeTruthy();
   });
 
   it('can build application with lazy routes into executable NgModuleFactory', async () => {
     const module = await loader.lazy({source: 'source/test/fixtures/application-routed', symbol: 'BasicRoutedModule'});
     expect(module).not.toBeNull();
     expect(typeof module).toBe('object');
-    expect(module.constructor.name).toBe('NgModuleFactory');
+    expect(/NgModuleFactory/.test(module.constructor.name)).toBeTruthy();
   });
 
   afterEach(() => {
