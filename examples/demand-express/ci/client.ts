@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const domino = require('domino');
+const domino = require('domino-modernized');
 
 export class HttpTestClient {
   constructor(private serverUri: string) {}

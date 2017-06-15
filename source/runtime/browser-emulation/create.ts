@@ -1,4 +1,4 @@
-import domino = require('domino');
+const domino = require('domino-modernized');
 
 import {bindAnimation} from './animation';
 import {bindBase64} from './base64';

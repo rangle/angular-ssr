@@ -1,4 +1,4 @@
-const {impl: {CSSStyleDeclaration}} = require('domino');
+const {impl: {CSSStyleDeclaration}} = require('domino-modernized');
 
 const getMatchedCSSRules = () => {
   return {

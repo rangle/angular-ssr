@@ -2,7 +2,7 @@ import {Postprocessor} from '../../application/contracts';
 
 import {SnapshotException} from '../../exception';
 
-const {createDocument} = require('domino');
+const {createDocument} = require('domino-modernized');
 
 export const transformAndSerializeDocument = (processors: Array<Postprocessor>, document: Document): string => {
   const renderedDocument = preprocess(processors, document);
