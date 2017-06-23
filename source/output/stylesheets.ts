@@ -1,35 +1,26 @@
 import {join} from 'path';
 
-import {ApplicationFallbackOptions} from '../static';
 import {PathReference, fileFromString} from '../filesystem';
+
 import {RuntimeException} from '../exception';
-import {createModernWindow} from '../runtime/browser-emulation/create';
 
-export const inlineResources = (path: PathReference, rendered: string): string => {
+export const inlineStylesheets = (path: PathReference, document: Document): string => {
   try {
-    const uri = ApplicationFallbackOptions.fallbackUri;
+    const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
 
-    const window = createModernWindow(rendered, uri);
-    try {
-      const links = Array.from(window.document.querySelectorAll('link[rel="stylesheet"]'));
-
-      for (const link of links) {
-        const resource = readResource(window.document, path, link as HTMLLinkElement);
-        if (resource == null) {
-          continue;
-        }
-
-        link.parentElement.replaceChild(resource, link);
+    for (const link of links) {
+      const resource = readResource(window.document, path, link as HTMLLinkElement);
+      if (resource == null) {
+        continue;
       }
 
-      return window.document.documentElement.outerHTML;
+      link.parentElement.replaceChild(resource, link);
     }
-    finally {
-      window.close();
-    }
+
+    return window.document.documentElement.outerHTML;
   }
   catch (exception) {
-    throw new RuntimeException('Failed to inline resources', exception);
+    throw new RuntimeException('Failed to inline stylesheet resources', exception);
   }
 };
 

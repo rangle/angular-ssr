@@ -38,7 +38,7 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
 
     const applicationRef: ApplicationRef = moduleRef.injector.get(ApplicationRef);
 
-    const {_bootstrapComponents, instance: {ngDoBootstrap}} = <any> moduleRef;
+    const {_bootstrapComponents: components, instance: {ngDoBootstrap}} = <any> moduleRef;
 
     const location = moduleRef.injector.get(PlatformLocation) as LocationImpl;
 
@@ -51,10 +51,11 @@ export const bootstrapModule = <M>(zone: NgZone, moduleRef: NgModuleRef<M>): Pro
     }
 
     applicationInit.donePromise.then(() => {
-      if (_bootstrapComponents.length > 0) {
-        for (const component of _bootstrapComponents) {
-          applicationRef.bootstrap(component);
+      if (components) {
+        for (const c of components) {
+          applicationRef.bootstrap(c);
         }
+
         resolve();
       }
       else if (typeof ngDoBootstrap === 'function') {

@@ -3,35 +3,32 @@ import chalk = require('chalk');
 import {join} from 'path';
 
 import {Files} from '../static';
+import {OutputOptions} from './options';
 import {OutputProducer} from './producer';
 import {OutputException} from '../exception';
-import {PathReference, fileFromString, pathFromString} from '../filesystem';
+import {fileFromString, pathFromString} from '../filesystem';
 import {Snapshot} from '../snapshot';
-import {inlineResources} from './inline';
 import {log} from './log';
 import {pathFromUri} from '../route';
+import {transformInplace} from './transform';
 
 export class HtmlOutput implements OutputProducer {
-  private path: PathReference;
-
-  constructor(path: PathReference | string, private inline: boolean) {
-    this.path = pathFromString(path);
-  }
+  constructor(private options: OutputOptions) {}
 
   initialize() {
-    if (this.path == null) {
+    if (this.options.output == null) {
       throw new OutputException('HTML output writer needs a path to write to');
     }
 
-    if (this.path.exists() === false) {
+    if (this.options.output.exists() === false) {
       try {
-        this.path.mkdir();
+        this.options.output.mkdir();
       }
       catch (exception) {
-        throw new OutputException(`Cannot create output folder: ${this.path}`, exception);
+        throw new OutputException(`Cannot create output folder: ${this.options.output.toString()}`, exception);
       }
 
-      log.info(`Created output path: ${this.path}`);
+      log.info(`Created output path: ${this.options.output.toString()}`);
     }
 
     return Promise.resolve();
@@ -40,17 +37,11 @@ export class HtmlOutput implements OutputProducer {
   async write<V>(snapshot: Snapshot<V>): Promise<void> {
     const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), Files.index));
 
-    let rendered = this.inline === true
-      ? inlineResources(file.parent(), snapshot.renderedDocument)
-      : snapshot.renderedDocument;
-
-    if (/^<\!DOCTYPE html>/i.test(rendered) === false) { // ensure result has a doctype
-      rendered = `<!DOCTYPE html>${rendered}`;
-    }
+    transformInplace(file.parent(), snapshot, this.options);
 
     log.info(`Rendered route ${pathFromUri(snapshot.uri)} to ${file}`);
 
-    file.create(rendered);
+    file.create(snapshot.renderedDocument);
 
     return Promise.resolve(void 0);
   }
@@ -62,7 +53,7 @@ export class HtmlOutput implements OutputProducer {
   }
 
   private routedPathFromSnapshot<V>(snapshot: Snapshot<V>) {
-    const routedPath = pathFromString(join(this.path.toString(), pathFromUri(snapshot.uri)));
+    const routedPath = pathFromString(join(this.options.output.toString(), pathFromUri(snapshot.uri)));
 
     routedPath.mkdir();
 

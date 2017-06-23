@@ -16,6 +16,7 @@ import {
   PathReference,
   PrebootConfiguration,
   Project,
+  OutputOptions,
   OutputProducer,
   absoluteFile,
   fileFromString,
@@ -91,19 +92,15 @@ export const parseCommandLineOptions = (): CommandLineOptions => {
 let enablePreboot: boolean = false;
 
 // Inline CSS resources in the compiled HTML output
-let enableInline: boolean = true;
+let inlineStylesheets: boolean = true;
+
+// Inline SVG <use xlink:href> instances to deal with absolute paths that wrongly include localhost
+let inlineVectorGraphics: boolean = false;
 
 // Enable 'blacklist by default' route rendering behaviour (each route you wish to render must be marked with `server: true')
 let blacklist: boolean = false;
 
-const createOutput = (options): OutputProducer =>
-  options['ipc']
-    ? createInterprocessOutput(options)
-    : createHtmlOutput(options);
-
-const createInterprocessOutput = (options): OutputProducer => new InterprocessOutput();
-
-const createHtmlOutput = (options): OutputProducer => {
+const renderOptions = (options): OutputOptions => {
   let outputString = options['output'];
 
   if (/^(\\|\/)/.test(outputString) === false) {
@@ -112,8 +109,17 @@ const createHtmlOutput = (options): OutputProducer => {
 
   const output = pathFromString(outputString);
 
-  return new HtmlOutput(output, enableInline);
+  return {output, inlineStylesheets, inlineVectorGraphics};
 };
+
+const createOutput = (options): OutputProducer =>
+  options['ipc']
+    ? createInterprocessOutput(renderOptions(options))
+    : createHtmlOutput(renderOptions(options));
+
+const createInterprocessOutput = (options: OutputOptions): OutputProducer => new InterprocessOutput(options);
+
+const createHtmlOutput = (options: OutputOptions): OutputProducer => new HtmlOutput(options);
 
 const parseCommandLine = () => {
   const options = commander
@@ -130,14 +136,21 @@ const parseCommandLine = () => {
     .option('-a, --application <applicationID>', 'Optional application ID if your CLI configuration contains multiple apps')
     .option('-P, --preboot [boolean | json-file | json-text]', 'Enable or disable preboot with optional configuration file or JSON text (otherwise automatically find the root element and use defaults)')
     .option('-i, --inline [boolean]', 'Inline of resources referenced in links')
+    .option('-S, --inline-svg [boolean]', 'Inline SVG <use xlink:href> instances (to resolve issues with absolute URI SVG identifiers eg http://localhost/#foo')
     .option('-I, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
     .option('-b, --blacklist [boolean]', 'Blacklist all routes by default such that all routes which should be rendered must be specially marked with "server: true" in the route definition', false)
 
-  options.on('preboot', value => enablePreboot = value == null ? true : value);
+  options.on('preboot',
+    value => enablePreboot = value == null ? true : value);
 
-  options.on('inline', value => enableInline = value == null ? true : value);
+  options.on('inline',
+    value => inlineStylesheets = value == null ? true : value);
 
-  options.on('blacklist', value => blacklist = value == null ? true : value);
+  options.on('inline-svg',
+    value => inlineVectorGraphics = value == null ? true : value);
+
+  options.on('blacklist',
+    value => blacklist = value == null ? true : value);
 
   return options.parse(process.argv);
 };

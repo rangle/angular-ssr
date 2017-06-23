@@ -1,11 +1,12 @@
 import {connected} from 'process';
 
 import {RuntimeException} from '../exception';
+import {OutputOptions} from './options';
 import {OutputProducer} from './producer';
 import {Snapshot} from '../snapshot';
 
 export class InterprocessOutput implements OutputProducer {
-  constructor() {}
+  constructor(options: OutputOptions) {}
 
   initialize() {
     if (connected === false) {
