@@ -37,7 +37,7 @@ export const upgradeWindow = (target, window: () => Window): void => {
   conditionalOverwrite(target, [
     [true, DOM],
     [true, bindTypes],
-    [false, {CSS: null}],
+    [false, {CSS: null, Image: DOM.HTMLImageElement}],
     bindAnimation(window),
     bindBase64(window),
     bindControl(window),
