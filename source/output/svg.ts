@@ -4,7 +4,7 @@ const getVectorDefinitions = (document: Document): Map<string, Element> => {
   for (const definition of Array.from(document.querySelectorAll(`svg > defs > *[id!='']`))) {
     const identifier = definition.getAttribute('id');
     if (identifier) {
-      map.set(identifier, definition);
+      map.set(identifier, definition.children.item(0));
     }
   }
 
