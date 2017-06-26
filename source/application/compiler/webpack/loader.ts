@@ -21,12 +21,14 @@ export class WebpackModuleLoader implements ModuleLoader {
       throw new CompilerException(`Cannot find a webpack chunk with the name ${module.source}`);
     }
 
-    if (matchingChunk.files == null ||
-        matchingChunk.files.length !== 1) {
-      throw new CompilerException(`Chunk ${module.source} does not have associated output files`);
+    const js = (matchingChunk.files || []).filter(f => /\.js$/.test(f));
+    switch (js.length) {
+      case 0: throw new CompilerException(`Chunk ${module.source} does not have associated output files`);
+      case 1: break;
+      default: throw new CompilerException(`Chunk ${module.source} has more than one JavaScript output: ${js.join(', ')}`);
     }
 
-    const candidate = join(this.project.workingPath.toString(), matchingChunk.files[0]);
+    const candidate = join(this.project.workingPath.toString(), js[0]);
 
     const loaded = require(candidate);
 
