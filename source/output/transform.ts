@@ -22,7 +22,7 @@ export const transformInplace = <V>(path: PathReference, snapshot: Snapshot<V>, 
         inlineVectorGraphics(window.document);
       }
 
-      snapshot.renderedDocument = document.documentElement.outerHTML;
+      snapshot.renderedDocument = window.document.documentElement.outerHTML;
     }
     finally {
       window.close();
