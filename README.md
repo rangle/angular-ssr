@@ -36,6 +36,7 @@
   - [On-demand rendering using express](#on-demand-rendering-using-express)
   - [On-demand rendering using koa](#on-demand-rendering-using-koa)
 - [FAQ](#faq)
+- [Troubleshooting](#troubleshooting)
 - [Comments, queries, or rants](#comments-queries-or-rants)
 
 # Introduction
@@ -618,6 +619,34 @@ A project using koa and `angular-ssr` lives in the [`examples/demand-koa`](https
 5. What changes are coming in the future?
 	* The `angular-ssr` package will be split into `@angular-ssr/server`, `@angular-ssr/client` and a couple other packages. This will allow us to build some cool client-side features that will integrate with the server-side rendering functionality.
 	* As `@angular/platform-server` fills out and matures, `angular-ssr` will eventually become obsolete. The Angular team is working on a lot of great features (with some inspiration from `angular-ssr` -- for instance, a real DOM implementation!). These changes will ultimately make `angular-ssr` redundant. But the cost of transitioning from `angular-ssr` to `platform-server` will be minimal because the API surface of both libraries are tiny. So I would recommend using `angular-ssr` today and upgrading to `platform-server` in the next 6 months or a year or so.
+
+# Troubleshooting
+
+If you are using `ng-render` and your build fails with this error:
+
+```
+ERROR in ./src/app/app.module.ts
+Module build failed: TypeError: Cannot read property 'newLine' of undefined
+    at Object.getNewLineCharacter (/home/bond/project/node_modules/typescript/lib/typescript.js:9514:20)
+    at Object.createCompilerHost (/home/bond/project/node_modules/typescript/lib/typescript.js:63770:26)
+    at Object.ngcLoader (/home/bond/project/node_modules/@ngtools/webpack/src/loader.js:380:33)
+ @ multi ./app/app.module.ts
+ ```
+
+This is because you are attempting to use the AoT loader, `@ngtools/webpack`, with `ng-render`. Please do not do this. You should only be using `@ngtools/webpack` for production AoT builds, not `ng-render` builds. Therefore in your `webpack.config.js`, only enable the AoT loader in production mode:
+
+```
+const production = !process.env.NG_RENDER && process.env.NODE_ENV === 'production';
+```
+
+Then in the loader chain description for TypeScript files:
+
+```
+{
+  test: /\.ts$/,
+  use: production ? ['@ngtools/webpack'] : ['ts-helper', 'angular2-template-loader', 'angular-router-loader']
+}
+```
 
 # Comments, queries, or rants
 
