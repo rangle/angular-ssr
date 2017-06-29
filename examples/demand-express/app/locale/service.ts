@@ -16,7 +16,7 @@ export class LocaleService {
     if (locale) {
       this.update(locale);
     }
-    return this.subject;
+    return Observable.from(this.subject);
   }
 
   private update(value: string) {

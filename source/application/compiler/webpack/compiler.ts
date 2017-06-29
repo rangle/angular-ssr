@@ -1,5 +1,7 @@
 import webpack = require('webpack');
 
+import chalk = require('chalk');
+
 import {sep} from 'path';
 
 import {createProgram} from 'typescript';
@@ -19,7 +21,16 @@ export class WebpackCompiler implements ApplicationCompiler {
   constructor(private project: Project, private loader: ConfigurationLoader) {}
 
   createPlatform(providers: Array<Provider>) {
-    return createJitPlatform(providers) as ServerPlatform;
+    try {
+      return createJitPlatform(providers) as ServerPlatform;
+    }
+    catch (exception) {
+      console.error(chalk.red(`Platform creation failed: this happens when you try to use ${chalk.green('@ngtools/webpack')} during an ng-render build`));
+      console.error(`Please verify that you are using a regular TypeScript loader, eg ${chalk.green("['ts-loader', 'angular2-template-loader', 'angular-router-loader']")}`);
+      console.error('This may not be related to your issue, but this a typical cause of this particular exception.');
+
+      throw new CompilerException('Failed to create platform instance', exception);
+    }
   }
 
   compile(): Promise<ModuleLoader> {

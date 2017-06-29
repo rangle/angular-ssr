@@ -15,6 +15,6 @@ export class PendingRequests {
   }
 
   requestsPending(): Observable<number> {
-    return this.subject;
+    return Observable.from(this.subject);
   }
 }

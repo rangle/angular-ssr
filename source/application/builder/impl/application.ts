@@ -87,7 +87,7 @@ export class ApplicationImpl<V, M> implements Application<V> {
 
     Promise.all(promises).then(() => subject.complete());
 
-    return subject;
+    return Observable.from(subject);
   }
 
   private async renderVariant(operation: RenderVariantOperation<V>): Promise<Snapshot<V>> {

@@ -24,6 +24,8 @@
     "@angular/platform-browser-dynamic": "4.2.2",
     "@angular/router": "4.2.2",
     "@angular/tsc-wrapped": "4.2.2",
+    "@types/node": "^6.0.60",
+    "codelyzer": "^2.0.0",
     "angular-ssr": "latest",
     "classlist.js": "^1.1.20150312",
     "core-js": "^2.4.1",
@@ -32,15 +34,13 @@
     "live-server": "^1.2.0",
     "preboot": "^4.5.2",
     "reflect-metadata": "^0.1.10",
-    "rxjs": "^5.1.0",
+    "rxjs": "^5.4.1",
+    "ts-node": "^2.0.0",
+    "tslint": "^4.5.0",
+    "typescript": "2.3.2",
     "web-animations-js": "^2.2.2",
     "zone.js": "^0.8.4"
   },
   "devDependencies": {
-    "@types/node": "~6.0.60",
-    "codelyzer": "~2.0.0",
-    "ts-node": "~2.0.0",
-    "tslint": "~4.5.0",
-    "typescript": "~2.2.0"
   }
 }

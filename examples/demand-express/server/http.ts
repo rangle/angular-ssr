@@ -15,7 +15,7 @@ export const configure = (http: express.Application): void => {
 };
 
 export const listen = (http: express.Application): Promise<number> => {
-  const port = process.env.PORT || 8080;
+  const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
 
   return new Promise<number>((resolve, reject) => {
     http.listen(port, err => {

@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.10.23",
+  "version": "0.10.29",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -66,9 +66,9 @@
     "@angular/tsc-wrapped": ">=4.2.2 <5.0.0",
     "@angular/service-worker": ">=1.0.0 || >=1.0.0-beta.8",
     "reflect-metadata": ">=0.1.10",
-    "rxjs": ">=5.0.1",
+    "rxjs": "^5.4.1",
     "zone.js": ">=0.8",
-    "typescript": ">=2.3.2",
+    "typescript": "~2.3.2",
     "webpack": ">=2.3.0"
   },
   "dependencies": {
@@ -88,10 +88,11 @@
     "npm-run-all": "^4.0.2",
     "preboot": "^4.5.2",
     "rimraf": "2.5.4",
-    "rxjs": ">=5.0.1",
+    "rxjs": "^5.4.1",
     "scoped-logger": "^0.0.19",
     "source-map-support": ">=0.1.0",
     "symbol-observable": "^1.0.4",
+    "typescript": "2.3.2",
     "xhr2": "^0.1.4"
   },
   "devDependencies": {
@@ -114,7 +115,6 @@
     "reflect-metadata": ">=0.1.10",
     "ts-jest": "^20.0.4",
     "tslint": "4.4.2",
-    "typescript": ">=2.3.2",
     "webpack": ">=2.4.1",
     "zone.js": ">=0.8.9"
   },
@@ -147,7 +147,9 @@
     ],
     "verbose": true,
     "cacheDirectory": ".jest-cache",
-    "coveragePathIgnorePatterns": [".*\\.(shim\\.ngstyle|ngfactory)\\.ts"],
+    "coveragePathIgnorePatterns": [
+      ".*\\.(shim\\.ngstyle|ngfactory)\\.ts"
+    ],
     "globals": {
       "__TS_CONFIG__": "tsconfig.json"
     }
