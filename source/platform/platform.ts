@@ -4,7 +4,6 @@ import {
   CompilerOptions,
   Injectable,
   Injector,
-  Inject,
   NgModuleFactory,
   NgModuleRef,
   NgZone,
@@ -25,7 +24,7 @@ export class ServerPlatform implements PlatformRef {
 
   private destroyers = new Array<() => void>();
 
-  constructor(@Inject(Injector) public injector: Injector) {}
+  constructor(public injector: Injector) {}
 
   compileModule<M>(moduleType: Type<M>, compilerOptions: CompilerOptions | Array<CompilerOptions> = []): Promise<NgModuleFactory<M>> {
     const compiler = this.getCompiler(compilerOptions);
@@ -101,3 +100,8 @@ export class ServerPlatform implements PlatformRef {
     destroyers.forEach(handler => handler());
   }
 }
+
+Object.assign(ServerPlatform, {
+  decorators: [{type: Injectable}],
+  ctorParameters: () => [{type: Injector}]
+});
