@@ -27,7 +27,7 @@ export class ApplicationImpl<V, M> implements Application<V> {
   ) {}
 
   prerender(options: PrerenderOptions = {pessimistic: false}): Observable<Snapshot<V>> {
-    this.render.pessimistic = options.pessimistic || false;
+    this.render.pessimistic = (options && options.pessimistic) || false;
 
     return Observable.create(async (observe) => {
       if (this.render.routes == null || this.render.routes.length === 0) {

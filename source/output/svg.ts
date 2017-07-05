@@ -21,7 +21,8 @@ export const inlineVectorGraphics = (document: Document): void => {
 
     const matchingDefinition = definitions.get(identifier.split(/[#\/]/g).pop());
     if (matchingDefinition == null) {
-      throw new Error(`Cannot find matching SVG definition for ${identifier}`);
+      console.warn(`Cannot find matching SVG definition for ${identifier}`);
+      continue;
     }
 
     link.parentElement.replaceChild(matchingDefinition.cloneNode(true), link);

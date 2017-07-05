@@ -1,19 +1,19 @@
-import {OutputProducer} from '../../output';
-
 import {Application} from '../builder';
+import {OutputProducer} from '../../output';
+import {PrerenderOptions} from './options';
 
 import {assertSnapshot} from '../../snapshot/assert';
 
 export interface ApplicationPrerenderer {
-  prerenderTo(output: OutputProducer): Promise<void>;
+  prerenderTo(output: OutputProducer, options?: PrerenderOptions): Promise<void>;
 }
 
 export const applicationPrerenderer = <V>(application: Application<V>): ApplicationPrerenderer => {
   return {
-    prerenderTo: async (output: OutputProducer): Promise<void> => {
+    prerenderTo: async (output: OutputProducer, options?: PrerenderOptions): Promise<void> => {
       output.initialize();
 
-      const snapshots = application.prerender();
+      const snapshots = application.prerender(options);
 
       return new Promise<void>((resolve, reject) => {
         snapshots.subscribe(

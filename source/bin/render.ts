@@ -41,7 +41,7 @@ const applicationRenderer = applicationPrerenderer(application);
 
 const execute = async () => {
   try {
-    await applicationRenderer.prerenderTo(options.output);
+    await applicationRenderer.prerenderTo(options.output, {pessimistic: options.pessimistic});
   }
   finally {
     // If we are debugging, then we are likely to produce a stack trace that includes compiled

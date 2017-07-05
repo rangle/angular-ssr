@@ -80,6 +80,7 @@ export const parseCommandLineOptions = (): CommandLineOptions => {
   return {
     debug,
     output,
+    pessimistic,
     preboot,
     project,
     templateDocument: template.content(),
@@ -90,6 +91,9 @@ export const parseCommandLineOptions = (): CommandLineOptions => {
 
 // Enable preboot integration
 let enablePreboot: boolean = false;
+
+// Ignore routes that fail to render (just emit warnings instead of failing the process)
+let pessimistic = false;
 
 // Inline CSS resources in the compiled HTML output
 let inlineStylesheets: boolean = true;
@@ -135,6 +139,7 @@ const parseCommandLine = () => {
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', 'dist')
     .option('-a, --application <applicationID>', 'Optional application ID if your CLI configuration contains multiple apps')
     .option('-P, --preboot [boolean | json-file | json-text]', 'Enable or disable preboot with optional configuration file or JSON text (otherwise automatically find the root element and use defaults)')
+    .option('-R, --pessimistic [boolean]', 'Ignore routes that fail to render (just emit warnings, do not fail the whole run)')
     .option('-i, --inline [boolean]', 'Inline of resources referenced in links')
     .option('-S, --inline-svg [boolean]', 'Inline SVG <use xlink:href> instances (to resolve issues with absolute URI SVG identifiers eg http://localhost/#foo')
     .option('-I, --ipc', 'Send rendered documents to parent process through IPC instead of writing them to disk', false)
@@ -151,6 +156,9 @@ const parseCommandLine = () => {
 
   options.on('blacklist',
     value => blacklist = value == null ? true : value);
+
+  options.on('pessimistic',
+    value => pessimistic = value == null ? true : value);
 
   return options.parse(process.argv);
 };
