@@ -30,24 +30,19 @@ export class ApplicationImpl<V, M> implements Application<V> {
     this.render.pessimistic = (options && options.pessimistic) || false;
 
     return Observable.create(async (observe) => {
-      let routes = this.render.routes;
-      if (routes == null || routes.length === 0) {
-        routes = renderableRoutes(await this.discoverRoutes());
+      if (this.render.routes == null || this.render.routes.length === 0) {
+        this.render.routes = renderableRoutes(await this.discoverRoutes());
       }
 
-      routes = routes.filter((r: Route & {server?: boolean}) => {
-        if (r.server == null) {
-          return this.render.blacklist === true; // exclude all routes by default
-        }
-        return r.server; // explicit true or false will always be respected regardless of blacklisting
-      });
+      this.render.routes = (this.render.routes || []).filter((r: Route & {server?: boolean}) =>
+        r.server == null
+          ? !this.render.blacklist
+          : r.server);
 
-      if (routes.length === 0) {
+      if (this.render.routes.length === 0) {
         observe.complete();
       }
       else {
-        this.render.routes = routes;
-
         this.renderToStream(this.render)
           .subscribe(
             observe.next.bind(observe),
