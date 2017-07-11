@@ -2,7 +2,7 @@ export namespace Files {
   // Angular CLI configuration file names
   export const cli = ['angular-cli.json', '.angular-cli.json'];
 
-  // Filename used when writing route structures to disk (eg foo/index.html)
+  // Default filename used when writing route structures to disk (eg foo/index.html)
   export const index = 'index.html';
 
   // The possible names of node_modules folders (TODO(bond): Really inviolate or configurable?)

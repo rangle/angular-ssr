@@ -10,6 +10,7 @@ const Module = require('module');
 
 import {
   Files,
+  PrerenderOptions,
   applicationBuilderFromSource,
   applicationPrerenderer,
   log,
@@ -41,7 +42,9 @@ const applicationRenderer = applicationPrerenderer(application);
 
 const execute = async () => {
   try {
-    await applicationRenderer.prerenderTo(options.output, {pessimistic: options.pessimistic});
+    const prerender: PrerenderOptions = {pessimistic: options.pessimistic};
+
+    await applicationRenderer.prerenderTo(options.output, prerender);
   }
   finally {
     // If we are debugging, then we are likely to produce a stack trace that includes compiled

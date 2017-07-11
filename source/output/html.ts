@@ -35,7 +35,7 @@ export class HtmlOutput implements OutputProducer {
   }
 
   async write<V>(snapshot: Snapshot<V>): Promise<void> {
-    const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), Files.index));
+    const file = fileFromString(join(this.routedPathFromSnapshot(snapshot).toString(), this.options.filename || Files.index));
 
     transformInplace(file.parent(), snapshot, this.options);
 

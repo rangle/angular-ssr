@@ -104,6 +104,9 @@ let inlineVectorGraphics: boolean = false;
 // Enable 'blacklist by default' route rendering behaviour (each route you wish to render must be marked with `server: true')
 let blacklist: boolean = false;
 
+// The name of files to generate for each route (index.html, eg foo/index.html)
+let filename: string = Files.index;
+
 const renderOptions = (options): OutputOptions => {
   let outputString = options['output'];
 
@@ -113,7 +116,7 @@ const renderOptions = (options): OutputOptions => {
 
   const output = pathFromString(outputString);
 
-  return {output, inlineStylesheets, inlineVectorGraphics};
+  return {filename, output, inlineStylesheets, inlineVectorGraphics};
 };
 
 const createOutput = (options): OutputProducer =>
@@ -134,6 +137,7 @@ const parseCommandLine = () => {
     .option('-p, --project <path>', 'Path to tsconfig.json file or project root (if tsconfig.json lives in the root)', cwd())
     .option('-w, --webpack <config>', 'Optional path to webpack configuration file')
     .option('-t, --template <path>', 'HTML template document', 'dist/index.html')
+    .option('-f, --filename <path>', 'Change the name of the HTML files that are produced', filename)
     .option('-m, --module <path>', 'Path to root application module TypeScript file')
     .option('-s, --symbol <identifier>', 'Class name of application root module')
     .option('-o, --output <path>', 'Output path to write rendered HTML documents to', 'dist')
@@ -159,6 +163,8 @@ const parseCommandLine = () => {
 
   options.on('pessimistic',
     value => pessimistic = value == null ? true : value);
+
+  options.on('filename', value => filename = value);
 
   return options.parse(process.argv);
 };
