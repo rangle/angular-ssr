@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.10.37",
+  "version": "0.10.38",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -38,18 +38,18 @@
     "server-side rendering",
     "ssr"
   ],
+  "author":{
+    "name": "Christopher Bond",
+    "email": "cb@clbond.org",
+    "url": "https://clbond.org"
+  },
   "contributors": [
-    {
-      "name": "Christopher Bond",
-      "email": "cb@clbond.org",
-      "url": "https://clbond.org/"
-    },
     {
       "name": "rangle.io",
       "url": "https://rangle.io/"
     }
   ],
-  "license": "MIT",
+  "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/clbond/angular-ssr/issues"
   },
