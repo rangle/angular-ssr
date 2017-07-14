@@ -20,6 +20,10 @@
     "declaration": true,
     "outDir": "build"
   },
+  "angularCompilerOptions": {
+    "strictMetadataEmit": true,
+    "genDir": "build"
+  },
   "exclude": [
     "build",
     "examples",
