@@ -150,19 +150,19 @@ const parseCommandLine = () => {
     .option('-b, --blacklist [boolean]', 'Blacklist all routes by default such that all routes which should be rendered must be specially marked with "server: true" in the route definition', false)
 
   options.on('preboot',
-    value => enablePreboot = value == null ? true : value);
+    value => enablePreboot = value === 'true' || value == null);
 
   options.on('inline',
-    value => inlineStylesheets = value == null ? true : value);
+    value => inlineStylesheets = value === 'true' || value == null);
 
   options.on('inline-svg',
-    value => inlineVectorGraphics = value == null ? true : value);
+    value => inlineVectorGraphics = value === 'true' || value == null);
 
   options.on('blacklist',
-    value => blacklist = value == null ? true : value);
+    value => blacklist =  value === 'true' || value == null);
 
   options.on('pessimistic',
-    value => pessimistic = value == null ? true : value);
+    value => pessimistic = value === 'true' || value == null);
 
   options.on('filename', value => filename = value);
 
