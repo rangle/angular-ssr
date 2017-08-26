@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import express = require('express');
 
 import {applicationBuilderFromModule, StateTransition} from 'angular-ssr';
