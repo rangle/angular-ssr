@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.10.38",
+  "version": "0.10.39",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -38,7 +38,7 @@
     "server-side rendering",
     "ssr"
   ],
-  "author":{
+  "author": {
     "name": "Christopher Bond",
     "email": "cb@clbond.org",
     "url": "https://clbond.org"
