@@ -100,6 +100,12 @@ export class PathImpl extends FilesystemBaseImpl implements PathReference {
     return traverse(this, path => path.name() === file);
   }
 
+  findImmediateChild(file: string): FileReference {
+    const files = Array.from(this.files());
+
+    return files.find(f => f.name() === file);
+  }
+
   unlink() {
     for (const item of [...Array.from(this.files()), ...Array.from(this.directories())]) {
       item.unlink();

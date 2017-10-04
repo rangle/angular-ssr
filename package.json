@@ -1,6 +1,6 @@
 {
   "name": "angular-ssr",
-  "version": "0.10.38",
+  "version": "0.10.39",
   "description": "Angular server-side rendering implementation",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -20,8 +20,8 @@
     "watch": "tsc --watch",
     "pretest": "npm run lint && npm run build",
     "lint": "tslint --project tsconfig.json --type-check",
-    "test": "jest --coverage=true -w 18",
-    "test:watch": "jest --watch"
+    "test": "./node_modules/.bin/jest --coverage=true -w 18",
+    "test:watch": "./node_modules/.bin/jest --watch"
   },
   "repository": {
     "type": "git",
@@ -38,7 +38,7 @@
     "server-side rendering",
     "ssr"
   ],
-  "author":{
+  "author": {
     "name": "Christopher Bond",
     "email": "cb@clbond.org",
     "url": "https://clbond.org"
@@ -149,10 +149,7 @@
     "cacheDirectory": ".jest-cache",
     "coveragePathIgnorePatterns": [
       ".*\\.(shim\\.ngstyle|ngfactory)\\.ts"
-    ],
-    "globals": {
-      "__TS_CONFIG__": "tsconfig.json"
-    }
+    ]
   },
   "files": [
     "bin",
