@@ -41,6 +41,5 @@
     "web-animations-js": "^2.2.2",
     "zone.js": "^0.8.4"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

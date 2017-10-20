@@ -39,6 +39,12 @@ export interface PathReference extends FilesystemBase {
   // Traverse upward looking for a particular file (throws if not found)
   findInAncestor(file: string): FilesystemBase;
 
+  // Recursive search downward for a file
+  findInChildren(file: string): FileReference;
+
+  // Find a file in immediate children
+  findImmediateChild(file: string): FileReference;
+
   // Recursive create of each component of the path (if nonexistent)
   mkdir(): void;
 

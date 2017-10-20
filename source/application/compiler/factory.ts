@@ -6,7 +6,7 @@ import {Project} from '../project';
 import {WebpackCompiler} from './webpack/compiler';
 
 export const getCompilerFromProject = (project: Project): ApplicationCompiler => {
-  const hasFile = (filename: string): boolean => project.basePath.findInAncestor(filename) != null;
+  const hasFile = (filename: string): boolean => project.basePath.findImmediateChild(filename) != null;
 
   if (Files.webpack.some(f => hasFile(f))) {
     return new WebpackCompiler(project, new WebpackLoader());
