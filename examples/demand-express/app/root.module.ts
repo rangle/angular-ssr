@@ -47,8 +47,7 @@ export class RootModule {
       switch (true) {
         case event instanceof NavigationError:
         case event instanceof NavigationEnd:
-          setImmediate(() => prebootClient().complete());
-
+          prebootClient().complete();
           subscription.unsubscribe();
           break;
         default:
