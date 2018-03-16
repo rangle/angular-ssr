@@ -37,7 +37,7 @@ export class RootModule {
       return;
     }
 
-    const finished = Observable.combineLatest(router.events, zone.onMicrotaskEmpty);
+    const finished = Observable.combineLatest(router.events, zone.onMicrotaskEmpty, zone.onStable);
 
     const subscription = finished.subscribe(([event, stable]) => {
       if (stable === false) {
