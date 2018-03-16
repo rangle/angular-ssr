@@ -10,6 +10,8 @@ import {Subscription} from 'rxjs/Subscription';
 
 import {AppComponent} from './app.component';
 
+import {DialogContent} from './dialog-content.component';
+
 @NgModule({
   imports: [
     BrowserAnimationsModule,
@@ -20,7 +22,8 @@ import {AppComponent} from './app.component';
     MaterialModule.forRoot(),
   ],
   declarations: [
-    AppComponent
+    AppComponent,
+    DialogContent
   ],
   providers: [],
   bootstrap: [AppComponent]

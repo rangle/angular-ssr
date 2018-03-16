@@ -10,7 +10,7 @@ import {
   ScriptTarget,
 } from 'typescript';
 
-import {relative} from 'path';
+import {join} from 'path';
 
 import {CompilerException} from '../../exception';
 import {ModuleDeclaration, Project} from '../project';
@@ -35,7 +35,7 @@ export const projectToOptions = (project: Project): CompilationOptions => {
   ng.basePath = project.basePath.toString();
   ts.declaration = true;
   ng.declaration = true;
-  ng.genDir = ts.outDir ? relative(project.basePath.toString(), ts.outDir) : null;
+  ng.genDir = ts.outDir ? join(project.basePath.toString(), ts.outDir) : null;
   ng.basePath = project.basePath.toString();
   ng.skipMetadataEmit = false;
   ng.skipTemplateCodegen = false;
