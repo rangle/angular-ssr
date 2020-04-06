@@ -24,7 +24,7 @@
     "@angular/platform-browser-dynamic": "4.2.2",
     "@angular/router": "4.2.2",
     "@angular/tsc-wrapped": "4.2.2",
-    "@types/node": "^6.0.60",
+    "@types/node": "^6.14.9",
     "codelyzer": "^2.0.0",
     "angular-ssr": "latest",
     "classlist.js": "^1.1.20150312",
