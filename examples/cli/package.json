@@ -37,7 +37,7 @@
     "rxjs": "^5.4.1",
     "ts-node": "^2.0.0",
     "tslint": "^4.5.0",
-    "typescript": "2.3.2",
+    "typescript": "2.9.2",
     "web-animations-js": "^2.2.2",
     "zone.js": "^0.8.4"
   },
