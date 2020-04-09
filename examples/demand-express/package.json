@@ -46,7 +46,7 @@
     "html-webpack-plugin": "^2.28.0",
     "json-server": "^0.10.0",
     "node-fetch": "^1.6.3",
-    "nodemon": "^1.11.0",
+    "nodemon": "^2.0.3",
     "npm-run-all": "^4.0.2",
     "raw-loader": "^0.5.1",
     "reflect-metadata": "^0.1.10",
