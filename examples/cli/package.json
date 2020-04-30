@@ -7,7 +7,9 @@
     "start": "live-server dist",
     "build": "ng build",
     "postbuild": "ng-render --environment=prod --preboot=true --debug --inline",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "private": true,
   "dependencies": {
@@ -39,7 +41,9 @@
     "tslint": "^4.5.0",
     "typescript": "2.3.2",
     "web-animations-js": "^2.2.2",
-    "zone.js": "^0.8.4"
+    "zone.js": "^0.8.4",
+    "snyk": "^1.316.1"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "snyk": true
 }
