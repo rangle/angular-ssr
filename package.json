@@ -21,7 +21,9 @@
     "pretest": "npm run lint && npm run build",
     "lint": "tslint --project tsconfig.json --type-check",
     "test": "./node_modules/.bin/jest --coverage=true -w 18",
-    "test:watch": "./node_modules/.bin/jest --watch"
+    "test:watch": "./node_modules/.bin/jest --watch",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -93,7 +95,8 @@
     "source-map-support": ">=0.1.0",
     "symbol-observable": "^1.0.4",
     "typescript": "2.3.2",
-    "xhr2": "^0.1.4"
+    "xhr2": "^0.1.4",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "@angular/animations": ">=4.0.0 <5.0.0",
@@ -158,5 +161,6 @@
     "source",
     "tsconfig.json",
     "tslint.json"
-  ]
+  ],
+  "snyk": true
 }
