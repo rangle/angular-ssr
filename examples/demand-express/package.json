@@ -14,7 +14,9 @@
     "run-server": "nodemon ./dist-server/index.js",
     "run-mock-service": "json-server -p 8081 --watch mock-content.json",
     "start:watch": "nodemon -C ./dist-server/index.js",
-    "test": "ts-node ./ci/test-runner.ts"
+    "test": "ts-node ./ci/test-runner.ts",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "license": "BSD-2-Clause",
   "dependencies": {
@@ -55,6 +57,8 @@
     "ts-node": "^3.0.2",
     "typescript": "2.3.2",
     "webpack": "^2.2.1",
-    "zone.js": "^0.8.5"
-  }
+    "zone.js": "^0.8.5",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
