@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Tour of Heroes example application reworked to use angular-ssr",
   "main": "dist-server/index.js",
-  "scripts": {},
+  "scripts": {
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
   "license": "MIT",
   "dependencies": {
     "@angular/animations": ">=4.0.0 <5.0.0",
@@ -21,6 +24,8 @@
     "@angular/tsc-wrapped": ">=4.0.0 <5.0.0",
     "@types/koa": "^2.0.39",
     "angular-ssr": "latest",
-    "koa": "^2.2.0"
-  }
+    "koa": "^2.2.0",
+    "snyk": "^1.361.3"
+  },
+  "snyk": true
 }

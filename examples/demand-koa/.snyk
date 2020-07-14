@@ -1,0 +1,22 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.16.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:hoek:20180212':
+    - angular-ssr > npm > request > hawk > hoek:
+        patched: '2020-07-14T07:09:50.016Z'
+    - angular-ssr > npm > request > hawk > boom > hoek:
+        patched: '2020-07-14T07:09:50.016Z'
+    - angular-ssr > npm > request > hawk > sntp > hoek:
+        patched: '2020-07-14T07:09:50.016Z'
+    - angular-ssr > npm > node-gyp > request > hawk > hoek:
+        patched: '2020-07-14T07:09:50.016Z'
+    - angular-ssr > npm > request > hawk > cryptiles > boom > hoek:
+        patched: '2020-07-14T07:09:50.016Z'
+    - angular-ssr > npm > node-gyp > request > hawk > boom > hoek:
+        patched: '2020-07-14T07:09:50.016Z'
+    - angular-ssr > npm > node-gyp > request > hawk > sntp > hoek:
+        patched: '2020-07-14T07:09:50.016Z'
+    - angular-ssr > npm > node-gyp > request > hawk > cryptiles > boom > hoek:
+        patched: '2020-07-14T07:09:50.016Z'
