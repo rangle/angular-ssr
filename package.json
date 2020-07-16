@@ -72,7 +72,7 @@
     "webpack": ">=2.3.0"
   },
   "dependencies": {
-    "@angular/cli": ">=1.1.0",
+    "@angular/cli": ">=1.7.0",
     "@types/chalk": "^0.4.31",
     "@types/node-fetch": "^1.6.7",
     "@types/webpack": "^2.2.15",
@@ -84,7 +84,7 @@
     "lru_map": "^0.3.3",
     "mkdir-recursive": "^0.3.0",
     "node-fetch": "^1.7.1",
-    "npm": "^4.4.4",
+    "npm": "^5.10.0",
     "npm-run-all": "^4.0.2",
     "preboot": "^4.5.2",
     "rimraf": "2.5.4",
