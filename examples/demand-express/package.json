@@ -19,7 +19,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@angular/animations": ">=4.2.2 <5.0.0",
-    "@angular/cli": ">=1.0.0",
+    "@angular/cli": ">=6.0.0",
     "@angular/common": ">=4.2.2 <5.0.0",
     "@angular/compiler": ">=4.2.2 <5.0.0",
     "@angular/compiler-cli": ">=4.2.2 <5.0.0",
