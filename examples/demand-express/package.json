@@ -19,7 +19,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@angular/animations": ">=4.2.2 <5.0.0",
-    "@angular/cli": ">=1.0.0",
+    "@angular/cli": ">=6.0.0",
     "@angular/common": ">=4.2.2 <5.0.0",
     "@angular/compiler": ">=4.2.2 <5.0.0",
     "@angular/compiler-cli": ">=4.2.2 <5.0.0",
@@ -54,7 +54,7 @@
     "ts-loader": "^2.0.3",
     "ts-node": "^3.0.2",
     "typescript": "2.3.2",
-    "webpack": "^2.2.1",
+    "webpack": "^4.0.0",
     "zone.js": "^0.8.5"
   }
 }
