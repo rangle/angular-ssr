@@ -72,7 +72,7 @@
     "webpack": ">=2.3.0"
   },
   "dependencies": {
-    "@angular/cli": ">=1.1.0",
+    "@angular/cli": ">=1.7.0",
     "@types/chalk": "^0.4.31",
     "@types/node-fetch": "^1.6.7",
     "@types/webpack": "^2.2.15",
