@@ -19,7 +19,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@angular/animations": ">=4.2.2 <5.0.0",
-    "@angular/cli": ">=1.0.0",
+    "@angular/cli": ">=1.7.0",
     "@angular/common": ">=4.2.2 <5.0.0",
     "@angular/compiler": ">=4.2.2 <5.0.0",
     "@angular/compiler-cli": ">=4.2.2 <5.0.0",
@@ -38,7 +38,7 @@
     "angular-ssr": "latest",
     "angular2-template-loader": "^0.6.2",
     "cookie-parser": "^1.4.3",
-    "css-loader": "^0.27.3",
+    "css-loader": "^1.0.0",
     "express": "^4.15.2",
     "express-blank-favicon": "^1.0.1",
     "extract-text-webpack-plugin": "^2.1.0",
